@@ -2,16 +2,52 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import MobileLayout from "@/components/MobileLayout";
 import Index from "./pages/Index";
 import Batches from "./pages/Batches";
 import Feeding from "./pages/Feeding";
 import WaterQuality from "./pages/WaterQuality";
 import Marketplace from "./pages/Marketplace";
+import Health from "./pages/Health";
+import Financial from "./pages/Financial";
+import Auth from "./pages/Auth";
+import FarmSetup from "./pages/FarmSetup";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  if (!user) return <Navigate to="/auth" replace />;
+  return <>{children}</>;
+}
+
+function AuthRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  if (user) return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/auth" element={<AuthRoute><Auth /></AuthRoute>} />
+      <Route path="/farm-setup" element={<ProtectedRoute><FarmSetup /></ProtectedRoute>} />
+      <Route path="/" element={<ProtectedRoute><MobileLayout><Index /></MobileLayout></ProtectedRoute>} />
+      <Route path="/batches" element={<ProtectedRoute><MobileLayout><Batches /></MobileLayout></ProtectedRoute>} />
+      <Route path="/feeding" element={<ProtectedRoute><MobileLayout><Feeding /></MobileLayout></ProtectedRoute>} />
+      <Route path="/water" element={<ProtectedRoute><MobileLayout><WaterQuality /></MobileLayout></ProtectedRoute>} />
+      <Route path="/health" element={<ProtectedRoute><MobileLayout><Health /></MobileLayout></ProtectedRoute>} />
+      <Route path="/financial" element={<ProtectedRoute><MobileLayout><Financial /></MobileLayout></ProtectedRoute>} />
+      <Route path="/marketplace" element={<ProtectedRoute><MobileLayout><Marketplace /></MobileLayout></ProtectedRoute>} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -19,16 +55,9 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <MobileLayout>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/batches" element={<Batches />} />
-            <Route path="/feeding" element={<Feeding />} />
-            <Route path="/water" element={<WaterQuality />} />
-            <Route path="/marketplace" element={<Marketplace />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </MobileLayout>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
