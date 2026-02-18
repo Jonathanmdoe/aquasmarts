@@ -328,6 +328,57 @@ export type Database = {
         }
         Relationships: []
       }
+      smart_alerts: {
+        Row: {
+          batch_id: string | null
+          created_at: string
+          description: string | null
+          farm_id: string
+          id: string
+          is_read: boolean
+          source: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          batch_id?: string | null
+          created_at?: string
+          description?: string | null
+          farm_id: string
+          id?: string
+          is_read?: boolean
+          source?: string | null
+          title: string
+          type?: string
+        }
+        Update: {
+          batch_id?: string | null
+          created_at?: string
+          description?: string | null
+          farm_id?: string
+          id?: string
+          is_read?: boolean
+          source?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "smart_alerts_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "fish_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "smart_alerts_farm_id_fkey"
+            columns: ["farm_id"]
+            isOneToOne: false
+            referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       water_readings: {
         Row: {
           ammonia: number | null

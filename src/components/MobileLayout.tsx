@@ -5,10 +5,9 @@ import {
   LayoutDashboard,
   Fish,
   Utensils,
-  Droplets,
   Heart,
   DollarSign,
-  ShoppingCart,
+  Settings,
 } from "lucide-react";
 
 const tabs = [
@@ -16,19 +15,13 @@ const tabs = [
   { path: "/batches", icon: Fish, label: "Batches" },
   { path: "/health", icon: Heart, label: "Health" },
   { path: "/financial", icon: DollarSign, label: "Finance" },
-  { path: "/feeding", icon: Utensils, label: "Feed" },
-];
-
-const moreTabs = [
-  { path: "/water", icon: Droplets, label: "Water" },
-  { path: "/marketplace", icon: ShoppingCart, label: "Market" },
+  { path: "/settings", icon: Settings, label: "Settings" },
 ];
 
 export default function MobileLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const allTabs = [...tabs, ...moreTabs];
   const isActive = (path: string) => location.pathname === path;
 
   return (

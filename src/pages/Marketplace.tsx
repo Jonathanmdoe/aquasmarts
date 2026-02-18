@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ShoppingCart, Star, MapPin, Fish, ChevronRight, Search, Filter, TrendingUp } from "lucide-react";
+import { formatTZS } from "@/lib/currency";
 
 const listings = [
   {
@@ -168,7 +169,7 @@ export default function Marketplace() {
             <div className="flex items-end justify-between">
               <div>
                 <p className="text-lg font-bold text-foreground">
-                  ${listing.price.toFixed(2)}
+                  {formatTZS(listing.price)}
                   <span className="text-xs font-normal text-muted-foreground ml-1">{listing.unit}</span>
                 </p>
                 <p className="text-[11px] text-muted-foreground">{listing.quantity}</p>
