@@ -12,6 +12,7 @@ import WaterQuality from "./pages/WaterQuality";
 import Marketplace from "./pages/Marketplace";
 import Health from "./pages/Health";
 import Financial from "./pages/Financial";
+import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import FarmSetup from "./pages/FarmSetup";
 import NotFound from "./pages/NotFound";
@@ -44,6 +45,7 @@ function AppRoutes() {
       <Route path="/health" element={<ProtectedRoute><MobileLayout><Health /></MobileLayout></ProtectedRoute>} />
       <Route path="/financial" element={<ProtectedRoute><MobileLayout><Financial /></MobileLayout></ProtectedRoute>} />
       <Route path="/marketplace" element={<ProtectedRoute><MobileLayout><Marketplace /></MobileLayout></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute><MobileLayout><Settings /></MobileLayout></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
