@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Search, Filter, Fish } from "lucide-react";
+import { Search, Filter, Fish } from "lucide-react";
 import BatchCard, { BatchData } from "@/components/BatchCard";
 import { useBatches } from "@/hooks/useFarm";
+import AddBatchForm from "@/components/forms/AddBatchForm";
 
 const filters = ["All", "Active", "Stocked", "Harvested"];
 
@@ -37,9 +38,7 @@ export default function Batches() {
             <h1 className="text-xl font-bold font-display text-primary-foreground">Batches</h1>
             <p className="text-xs text-primary-foreground/70">{batches.length} total batches</p>
           </div>
-          <button className="w-10 h-10 rounded-xl bg-primary-foreground/15 backdrop-blur flex items-center justify-center">
-            <Plus className="w-5 h-5 text-primary-foreground" />
-          </button>
+          <AddBatchForm />
         </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-foreground/50" />

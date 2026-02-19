@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Heart, Plus, AlertTriangle, Skull, ShieldCheck, Pill,
+  Heart, AlertTriangle, Skull, ShieldCheck, Pill,
   ChevronRight, CheckCircle2, XCircle
 } from "lucide-react";
+import AddHealthRecordForm from "@/components/forms/AddHealthRecordForm";
 import StatCard from "@/components/StatCard";
 import { useHealthRecords, useBiosecurityChecks, useBatches } from "@/hooks/useFarm";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,9 +47,7 @@ export default function Health() {
             <h1 className="text-xl font-bold font-display text-primary-foreground">Health & Mortality</h1>
             <p className="text-xs text-primary-foreground/70">Disease tracking & biosecurity</p>
           </div>
-          <button className="w-10 h-10 rounded-xl bg-primary-foreground/15 backdrop-blur flex items-center justify-center">
-            <Plus className="w-5 h-5 text-primary-foreground" />
-          </button>
+          <AddHealthRecordForm />
         </div>
       </div>
 
