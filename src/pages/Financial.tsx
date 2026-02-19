@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  DollarSign, Plus, ArrowUpRight, ArrowDownRight,
+  DollarSign, ArrowUpRight, ArrowDownRight,
 } from "lucide-react";
+import AddFinancialForm from "@/components/forms/AddFinancialForm";
 import { useFinancialRecords, useBatches } from "@/hooks/useFarm";
 import { formatTZS, formatTZSCompact } from "@/lib/currency";
 
@@ -40,9 +41,7 @@ export default function Financial() {
             <h1 className="text-xl font-bold font-display text-primary-foreground">Financial Intelligence</h1>
             <p className="text-xs text-primary-foreground/70">P&L, costs & revenue tracking</p>
           </div>
-          <button className="w-10 h-10 rounded-xl bg-primary-foreground/15 backdrop-blur flex items-center justify-center">
-            <Plus className="w-5 h-5 text-primary-foreground" />
-          </button>
+          <AddFinancialForm />
         </div>
         <div className="flex gap-2">
           <div className="flex-1 bg-primary-foreground/15 backdrop-blur-md rounded-xl px-3 py-2">

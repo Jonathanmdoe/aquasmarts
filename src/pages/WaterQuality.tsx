@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { Droplets, Thermometer, Wind, ChevronRight } from "lucide-react";
+import { Droplets, Thermometer, Wind, ChevronRight, Plus } from "lucide-react";
 import { useWaterReadings, useBatches } from "@/hooks/useFarm";
+import AddWaterReadingForm from "@/components/forms/AddWaterReadingForm";
 
 function ParameterBadge({ label, value, unit, safe }: { label: string; value: number | null; unit: string; safe: boolean }) {
   return (
@@ -38,8 +39,13 @@ export default function WaterQuality() {
   return (
     <div className="min-h-screen">
       <div className="gradient-ocean px-4 pt-10 pb-6">
-        <h1 className="text-xl font-bold font-display text-primary-foreground">Water Quality</h1>
-        <p className="text-xs text-primary-foreground/70 mt-1">Real-time environmental monitoring</p>
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h1 className="text-xl font-bold font-display text-primary-foreground">Water Quality</h1>
+            <p className="text-xs text-primary-foreground/70 mt-1">Real-time environmental monitoring</p>
+          </div>
+          <AddWaterReadingForm />
+        </div>
         <div className="flex items-center gap-3 mt-4">
           <div className="flex-1 bg-primary-foreground/10 backdrop-blur rounded-xl p-3 text-center">
             <Thermometer className="w-4 h-4 text-primary-foreground mx-auto mb-1" />

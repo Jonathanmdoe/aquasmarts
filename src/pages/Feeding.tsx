@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { Utensils, Clock, TrendingDown, Plus, ChevronRight, AlertTriangle } from "lucide-react";
+import { Utensils, Clock, TrendingDown, ChevronRight, AlertTriangle } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { useFeedingLogs } from "@/hooks/useFarm";
+import AddFeedingForm from "@/components/forms/AddFeedingForm";
 import { format } from "date-fns";
 
 export default function Feeding() {
@@ -17,9 +18,7 @@ export default function Feeding() {
             <h1 className="text-xl font-bold font-display text-primary-foreground">Feeding</h1>
             <p className="text-xs text-primary-foreground/70">Smart feeding management</p>
           </div>
-          <button className="w-10 h-10 rounded-xl bg-primary-foreground/15 backdrop-blur flex items-center justify-center">
-            <Plus className="w-5 h-5 text-primary-foreground" />
-          </button>
+          <AddFeedingForm />
         </div>
       </div>
 

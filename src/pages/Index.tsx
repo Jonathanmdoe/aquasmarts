@@ -129,7 +129,7 @@ export default function Dashboard() {
             <BarChart3 className="w-4 h-4" />
             <h3 className="text-sm font-semibold">AI Prediction</h3>
           </div>
-          <p className="text-xs text-primary-foreground/80 leading-relaxed">
+          <p className="text-xs text-primary-foreground/80 leading-relaxed mb-3">
             {activeBatches.length > 0 ? (
               <>Track your <strong>{activeBatches.length} active batches</strong> for harvest readiness.
               Total biomass: <strong>{totalBiomass.toLocaleString()} kg</strong>.</>
@@ -137,6 +137,10 @@ export default function Dashboard() {
               <>Start by adding your first batch to get AI-powered growth predictions and harvest forecasts.</>
             )}
           </p>
+          <button onClick={() => navigate("/ai-predictions")}
+            className="text-xs font-semibold bg-primary-foreground/20 backdrop-blur px-4 py-1.5 rounded-lg">
+            View AI Predictions →
+          </button>
         </motion.div>
       </div>
     </div>
