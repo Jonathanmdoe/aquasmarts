@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   User, Mail, MapPin, Fish, LogOut, ChevronRight,
-  Bell, Moon, Shield, HelpCircle, Save
+  Bell, Moon, Shield, HelpCircle, Save, Users
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useFarm } from "@/hooks/useFarm";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import TeamManagement from "@/components/TeamManagement";
 
 export default function Settings() {
   const { user, signOut } = useAuth();
@@ -153,6 +154,9 @@ export default function Settings() {
             <Save className="w-4 h-4" /> {saving ? "Saving..." : "Save Changes"}
           </button>
         </motion.div>
+
+        {/* Team Management */}
+        <TeamManagement />
 
         {/* Menu */}
         <motion.div
