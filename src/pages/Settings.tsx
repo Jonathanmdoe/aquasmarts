@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   User, Mail, MapPin, Fish, LogOut, ChevronRight,
-  Bell, Moon, Shield, HelpCircle, Save, Users
+  Bell, Moon, Shield, HelpCircle, Save, Users, CreditCard
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useFarm } from "@/hooks/useFarm";
@@ -74,6 +74,7 @@ export default function Settings() {
   };
 
   const menuItems = [
+    { icon: CreditCard, label: "Subscription", desc: "Manage your plan", onClick: () => navigate("/subscription") },
     { icon: Bell, label: "Notifications", desc: "Alert preferences" },
     { icon: Shield, label: "Security", desc: "Password & 2FA" },
     { icon: HelpCircle, label: "Help & Support", desc: "FAQs & contact" },
@@ -166,7 +167,7 @@ export default function Settings() {
           className="bg-card rounded-2xl shadow-card overflow-hidden"
         >
           {menuItems.map((item, i) => (
-            <button key={i} className="w-full flex items-center gap-3 px-4 py-3.5 border-b border-border/50 last:border-0">
+            <button key={i} onClick={item.onClick} className="w-full flex items-center gap-3 px-4 py-3.5 border-b border-border/50 last:border-0">
               <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center">
                 <item.icon className="w-4 h-4 text-muted-foreground" />
               </div>
