@@ -6,6 +6,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import heroFarm from "@/assets/hero-farm.jpg";
 import StatCard from "@/components/StatCard";
+import PlanBadge from "@/components/PlanBadge";
 import FarmHealthScore from "@/components/FarmHealthScore";
 import QuickAction from "@/components/QuickAction";
 import AlertCard from "@/components/AlertCard";
