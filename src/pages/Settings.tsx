@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import TeamManagement from "@/components/TeamManagement";
+import UpgradeGate from "@/components/UpgradeGate";
 
 export default function Settings() {
   const { user, signOut } = useAuth();
