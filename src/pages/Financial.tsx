@@ -6,8 +6,17 @@ import {
 import AddFinancialForm from "@/components/forms/AddFinancialForm";
 import { useFinancialRecords, useBatches } from "@/hooks/useFarm";
 import { formatTZS, formatTZSCompact } from "@/lib/currency";
+import UpgradeGate from "@/components/UpgradeGate";
 
 export default function Financial() {
+  return (
+    <UpgradeGate feature="financial_analytics" fallbackMessage="Detailed financial analytics and P&L tracking requires the Pro plan.">
+      <FinancialContent />
+    </UpgradeGate>
+  );
+}
+
+function FinancialContent() {
   const [activeTab, setActiveTab] = useState<"transactions" | "pnl" | "costs">("transactions");
   const { data: records, isLoading } = useFinancialRecords();
   const { data: batches } = useBatches();
