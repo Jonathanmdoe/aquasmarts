@@ -18,6 +18,7 @@ export default function Settings() {
   const { data: farm, refetch: refetchFarm } = useFarm();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { devMode, setDevMode } = useFeatureAccess();
 
   const [fullName, setFullName] = useState("");
   const [farmName, setFarmName] = useState("");
