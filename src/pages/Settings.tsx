@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import TeamManagement from "@/components/TeamManagement";
+import UpgradeGate from "@/components/UpgradeGate";
 
 export default function Settings() {
   const { user, signOut } = useAuth();
@@ -157,7 +158,9 @@ export default function Settings() {
         </motion.div>
 
         {/* Team Management */}
-        <TeamManagement />
+        <UpgradeGate feature="team_management" fallbackMessage="Team management with roles and invitations requires the Pro plan.">
+          <TeamManagement />
+        </UpgradeGate>
 
         {/* Menu */}
         <motion.div

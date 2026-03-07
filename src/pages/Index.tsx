@@ -6,6 +6,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import heroFarm from "@/assets/hero-farm.jpg";
 import StatCard from "@/components/StatCard";
+import PlanBadge from "@/components/PlanBadge";
 import FarmHealthScore from "@/components/FarmHealthScore";
 import QuickAction from "@/components/QuickAction";
 import AlertCard from "@/components/AlertCard";
@@ -55,6 +56,7 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex items-center gap-2">
+              <PlanBadge />
               <button className="w-9 h-9 rounded-xl bg-primary-foreground/10 backdrop-blur flex items-center justify-center">
                 <Bell className="w-4.5 h-4.5 text-primary-foreground" />
               </button>
