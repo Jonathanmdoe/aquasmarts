@@ -15,6 +15,14 @@ interface Predictions {
 }
 
 export default function AIPredictions() {
+  return (
+    <UpgradeGate feature="ai_predictions" fallbackMessage="AI-powered predictions, harvest forecasts, and smart recommendations require the Pro plan.">
+      <AIPredictionsContent />
+    </UpgradeGate>
+  );
+}
+
+function AIPredictionsContent() {
   const { data: batches } = useBatches();
   const { data: feedingLogs } = useFeedingLogs();
   const { data: waterReadings } = useWaterReadings();

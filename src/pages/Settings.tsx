@@ -158,7 +158,9 @@ export default function Settings() {
         </motion.div>
 
         {/* Team Management */}
-        <TeamManagement />
+        <UpgradeGate feature="team_management" fallbackMessage="Team management with roles and invitations requires the Pro plan.">
+          <TeamManagement />
+        </UpgradeGate>
 
         {/* Menu */}
         <motion.div
