@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useSubscription, TIERS } from "@/hooks/useSubscription";
 
 type TierKey = keyof typeof TIERS;
@@ -19,12 +20,20 @@ const FEATURE_TIERS: Record<string, TierKey> = {
   white_label: "enterprise",
 };
 
+const DEV_MODE_KEY = "aquasmart_dev_mode";
+
 export function useFeatureAccess() {
   const { currentTier, loading } = useSubscription();
+  const [devMode, setDevMode] = useState(() => localStorage.getItem(DEV_MODE_KEY) === "true");
+
+  useEffect(() => {
+    localStorage.setItem(DEV_MODE_KEY, String(devMode));
+  }, [devMode]);
 
   const hasAccess = (feature: string): boolean => {
+    if (devMode) return true;
     const requiredTier = FEATURE_TIERS[feature];
-    if (!requiredTier) return true; // Unknown features are allowed
+    if (!requiredTier) return true;
     return TIER_LEVEL[currentTier] >= TIER_LEVEL[requiredTier];
   };
 
@@ -38,5 +47,7 @@ export function useFeatureAccess() {
     currentTier,
     tierName: TIERS[currentTier].name,
     loading,
+    devMode,
+    setDevMode,
   };
 }

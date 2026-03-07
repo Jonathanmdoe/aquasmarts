@@ -11,12 +11,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import TeamManagement from "@/components/TeamManagement";
 import UpgradeGate from "@/components/UpgradeGate";
+import { useFeatureAccess } from "@/hooks/useFeatureAccess";
 
 export default function Settings() {
   const { user, signOut } = useAuth();
   const { data: farm, refetch: refetchFarm } = useFarm();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { devMode, setDevMode } = useFeatureAccess();
 
   const [fullName, setFullName] = useState("");
   const [farmName, setFarmName] = useState("");
@@ -181,6 +183,37 @@ export default function Settings() {
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
           ))}
+        </motion.div>
+
+        {/* Dev Mode Toggle */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="bg-card rounded-2xl shadow-card p-4"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center">
+                <Shield className="w-4 h-4 text-amber-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">Developer Mode</p>
+                <p className="text-xs text-muted-foreground">Bypass tier restrictions to preview all features</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setDevMode(!devMode)}
+              className={`w-11 h-6 rounded-full transition-colors relative ${devMode ? "bg-primary" : "bg-muted"}`}
+            >
+              <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${devMode ? "translate-x-5.5" : "translate-x-0.5"}`} />
+            </button>
+          </div>
+          {devMode && (
+            <p className="mt-2 text-[10px] text-amber-600 bg-amber-50 rounded-lg px-3 py-1.5">
+              ⚡ Dev mode active — all Pro & Enterprise features are unlocked regardless of subscription.
+            </p>
+          )}
         </motion.div>
 
         {/* Logout */}
