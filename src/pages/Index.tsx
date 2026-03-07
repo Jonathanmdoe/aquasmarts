@@ -56,6 +56,7 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex items-center gap-2">
+              <PlanBadge />
               <button className="w-9 h-9 rounded-xl bg-primary-foreground/10 backdrop-blur flex items-center justify-center">
                 <Bell className="w-4.5 h-4.5 text-primary-foreground" />
               </button>
