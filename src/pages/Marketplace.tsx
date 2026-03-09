@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ShoppingCart, Star, MapPin, Fish, ChevronRight, Search, Filter, TrendingUp } from "lucide-react";
 import { formatTZS } from "@/lib/currency";
+import UpgradeGate from "@/components/UpgradeGate";
 
 const listings = [
   {
@@ -73,6 +74,7 @@ const categories = ["All", "Fingerlings", "Table Fish", "Processed", "Broodstock
 
 export default function Marketplace() {
   return (
+    <UpgradeGate feature="marketplace" fallbackMessage="Access the aquaculture marketplace to buy and sell fish, fingerlings, and supplies. Upgrade to Pro to unlock.">
     <div className="min-h-screen">
       <div className="gradient-ocean px-4 pt-10 pb-6">
         <div className="flex items-center justify-between mb-4">
@@ -189,5 +191,6 @@ export default function Marketplace() {
         ))}
       </div>
     </div>
+    </UpgradeGate>
   );
 }
