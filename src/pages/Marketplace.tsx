@@ -201,6 +201,7 @@ export default function Marketplace() {
         ))}
       </div>
     </div>
+    {showForm && <AddListingForm onClose={() => setShowForm(false)} />}
     </UpgradeGate>
   );
 }
