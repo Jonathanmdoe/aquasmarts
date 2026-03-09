@@ -75,9 +75,11 @@ const listings = [
 const categories = ["All", "Fingerlings", "Table Fish", "Processed", "Broodstock", "Fry"];
 
 export default function Marketplace() {
+  const [showForm, setShowForm] = useState(false);
+
   return (
     <UpgradeGate feature="marketplace" fallbackMessage="Access the aquaculture marketplace to buy and sell fish, fingerlings, and supplies. Upgrade to Pro to unlock.">
-    <div className="min-h-screen">
+    <div className="min-h-screen relative">
       <div className="gradient-ocean px-4 pt-10 pb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
