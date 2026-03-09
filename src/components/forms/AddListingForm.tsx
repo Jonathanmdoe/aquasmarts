@@ -33,6 +33,8 @@ interface AddListingFormProps {
 
 export default function AddListingForm({ onClose }: AddListingFormProps) {
   const [submitting, setSubmitting] = useState(false);
+  const { toast } = useToast();
+  const qc = useQueryClient();
 
   const form = useForm<ListingValues>({
     resolver: zodResolver(listingSchema),
