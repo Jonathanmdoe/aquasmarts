@@ -298,6 +298,60 @@ export type Database = {
           },
         ]
       }
+      marketplace_listings: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          location: string
+          price: number
+          quantity: string
+          species: string
+          status: string
+          survival_guarantee: number | null
+          title: string
+          unit: string
+          updated_at: string
+          user_id: string
+          weight: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          location: string
+          price: number
+          quantity: string
+          species: string
+          status?: string
+          survival_guarantee?: number | null
+          title: string
+          unit: string
+          updated_at?: string
+          user_id: string
+          weight?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string
+          price?: number
+          quantity?: string
+          species?: string
+          status?: string
+          survival_guarantee?: number | null
+          title?: string
+          unit?: string
+          updated_at?: string
+          user_id?: string
+          weight?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

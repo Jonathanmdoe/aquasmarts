@@ -8,6 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 const listingSchema = z.object({
   title: z.string().trim().min(3, "Title must be at least 3 characters").max(100),
@@ -30,6 +33,8 @@ interface AddListingFormProps {
 
 export default function AddListingForm({ onClose }: AddListingFormProps) {
   const [submitting, setSubmitting] = useState(false);
+  const { toast } = useToast();
+  const qc = useQueryClient();
 
   const form = useForm<ListingValues>({
     resolver: zodResolver(listingSchema),
@@ -49,11 +54,33 @@ export default function AddListingForm({ onClose }: AddListingFormProps) {
 
   const onSubmit = async (values: ListingValues) => {
     setSubmitting(true);
-    // For now, just simulate — marketplace listings table can be added later
-    await new Promise((r) => setTimeout(r, 800));
-    console.log("New listing:", values);
-    setSubmitting(false);
-    onClose();
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("You must be logged in");
+
+      const { error } = await supabase.from("marketplace_listings" as any).insert({
+        user_id: user.id,
+        title: values.title,
+        category: values.category,
+        species: values.species,
+        price: values.price,
+        unit: values.unit,
+        quantity: values.quantity,
+        weight: values.weight || null,
+        location: values.location,
+        description: values.description || null,
+        survival_guarantee: values.survival_guarantee ?? 0,
+      } as any);
+      if (error) throw error;
+
+      qc.invalidateQueries({ queryKey: ["marketplace_listings"] });
+      toast({ title: "Listing published!" });
+      onClose();
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
