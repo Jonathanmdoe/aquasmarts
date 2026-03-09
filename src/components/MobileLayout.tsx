@@ -6,13 +6,14 @@ import {
   Fish,
   Heart,
   ShoppingCart,
+  DollarSign,
   Settings,
 } from "lucide-react";
 
 const tabs = [
   { path: "/", icon: LayoutDashboard, label: "Home" },
   { path: "/batches", icon: Fish, label: "Batches" },
-  { path: "/health", icon: Heart, label: "Health" },
+  { path: "/financial", icon: DollarSign, label: "Finance" },
   { path: "/marketplace", icon: ShoppingCart, label: "Market" },
   { path: "/settings", icon: Settings, label: "Settings" },
 ];
