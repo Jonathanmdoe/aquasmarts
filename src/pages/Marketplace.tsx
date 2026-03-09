@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { ShoppingCart, Star, MapPin, Fish, ChevronRight, Search, Filter, TrendingUp } from "lucide-react";
+import { ShoppingCart, Star, MapPin, Fish, ChevronRight, Search, Filter, TrendingUp, Plus } from "lucide-react";
 import { formatTZS } from "@/lib/currency";
 import UpgradeGate from "@/components/UpgradeGate";
+import AddListingForm from "@/components/forms/AddListingForm";
 
 const listings = [
   {
