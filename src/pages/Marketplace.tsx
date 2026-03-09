@@ -87,6 +87,12 @@ export default function Marketplace() {
             <p className="text-xs text-primary-foreground/70">Aquaculture trade platform</p>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowForm(true)}
+              className="text-xs font-medium bg-accent text-accent-foreground rounded-lg px-3 py-1.5 flex items-center gap-1"
+            >
+              <Plus className="w-3 h-3" /> Sell
+            </button>
             <button className="text-xs font-medium bg-primary-foreground/15 backdrop-blur text-primary-foreground rounded-lg px-3 py-1.5">
               My Listings
             </button>
