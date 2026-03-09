@@ -4,9 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Fish,
-  Utensils,
   Heart,
-  DollarSign,
+  ShoppingCart,
   Settings,
 } from "lucide-react";
 
@@ -14,7 +13,7 @@ const tabs = [
   { path: "/", icon: LayoutDashboard, label: "Home" },
   { path: "/batches", icon: Fish, label: "Batches" },
   { path: "/health", icon: Heart, label: "Health" },
-  { path: "/financial", icon: DollarSign, label: "Finance" },
+  { path: "/marketplace", icon: ShoppingCart, label: "Market" },
   { path: "/settings", icon: Settings, label: "Settings" },
 ];
 
