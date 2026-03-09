@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { ShoppingCart, Star, MapPin, Fish, ChevronRight, Search, Filter, TrendingUp } from "lucide-react";
+import { ShoppingCart, Star, MapPin, Fish, ChevronRight, Search, Filter, TrendingUp, Plus } from "lucide-react";
 import { formatTZS } from "@/lib/currency";
 import UpgradeGate from "@/components/UpgradeGate";
+import AddListingForm from "@/components/forms/AddListingForm";
 
 const listings = [
   {
@@ -73,9 +75,11 @@ const listings = [
 const categories = ["All", "Fingerlings", "Table Fish", "Processed", "Broodstock", "Fry"];
 
 export default function Marketplace() {
+  const [showForm, setShowForm] = useState(false);
+
   return (
     <UpgradeGate feature="marketplace" fallbackMessage="Access the aquaculture marketplace to buy and sell fish, fingerlings, and supplies. Upgrade to Pro to unlock.">
-    <div className="min-h-screen">
+    <div className="min-h-screen relative">
       <div className="gradient-ocean px-4 pt-10 pb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -83,6 +87,12 @@ export default function Marketplace() {
             <p className="text-xs text-primary-foreground/70">Aquaculture trade platform</p>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowForm(true)}
+              className="text-xs font-medium bg-accent text-accent-foreground rounded-lg px-3 py-1.5 flex items-center gap-1"
+            >
+              <Plus className="w-3 h-3" /> Sell
+            </button>
             <button className="text-xs font-medium bg-primary-foreground/15 backdrop-blur text-primary-foreground rounded-lg px-3 py-1.5">
               My Listings
             </button>
@@ -191,6 +201,7 @@ export default function Marketplace() {
         ))}
       </div>
     </div>
+    {showForm && <AddListingForm onClose={() => setShowForm(false)} />}
     </UpgradeGate>
   );
 }
