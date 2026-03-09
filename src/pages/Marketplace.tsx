@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ShoppingCart, Star, MapPin, Fish, ChevronRight, Search, Filter, TrendingUp } from "lucide-react";
 import { formatTZS } from "@/lib/currency";
+import UpgradeGate from "@/components/UpgradeGate";
 
 const listings = [
   {
