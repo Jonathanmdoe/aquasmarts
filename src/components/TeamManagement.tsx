@@ -46,7 +46,10 @@ export default function TeamManagement() {
   const [sending, setSending] = useState(false);
 
   const fetchTeam = async () => {
-    if (!farm?.id) return;
+    if (!farm?.id) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
 
     const [membersRes, invitesRes] = await Promise.all([
