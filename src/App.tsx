@@ -17,6 +17,7 @@ import Auth from "./pages/Auth";
 import FarmSetup from "./pages/FarmSetup";
 import AIPredictions from "./pages/AIPredictions";
 import Subscription from "./pages/Subscription";
+import MyListings from "./pages/MyListings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
