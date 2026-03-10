@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ShoppingCart, Star, MapPin, Fish, ChevronRight, Search, Filter, TrendingUp, Plus, Loader2 } from "lucide-react";
+import { ShoppingCart, Star, MapPin, Fish, ChevronRight, Search, Filter, TrendingUp, Plus, Loader2, ClipboardList } from "lucide-react";
 import { formatTZS } from "@/lib/currency";
 import UpgradeGate from "@/components/UpgradeGate";
 import AddListingForm from "@/components/forms/AddListingForm";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const categories = ["All", "Fingerlings", "Table Fish", "Processed", "Broodstock", "Fry"];
 
 function MarketplaceContent() {
   const [showForm, setShowForm] = useState(false);
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [search, setSearch] = useState("");
 
@@ -38,6 +40,12 @@ function MarketplaceContent() {
             <p className="text-xs text-primary-foreground/70">Aquaculture trade platform</p>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate("/my-listings")}
+              className="text-xs font-medium bg-primary-foreground/15 text-primary-foreground rounded-lg px-3 py-1.5 flex items-center gap-1"
+            >
+              <ClipboardList className="w-3 h-3" /> My Listings
+            </button>
             <button
               onClick={() => setShowForm(true)}
               className="text-xs font-medium bg-accent text-accent-foreground rounded-lg px-3 py-1.5 flex items-center gap-1"

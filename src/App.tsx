@@ -17,6 +17,7 @@ import Auth from "./pages/Auth";
 import FarmSetup from "./pages/FarmSetup";
 import AIPredictions from "./pages/AIPredictions";
 import Subscription from "./pages/Subscription";
+import MyListings from "./pages/MyListings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,7 @@ function AppRoutes() {
       <Route path="/health" element={<ProtectedRoute><MobileLayout><Health /></MobileLayout></ProtectedRoute>} />
       <Route path="/financial" element={<ProtectedRoute><MobileLayout><Financial /></MobileLayout></ProtectedRoute>} />
       <Route path="/marketplace" element={<ProtectedRoute><MobileLayout><Marketplace /></MobileLayout></ProtectedRoute>} />
+      <Route path="/my-listings" element={<ProtectedRoute><MobileLayout><MyListings /></MobileLayout></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><MobileLayout><Settings /></MobileLayout></ProtectedRoute>} />
       <Route path="/subscription" element={<ProtectedRoute><MobileLayout><Subscription /></MobileLayout></ProtectedRoute>} />
       <Route path="/ai-predictions" element={<ProtectedRoute><MobileLayout><AIPredictions /></MobileLayout></ProtectedRoute>} />
