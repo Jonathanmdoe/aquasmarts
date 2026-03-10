@@ -12,6 +12,7 @@ const categories = ["All", "Fingerlings", "Table Fish", "Processed", "Broodstock
 
 function MarketplaceContent() {
   const [showForm, setShowForm] = useState(false);
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [search, setSearch] = useState("");
 
