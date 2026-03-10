@@ -41,6 +41,12 @@ function MarketplaceContent() {
           </div>
           <div className="flex items-center gap-2">
             <button
+              onClick={() => navigate("/my-listings")}
+              className="text-xs font-medium bg-primary-foreground/15 text-primary-foreground rounded-lg px-3 py-1.5 flex items-center gap-1"
+            >
+              <ClipboardList className="w-3 h-3" /> My Listings
+            </button>
+            <button
               onClick={() => setShowForm(true)}
               className="text-xs font-medium bg-accent text-accent-foreground rounded-lg px-3 py-1.5 flex items-center gap-1"
             >
