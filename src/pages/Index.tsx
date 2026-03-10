@@ -16,10 +16,16 @@ import { formatTZSCompact } from "@/lib/currency";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { data: farm } = useFarm();
+  const { data: farm, isLoading: farmLoading } = useFarm();
   const { data: batches } = useBatches();
   const { data: financials } = useFinancialRecords();
   const { alerts } = useSmartAlerts();
+
+  // Redirect to farm setup if no farm exists
+  if (!farmLoading && !farm) {
+    navigate("/farm-setup", { replace: true });
+    return null;
+  }
 
   const activeBatches = batches?.filter((b) => b.status === "active" || b.status === "stocked") ?? [];
   const totalBiomass = batches?.reduce((s, b) => s + (b.biomass ?? 0), 0) ?? 0;
