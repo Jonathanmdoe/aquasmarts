@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ShoppingCart, Star, MapPin, Fish, ChevronRight, Search, Filter, TrendingUp, Plus, Loader2 } from "lucide-react";
+import { ShoppingCart, Star, MapPin, Fish, ChevronRight, Search, Filter, TrendingUp, Plus, Loader2, ClipboardList } from "lucide-react";
 import { formatTZS } from "@/lib/currency";
 import UpgradeGate from "@/components/UpgradeGate";
 import AddListingForm from "@/components/forms/AddListingForm";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const categories = ["All", "Fingerlings", "Table Fish", "Processed", "Broodstock", "Fry"];
 
