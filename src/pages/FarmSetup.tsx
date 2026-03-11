@@ -58,22 +58,26 @@ export default function FarmSetup() {
   const handleFinish = async () => {
     if (!user) return;
     setLoading(true);
-    const { error } = await supabase.from("farms").insert({
-      user_id: user.id,
-      name: farmName,
-      location,
-      num_ponds: numPonds,
-      operation_type: operationType,
-      production_system: productionSystem,
-      market_orientation: marketOrientation,
-      onboarding_complete: true,
-    } as any);
+    try {
+      const { error } = await supabase.from("farms").insert({
+        user_id: user.id,
+        name: farmName.trim(),
+        location: location.trim() || null,
+        num_ponds: numPonds,
+        operation_type: operationType,
+        production_system: productionSystem,
+        market_orientation: marketOrientation,
+        onboarding_complete: true,
+      });
 
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Farm created!", description: "Welcome to AquaSmart 🐟" });
-      navigate("/");
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Farm created!", description: "Welcome to AquaSmart 🐟" });
+        navigate("/");
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
     }
     setLoading(false);
   };
@@ -178,20 +182,27 @@ export default function FarmSetup() {
 
       {/* Bottom Actions */}
       <div className="fixed bottom-0 left-0 right-0 bg-card/90 backdrop-blur-xl border-t border-border/50 safe-bottom p-4">
-        <div className="max-w-md mx-auto flex gap-3">
-          {step > 0 && (
-            <button onClick={() => setStep(step - 1)} className="flex items-center gap-1 px-4 py-3 rounded-xl border border-border text-sm font-medium text-foreground">
-              <ChevronLeft className="w-4 h-4" /> Back
+        <div className="max-w-md mx-auto">
+          <div className="flex gap-3">
+            {step > 0 && (
+              <button onClick={() => setStep(step - 1)} className="flex items-center gap-1 px-4 py-3 rounded-xl border border-border text-sm font-medium text-foreground">
+                <ChevronLeft className="w-4 h-4" /> Back
+              </button>
+            )}
+            <button
+              onClick={step === 3 ? handleFinish : () => setStep(step + 1)}
+              disabled={!canProceed() || loading}
+              className="flex-1 flex items-center justify-center gap-1 gradient-ocean text-primary-foreground font-semibold py-3 rounded-xl text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+            >
+              {loading ? "Setting up..." : step === 3 ? "Create Farm" : "Continue"}
+              {step < 3 && <ChevronRight className="w-4 h-4" />}
             </button>
+          </div>
+          {!canProceed() && (
+            <p className="text-xs text-destructive text-center mt-2">
+              {step === 0 ? "Please enter a farm name to continue" : "Please select an option to continue"}
+            </p>
           )}
-          <button
-            onClick={step === 3 ? handleFinish : () => setStep(step + 1)}
-            disabled={!canProceed() || loading}
-            className="flex-1 flex items-center justify-center gap-1 gradient-ocean text-primary-foreground font-semibold py-3 rounded-xl text-sm disabled:opacity-50"
-          >
-            {loading ? "Setting up..." : step === 3 ? "Create Farm" : "Continue"}
-            {step < 3 && <ChevronRight className="w-4 h-4" />}
-          </button>
         </div>
       </div>
     </div>
