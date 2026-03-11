@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Fish, Waves, ShoppingCart, ChevronRight, ChevronLeft, MapPin, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
