@@ -58,22 +58,26 @@ export default function FarmSetup() {
   const handleFinish = async () => {
     if (!user) return;
     setLoading(true);
-    const { error } = await supabase.from("farms").insert({
-      user_id: user.id,
-      name: farmName,
-      location,
-      num_ponds: numPonds,
-      operation_type: operationType,
-      production_system: productionSystem,
-      market_orientation: marketOrientation,
-      onboarding_complete: true,
-    } as any);
+    try {
+      const { error } = await supabase.from("farms").insert({
+        user_id: user.id,
+        name: farmName.trim(),
+        location: location.trim() || null,
+        num_ponds: numPonds,
+        operation_type: operationType,
+        production_system: productionSystem,
+        market_orientation: marketOrientation,
+        onboarding_complete: true,
+      });
 
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Farm created!", description: "Welcome to AquaSmart 🐟" });
-      navigate("/");
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Farm created!", description: "Welcome to AquaSmart 🐟" });
+        navigate("/");
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
     }
     setLoading(false);
   };
