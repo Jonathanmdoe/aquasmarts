@@ -116,14 +116,7 @@ export default function FarmSetup() {
       </div>
 
       <div className="flex-1 px-4 -mt-4 relative z-10 pb-24">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -30 }}
-            className="space-y-3"
-          >
+        <div className="space-y-3">
             {step === 0 && (
               <div className="bg-card rounded-2xl shadow-card p-4 space-y-4">
                 <div>
@@ -176,8 +169,7 @@ export default function FarmSetup() {
                 ))}
               </div>
             )}
-          </motion.div>
-        </AnimatePresence>
+        </div>
       </div>
 
       {/* Bottom Actions */}
