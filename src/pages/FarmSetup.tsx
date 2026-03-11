@@ -173,7 +173,7 @@ export default function FarmSetup() {
       </div>
 
       {/* Bottom Actions */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card/90 backdrop-blur-xl border-t border-border/50 safe-bottom p-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-card/90 backdrop-blur-xl border-t border-border/50 safe-bottom p-4 z-20">
         <div className="max-w-md mx-auto">
           <div className="flex gap-3">
             {step > 0 && (
