@@ -191,11 +191,17 @@ export default function FarmSetup() {
           <button
             onClick={step === 3 ? handleFinish : () => setStep(step + 1)}
             disabled={!canProceed() || loading}
-            className="flex-1 flex items-center justify-center gap-1 gradient-ocean text-primary-foreground font-semibold py-3 rounded-xl text-sm disabled:opacity-50"
+            className="flex-1 flex items-center justify-center gap-1 gradient-ocean text-primary-foreground font-semibold py-3 rounded-xl text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
           >
             {loading ? "Setting up..." : step === 3 ? "Create Farm" : "Continue"}
             {step < 3 && <ChevronRight className="w-4 h-4" />}
           </button>
+          {!canProceed() && step === 0 && (
+            <p className="text-xs text-destructive text-center mt-1 w-full">Please enter a farm name to continue</p>
+          )}
+          {!canProceed() && step > 0 && (
+            <p className="text-xs text-destructive text-center mt-1 w-full">Please select an option to continue</p>
+          )}
         </div>
       </div>
     </div>
