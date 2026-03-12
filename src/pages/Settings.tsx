@@ -78,9 +78,9 @@ export default function Settings() {
 
   const menuItems = [
     { icon: CreditCard, label: "Subscription", desc: "Manage your plan", onClick: () => navigate("/subscription") },
-    { icon: Bell, label: "Notifications", desc: "Alert preferences" },
-    { icon: Shield, label: "Security", desc: "Password & 2FA" },
-    { icon: HelpCircle, label: "Help & Support", desc: "FAQs & contact" },
+    { icon: Bell, label: "Notifications", desc: "Alert preferences", onClick: () => toast({ title: "Coming Soon", description: "Notification preferences will be available in a future update." }) },
+    { icon: Shield, label: "Security", desc: "Password & 2FA", onClick: () => toast({ title: "Coming Soon", description: "Security settings will be available in a future update." }) },
+    { icon: HelpCircle, label: "Help & Support", desc: "FAQs & contact", onClick: () => toast({ title: "Coming Soon", description: "Help & support will be available in a future update." }) },
   ];
 
   return (

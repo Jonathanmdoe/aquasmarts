@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore, useCallback } from "react";
 import { useSubscription, TIERS } from "@/hooks/useSubscription";
 
 type TierKey = keyof typeof TIERS;
@@ -9,7 +9,6 @@ const TIER_LEVEL: Record<TierKey, number> = {
   enterprise: 2,
 };
 
-// Features and their minimum required tier
 const FEATURE_TIERS: Record<string, TierKey> = {
   ai_predictions: "pro",
   financial_analytics: "pro",
@@ -22,13 +21,27 @@ const FEATURE_TIERS: Record<string, TierKey> = {
 
 const DEV_MODE_KEY = "aquasmart_dev_mode";
 
+// Shared external store so all components react to dev mode changes
+const listeners = new Set<() => void>();
+function getDevModeSnapshot(): boolean {
+  return localStorage.getItem(DEV_MODE_KEY) === "true";
+}
+function subscribeDevMode(cb: () => void) {
+  listeners.add(cb);
+  return () => listeners.delete(cb);
+}
+function setDevModeValue(val: boolean) {
+  localStorage.setItem(DEV_MODE_KEY, String(val));
+  listeners.forEach((cb) => cb());
+}
+
 export function useFeatureAccess() {
   const { currentTier, loading } = useSubscription();
-  const [devMode, setDevMode] = useState(() => localStorage.getItem(DEV_MODE_KEY) === "true");
+  const devMode = useSyncExternalStore(subscribeDevMode, getDevModeSnapshot);
 
-  useEffect(() => {
-    localStorage.setItem(DEV_MODE_KEY, String(devMode));
-  }, [devMode]);
+  const setDevMode = useCallback((val: boolean) => {
+    setDevModeValue(val);
+  }, []);
 
   const hasAccess = (feature: string): boolean => {
     if (devMode) return true;
