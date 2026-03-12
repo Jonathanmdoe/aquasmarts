@@ -1,4 +1,4 @@
-import { useState, useEffect, useSyncExternalStore, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSubscription, TIERS } from "@/hooks/useSubscription";
 
 type TierKey = keyof typeof TIERS;
@@ -20,27 +20,25 @@ const FEATURE_TIERS: Record<string, TierKey> = {
 };
 
 const DEV_MODE_KEY = "aquasmart_dev_mode";
-
-// Shared external store so all components react to dev mode changes
-const listeners = new Set<() => void>();
-function getDevModeSnapshot(): boolean {
-  return localStorage.getItem(DEV_MODE_KEY) === "true";
-}
-function subscribeDevMode(cb: () => void) {
-  listeners.add(cb);
-  return () => listeners.delete(cb);
-}
-function setDevModeValue(val: boolean) {
-  localStorage.setItem(DEV_MODE_KEY, String(val));
-  listeners.forEach((cb) => cb());
-}
+const DEV_MODE_EVENT = "aquasmart_dev_mode_change";
 
 export function useFeatureAccess() {
   const { currentTier, loading } = useSubscription();
-  const devMode = useSyncExternalStore(subscribeDevMode, getDevModeSnapshot);
+  const [devMode, setDevModeState] = useState(() => localStorage.getItem(DEV_MODE_KEY) === "true");
+
+  // Listen for changes from other hook instances
+  useEffect(() => {
+    const handler = () => {
+      setDevModeState(localStorage.getItem(DEV_MODE_KEY) === "true");
+    };
+    window.addEventListener(DEV_MODE_EVENT, handler);
+    return () => window.removeEventListener(DEV_MODE_EVENT, handler);
+  }, []);
 
   const setDevMode = useCallback((val: boolean) => {
-    setDevModeValue(val);
+    localStorage.setItem(DEV_MODE_KEY, String(val));
+    setDevModeState(val);
+    window.dispatchEvent(new Event(DEV_MODE_EVENT));
   }, []);
 
   const hasAccess = (feature: string): boolean => {
