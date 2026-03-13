@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -107,16 +107,20 @@ export default function AddListingForm({ onClose }: AddListingFormProps) {
               <FormField control={form.control} name="category" render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-xs">Category</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      <SelectItem value="fingerlings">Fingerlings</SelectItem>
-                      <SelectItem value="fry">Fry</SelectItem>
-                      <SelectItem value="table-fish">Table Fish</SelectItem>
-                      <SelectItem value="broodstock">Broodstock</SelectItem>
-                      <SelectItem value="processed">Processed</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <select
+                      value={field.value}
+                      onChange={field.onChange}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="" disabled>Select</option>
+                      <option value="fingerlings">Fingerlings</option>
+                      <option value="fry">Fry</option>
+                      <option value="table-fish">Table Fish</option>
+                      <option value="broodstock">Broodstock</option>
+                      <option value="processed">Processed</option>
+                    </select>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
@@ -142,15 +146,19 @@ export default function AddListingForm({ onClose }: AddListingFormProps) {
               <FormField control={form.control} name="unit" render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-xs">Unit</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Unit" /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      <SelectItem value="per piece">Per piece</SelectItem>
-                      <SelectItem value="per kg">Per kg</SelectItem>
-                      <SelectItem value="per bag">Per bag</SelectItem>
-                      <SelectItem value="per batch">Per batch</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <select
+                      value={field.value}
+                      onChange={field.onChange}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="" disabled>Unit</option>
+                      <option value="per piece">Per piece</option>
+                      <option value="per kg">Per kg</option>
+                      <option value="per bag">Per bag</option>
+                      <option value="per batch">Per batch</option>
+                    </select>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
