@@ -18,6 +18,10 @@ import FarmSetup from "./pages/FarmSetup";
 import AIPredictions from "./pages/AIPredictions";
 import Subscription from "./pages/Subscription";
 import MyListings from "./pages/MyListings";
+import Admin from "./pages/Admin";
+import Notifications from "./pages/Notifications";
+import Security from "./pages/Security";
+import HelpSupport from "./pages/HelpSupport";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -52,6 +56,10 @@ function AppRoutes() {
       <Route path="/settings" element={<ProtectedRoute><MobileLayout><Settings /></MobileLayout></ProtectedRoute>} />
       <Route path="/subscription" element={<ProtectedRoute><MobileLayout><Subscription /></MobileLayout></ProtectedRoute>} />
       <Route path="/ai-predictions" element={<ProtectedRoute><MobileLayout><AIPredictions /></MobileLayout></ProtectedRoute>} />
+      <Route path="/admin" element={<ProtectedRoute><MobileLayout><Admin /></MobileLayout></ProtectedRoute>} />
+      <Route path="/notifications" element={<ProtectedRoute><MobileLayout><Notifications /></MobileLayout></ProtectedRoute>} />
+      <Route path="/security" element={<ProtectedRoute><MobileLayout><Security /></MobileLayout></ProtectedRoute>} />
+      <Route path="/help" element={<ProtectedRoute><MobileLayout><HelpSupport /></MobileLayout></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
