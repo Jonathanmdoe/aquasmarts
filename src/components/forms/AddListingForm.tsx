@@ -146,15 +146,19 @@ export default function AddListingForm({ onClose }: AddListingFormProps) {
               <FormField control={form.control} name="unit" render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-xs">Unit</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Unit" /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      <SelectItem value="per piece">Per piece</SelectItem>
-                      <SelectItem value="per kg">Per kg</SelectItem>
-                      <SelectItem value="per bag">Per bag</SelectItem>
-                      <SelectItem value="per batch">Per batch</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <select
+                      value={field.value}
+                      onChange={field.onChange}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="" disabled>Unit</option>
+                      <option value="per piece">Per piece</option>
+                      <option value="per kg">Per kg</option>
+                      <option value="per bag">Per bag</option>
+                      <option value="per batch">Per batch</option>
+                    </select>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
