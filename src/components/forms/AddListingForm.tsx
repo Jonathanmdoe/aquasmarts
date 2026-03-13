@@ -107,16 +107,20 @@ export default function AddListingForm({ onClose }: AddListingFormProps) {
               <FormField control={form.control} name="category" render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-xs">Category</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      <SelectItem value="fingerlings">Fingerlings</SelectItem>
-                      <SelectItem value="fry">Fry</SelectItem>
-                      <SelectItem value="table-fish">Table Fish</SelectItem>
-                      <SelectItem value="broodstock">Broodstock</SelectItem>
-                      <SelectItem value="processed">Processed</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <select
+                      value={field.value}
+                      onChange={field.onChange}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="" disabled>Select</option>
+                      <option value="fingerlings">Fingerlings</option>
+                      <option value="fry">Fry</option>
+                      <option value="table-fish">Table Fish</option>
+                      <option value="broodstock">Broodstock</option>
+                      <option value="processed">Processed</option>
+                    </select>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
