@@ -77,6 +77,7 @@ export default function Settings() {
   };
 
   const menuItems = [
+    { icon: Shield, label: "Admin Dashboard", desc: "Platform overview", onClick: () => navigate("/admin") },
     { icon: CreditCard, label: "Subscription", desc: "Manage your plan", onClick: () => navigate("/subscription") },
     { icon: Bell, label: "Notifications", desc: "Alert preferences", onClick: () => navigate("/notifications") },
     { icon: Shield, label: "Security", desc: "Password & 2FA", onClick: () => navigate("/security") },
