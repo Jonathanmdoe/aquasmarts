@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   User, Mail, MapPin, Fish, LogOut, ChevronRight,
-  Bell, Moon, Shield, HelpCircle, Save, Users, CreditCard
+  Bell, Moon, Sun, Shield, HelpCircle, Save, Users, CreditCard, Crown
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useFarm } from "@/hooks/useFarm";
@@ -12,6 +12,8 @@ import { useNavigate } from "react-router-dom";
 import TeamManagement from "@/components/TeamManagement";
 import UpgradeGate from "@/components/UpgradeGate";
 import { useFeatureAccess } from "@/hooks/useFeatureAccess";
+import { useTheme } from "@/hooks/useTheme";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export default function Settings() {
   const { user, signOut } = useAuth();
@@ -19,6 +21,8 @@ export default function Settings() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { devMode, setDevMode } = useFeatureAccess();
+  const { theme, toggleTheme } = useTheme();
+  const { isOwner } = useUserRole();
 
   const [fullName, setFullName] = useState("");
   const [farmName, setFarmName] = useState("");
@@ -77,8 +81,9 @@ export default function Settings() {
   };
 
   const menuItems = [
-    { icon: Shield, label: "Admin Dashboard", desc: "Platform overview", onClick: () => navigate("/admin") },
+    ...(isOwner ? [{ icon: Shield, label: "Admin Dashboard", desc: "Platform overview", onClick: () => navigate("/admin") }] : []),
     { icon: CreditCard, label: "Subscription", desc: "Manage your plan", onClick: () => navigate("/subscription") },
+    { icon: Crown, label: "Enterprise", desc: "White-label & integrations", onClick: () => navigate("/enterprise") },
     { icon: Bell, label: "Notifications", desc: "Alert preferences", onClick: () => navigate("/notifications") },
     { icon: Shield, label: "Security", desc: "Password & 2FA", onClick: () => navigate("/security") },
     { icon: HelpCircle, label: "Help & Support", desc: "FAQs & contact", onClick: () => navigate("/help") },
@@ -184,6 +189,33 @@ export default function Settings() {
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
           ))}
+        </motion.div>
+
+        {/* Theme Toggle */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22 }}
+          className="bg-card rounded-2xl shadow-card p-4"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center">
+                {theme === "dark" ? <Moon className="w-4 h-4 text-primary" /> : <Sun className="w-4 h-4 text-accent" />}
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">Dark Mode</p>
+                <p className="text-xs text-muted-foreground">Switch between light and dark themes</p>
+              </div>
+            </div>
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle dark mode"
+              className={`w-11 h-6 rounded-full transition-colors relative ${theme === "dark" ? "bg-primary" : "bg-muted"}`}
+            >
+              <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${theme === "dark" ? "translate-x-[22px]" : "translate-x-0.5"}`} />
+            </button>
+          </div>
         </motion.div>
 
         {/* Dev Mode Toggle */}
