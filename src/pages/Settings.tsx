@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   User, Mail, MapPin, Fish, LogOut, ChevronRight,
-  Bell, Moon, Sun, Shield, HelpCircle, Save, Users, CreditCard, Crown
+  Bell, Moon, Sun, Shield, HelpCircle, Save, Users, CreditCard, Crown, ClipboardList
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useFarm } from "@/hooks/useFarm";
