@@ -119,6 +119,8 @@ export default function AddListingForm({ onClose }: AddListingFormProps) {
                       <option value="table-fish">Table Fish</option>
                       <option value="broodstock">Broodstock</option>
                       <option value="processed">Processed</option>
+                      <option value="equipment">Equipment (nets, tools)</option>
+                      <option value="feed">Feed & Supplies</option>
                     </select>
                   </FormControl>
                   <FormMessage />
