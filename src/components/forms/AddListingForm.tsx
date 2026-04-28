@@ -129,8 +129,8 @@ export default function AddListingForm({ onClose }: AddListingFormProps) {
 
               <FormField control={form.control} name="species" render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs">Species</FormLabel>
-                  <FormControl><Input placeholder="e.g. Nile Tilapia" {...field} /></FormControl>
+                  <FormLabel className="text-xs">Item / Species</FormLabel>
+                  <FormControl><Input placeholder="e.g. Nile Tilapia / Cast net" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
