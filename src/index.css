@@ -70,6 +70,69 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  .dark {
+    --background: 205 40% 8%;
+    --foreground: 200 20% 95%;
+
+    --card: 205 35% 12%;
+    --card-foreground: 200 20% 95%;
+
+    --popover: 205 35% 12%;
+    --popover-foreground: 200 20% 95%;
+
+    --primary: 195 70% 55%;
+    --primary-foreground: 205 50% 10%;
+
+    --secondary: 175 50% 45%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 205 25% 18%;
+    --muted-foreground: 200 15% 65%;
+
+    --accent: 38 85% 60%;
+    --accent-foreground: 38 80% 10%;
+
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 205 25% 22%;
+    --input: 205 25% 22%;
+    --ring: 195 70% 55%;
+
+    --ocean-deep: 205 60% 12%;
+    --ocean-mid: 200 55% 22%;
+    --ocean-light: 195 65% 45%;
+    --ocean-surface: 205 35% 18%;
+    --teal: 175 50% 45%;
+    --teal-light: 175 30% 22%;
+    --coral: 12 70% 60%;
+    --coral-light: 12 40% 22%;
+    --amber: 38 85% 60%;
+    --amber-light: 38 50% 22%;
+    --success: 152 55% 45%;
+    --success-light: 152 30% 20%;
+    --warning: 38 85% 55%;
+    --warning-light: 38 50% 22%;
+    --danger: 0 65% 55%;
+    --danger-light: 0 40% 22%;
+
+    --gradient-ocean: linear-gradient(135deg, hsl(205 60% 12%), hsl(200 55% 22%), hsl(175 50% 35%));
+    --gradient-surface: linear-gradient(180deg, hsl(205 35% 14%), hsl(205 40% 8%));
+    --gradient-card: linear-gradient(145deg, hsl(205 35% 12%), hsl(205 30% 14%));
+    --shadow-card: 0 2px 16px -2px hsl(0 0% 0% / 0.4);
+    --shadow-card-hover: 0 8px 30px -4px hsl(0 0% 0% / 0.55);
+    --shadow-nav: 0 -4px 20px -2px hsl(0 0% 0% / 0.4);
+
+    --sidebar-background: 205 35% 10%;
+    --sidebar-foreground: 200 15% 85%;
+    --sidebar-primary: 195 70% 55%;
+    --sidebar-primary-foreground: 205 50% 10%;
+    --sidebar-accent: 205 25% 18%;
+    --sidebar-accent-foreground: 200 20% 95%;
+    --sidebar-border: 205 25% 22%;
+    --sidebar-ring: 195 70% 55%;
+  }
 }
 
 @layer base {
