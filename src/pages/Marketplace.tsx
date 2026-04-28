@@ -8,7 +8,7 @@ import AddListingForm from "@/components/forms/AddListingForm";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
-const categories = ["All", "Fingerlings", "Table Fish", "Processed", "Broodstock", "Fry"];
+const categories = ["All", "Fingerlings", "Table Fish", "Processed", "Broodstock", "Fry", "Equipment", "Feed"];
 
 function MarketplaceContent() {
   const [showForm, setShowForm] = useState(false);
