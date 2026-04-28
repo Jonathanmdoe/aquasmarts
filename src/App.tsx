@@ -6,8 +6,10 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useSubscription } from "@/hooks/useSubscription";
 import MobileLayout from "@/components/MobileLayout";
 import Enterprise from "./pages/Enterprise";
+import Sales from "./pages/Sales";
 import Index from "./pages/Index";
 import Batches from "./pages/Batches";
 import Feeding from "./pages/Feeding";
@@ -43,6 +45,13 @@ function OwnerRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function EnterpriseRoute({ children }: { children: React.ReactNode }) {
+  const { currentTier, loading } = useSubscription();
+  if (loading) return <div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  if (currentTier !== "enterprise") return <Navigate to="/subscription" replace />;
+  return <>{children}</>;
+}
+
 function AuthRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
@@ -67,7 +76,8 @@ function AppRoutes() {
       <Route path="/subscription" element={<ProtectedRoute><MobileLayout><Subscription /></MobileLayout></ProtectedRoute>} />
       <Route path="/ai-predictions" element={<ProtectedRoute><MobileLayout><AIPredictions /></MobileLayout></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><OwnerRoute><MobileLayout><Admin /></MobileLayout></OwnerRoute></ProtectedRoute>} />
-      <Route path="/enterprise" element={<ProtectedRoute><MobileLayout><Enterprise /></MobileLayout></ProtectedRoute>} />
+      <Route path="/enterprise" element={<ProtectedRoute><EnterpriseRoute><MobileLayout><Enterprise /></MobileLayout></EnterpriseRoute></ProtectedRoute>} />
+      <Route path="/sales" element={<ProtectedRoute><MobileLayout><Sales /></MobileLayout></ProtectedRoute>} />
       <Route path="/notifications" element={<ProtectedRoute><MobileLayout><Notifications /></MobileLayout></ProtectedRoute>} />
       <Route path="/security" element={<ProtectedRoute><MobileLayout><Security /></MobileLayout></ProtectedRoute>} />
       <Route path="/help" element={<ProtectedRoute><MobileLayout><HelpSupport /></MobileLayout></ProtectedRoute>} />

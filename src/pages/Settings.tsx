@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   User, Mail, MapPin, Fish, LogOut, ChevronRight,
-  Bell, Moon, Sun, Shield, HelpCircle, Save, Users, CreditCard, Crown
+  Bell, Moon, Sun, Shield, HelpCircle, Save, Users, CreditCard, Crown, ClipboardList
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useFarm } from "@/hooks/useFarm";
@@ -83,6 +83,7 @@ export default function Settings() {
   const menuItems = [
     ...(isOwner ? [{ icon: Shield, label: "Admin Dashboard", desc: "Platform overview", onClick: () => navigate("/admin") }] : []),
     { icon: CreditCard, label: "Subscription", desc: "Manage your plan", onClick: () => navigate("/subscription") },
+    { icon: ClipboardList, label: "Sales Records", desc: "Track buyers & deliveries", onClick: () => navigate("/sales") },
     { icon: Crown, label: "Enterprise", desc: "White-label & integrations", onClick: () => navigate("/enterprise") },
     { icon: Bell, label: "Notifications", desc: "Alert preferences", onClick: () => navigate("/notifications") },
     { icon: Shield, label: "Security", desc: "Password & 2FA", onClick: () => navigate("/security") },

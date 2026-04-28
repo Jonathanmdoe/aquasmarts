@@ -382,6 +382,57 @@ export type Database = {
         }
         Relationships: []
       }
+      sales_records: {
+        Row: {
+          buyer_email: string | null
+          buyer_name: string
+          buyer_phone: string
+          buyer_type: string
+          created_at: string
+          delivery_status: string
+          id: string
+          listing_id: string | null
+          notes: string | null
+          quantity: string
+          sale_date: string
+          seller_id: string
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          buyer_email?: string | null
+          buyer_name: string
+          buyer_phone: string
+          buyer_type?: string
+          created_at?: string
+          delivery_status?: string
+          id?: string
+          listing_id?: string | null
+          notes?: string | null
+          quantity: string
+          sale_date?: string
+          seller_id: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          buyer_email?: string | null
+          buyer_name?: string
+          buyer_phone?: string
+          buyer_type?: string
+          created_at?: string
+          delivery_status?: string
+          id?: string
+          listing_id?: string | null
+          notes?: string | null
+          quantity?: string
+          sale_date?: string
+          seller_id?: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       smart_alerts: {
         Row: {
           batch_id: string | null
