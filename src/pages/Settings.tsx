@@ -191,6 +191,33 @@ export default function Settings() {
           ))}
         </motion.div>
 
+        {/* Theme Toggle */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22 }}
+          className="bg-card rounded-2xl shadow-card p-4"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center">
+                {theme === "dark" ? <Moon className="w-4 h-4 text-primary" /> : <Sun className="w-4 h-4 text-accent" />}
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">Dark Mode</p>
+                <p className="text-xs text-muted-foreground">Switch between light and dark themes</p>
+              </div>
+            </div>
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle dark mode"
+              className={`w-11 h-6 rounded-full transition-colors relative ${theme === "dark" ? "bg-primary" : "bg-muted"}`}
+            >
+              <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${theme === "dark" ? "translate-x-[22px]" : "translate-x-0.5"}`} />
+            </button>
+          </div>
+        </motion.div>
+
         {/* Dev Mode Toggle */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
