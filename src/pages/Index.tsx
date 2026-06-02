@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 import {
   Fish, Droplets, DollarSign, TrendingUp, Plus, Utensils,
   Heart, BarChart3, Bell, Settings,
@@ -13,19 +14,25 @@ import AlertCard from "@/components/AlertCard";
 import { useFarm, useBatches, useFinancialRecords } from "@/hooks/useFarm";
 import { useSmartAlerts } from "@/hooks/useSmartAlerts";
 import { formatTZSCompact } from "@/lib/currency";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { data: farm, isLoading: farmLoading } = useFarm();
+  const { user, loading: authLoading } = useAuth();
+  const { data: farm, isLoading: farmLoading, isFetching: farmFetching, isSuccess: farmLoaded } = useFarm();
   const { data: batches } = useBatches();
   const { data: financials } = useFinancialRecords();
   const { alerts } = useSmartAlerts();
 
-  // Redirect to farm setup if no farm exists
-  if (!farmLoading && !farm) {
-    navigate("/farm-setup", { replace: true });
-    return null;
-  }
+  // Only redirect to farm setup when we've definitively confirmed no farm exists.
+  // Guards against token-refresh races that briefly clear the query result.
+  useEffect(() => {
+    if (authLoading || !user) return;
+    if (farmLoading || farmFetching) return;
+    if (farmLoaded && !farm) {
+      navigate("/farm-setup", { replace: true });
+    }
+  }, [authLoading, user, farm, farmLoading, farmFetching, farmLoaded, navigate]);
 
   const activeBatches = batches?.filter((b) => b.status === "active" || b.status === "stocked") ?? [];
   const totalBiomass = batches?.reduce((s, b) => s + (b.biomass ?? 0), 0) ?? 0;
