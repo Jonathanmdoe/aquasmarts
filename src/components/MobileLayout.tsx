@@ -7,7 +7,7 @@ import {
   Heart,
   ShoppingCart,
   DollarSign,
-  Settings,
+  MoreHorizontal,
 } from "lucide-react";
 
 const tabs = [
@@ -15,7 +15,7 @@ const tabs = [
   { path: "/batches", icon: Fish, label: "Batches" },
   { path: "/financial", icon: DollarSign, label: "Finance" },
   { path: "/marketplace", icon: ShoppingCart, label: "Market" },
-  { path: "/settings", icon: Settings, label: "Settings" },
+  { path: "/more", icon: MoreHorizontal, label: "More" },
 ];
 
 export default function MobileLayout({ children }: { children: ReactNode }) {
