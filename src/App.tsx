@@ -24,6 +24,7 @@ import AIPredictions from "./pages/AIPredictions";
 import Subscription from "./pages/Subscription";
 import MyListings from "./pages/MyListings";
 import Admin from "./pages/Admin";
+import More from "./pages/More";
 import Notifications from "./pages/Notifications";
 import Security from "./pages/Security";
 import HelpSupport from "./pages/HelpSupport";
@@ -73,6 +74,7 @@ function AppRoutes() {
       <Route path="/marketplace" element={<ProtectedRoute><MobileLayout><Marketplace /></MobileLayout></ProtectedRoute>} />
       <Route path="/my-listings" element={<ProtectedRoute><MobileLayout><MyListings /></MobileLayout></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><MobileLayout><Settings /></MobileLayout></ProtectedRoute>} />
+      <Route path="/more" element={<ProtectedRoute><MobileLayout><More /></MobileLayout></ProtectedRoute>} />
       <Route path="/subscription" element={<ProtectedRoute><MobileLayout><Subscription /></MobileLayout></ProtectedRoute>} />
       <Route path="/ai-predictions" element={<ProtectedRoute><MobileLayout><AIPredictions /></MobileLayout></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><OwnerRoute><MobileLayout><Admin /></MobileLayout></OwnerRoute></ProtectedRoute>} />
