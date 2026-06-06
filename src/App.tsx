@@ -28,6 +28,10 @@ import More from "./pages/More";
 import Notifications from "./pages/Notifications";
 import Security from "./pages/Security";
 import HelpSupport from "./pages/HelpSupport";
+import MarketplaceKYC from "./pages/MarketplaceKYC";
+import MarketplaceDisputes from "./pages/MarketplaceDisputes";
+import MarketplaceNotifications from "./pages/MarketplaceNotifications";
+import MarketplaceAnalytics from "./pages/MarketplaceAnalytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -83,6 +87,11 @@ function AppRoutes() {
       <Route path="/notifications" element={<ProtectedRoute><MobileLayout><Notifications /></MobileLayout></ProtectedRoute>} />
       <Route path="/security" element={<ProtectedRoute><MobileLayout><Security /></MobileLayout></ProtectedRoute>} />
       <Route path="/help" element={<ProtectedRoute><MobileLayout><HelpSupport /></MobileLayout></ProtectedRoute>} />
+      <Route path="/marketplace/kyc" element={<ProtectedRoute><MobileLayout><MarketplaceKYC /></MobileLayout></ProtectedRoute>} />
+      <Route path="/marketplace/disputes" element={<ProtectedRoute><MobileLayout><MarketplaceDisputes /></MobileLayout></ProtectedRoute>} />
+      <Route path="/marketplace/disputes/:id" element={<ProtectedRoute><MobileLayout><MarketplaceDisputes /></MobileLayout></ProtectedRoute>} />
+      <Route path="/marketplace/notifications" element={<ProtectedRoute><MobileLayout><MarketplaceNotifications /></MobileLayout></ProtectedRoute>} />
+      <Route path="/marketplace/analytics" element={<ProtectedRoute><MobileLayout><MarketplaceAnalytics /></MobileLayout></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
