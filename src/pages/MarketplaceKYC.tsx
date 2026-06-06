@@ -187,7 +187,7 @@ export default function MarketplaceKYC() {
                 <p className="font-semibold">Review your information</p>
                 {Object.entries(form.getValues()).map(([k, v]) => (
                   <div key={k} className="flex justify-between border-b border-border py-1">
-                    <span className="text-muted-foreground capitalize">{k.replaceAll("_", " ")}</span>
+                    <span className="text-muted-foreground capitalize">{k.replace(/_/g, " ")}</span>
                     <span className="font-medium truncate ml-2 max-w-[60%] text-right">{v || "—"}</span>
                   </div>
                 ))}
@@ -227,7 +227,7 @@ function Select({ label, error, options, ...props }: any) {
       <label className="text-xs font-medium text-muted-foreground">{label}</label>
       <select {...props} className="w-full mt-1 rounded-xl bg-background border border-border px-3 py-2 text-sm">
         <option value="">Select…</option>
-        {options.map((o: string) => <option key={o} value={o}>{o.replaceAll("-", " ")}</option>)}
+        {options.map((o: string) => <option key={o} value={o}>{o.replace(/-/g, " ")}</option>)}
       </select>
       {error && <p className="text-[10px] text-destructive mt-0.5">{error}</p>}
     </div>
