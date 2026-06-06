@@ -298,6 +298,123 @@ export type Database = {
           },
         ]
       }
+      marketplace_cart_items: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          quantity: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          quantity?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          quantity?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_cart_items_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_dispute_messages: {
+        Row: {
+          created_at: string
+          dispute_id: string
+          id: string
+          message: string
+          sender_id: string
+          sender_role: string
+        }
+        Insert: {
+          created_at?: string
+          dispute_id: string
+          id?: string
+          message: string
+          sender_id: string
+          sender_role: string
+        }
+        Update: {
+          created_at?: string
+          dispute_id?: string
+          id?: string
+          message?: string
+          sender_id?: string
+          sender_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_dispute_messages_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_disputes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_disputes: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          opened_by: string
+          order_id: string
+          reason: string
+          resolution: string | null
+          resolved_at: string | null
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          opened_by: string
+          order_id: string
+          reason: string
+          resolution?: string | null
+          resolved_at?: string | null
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          opened_by?: string
+          order_id?: string
+          reason?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          seller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_disputes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketplace_listings: {
         Row: {
           category: string
@@ -351,6 +468,128 @@ export type Database = {
           weight?: string | null
         }
         Relationships: []
+      }
+      marketplace_notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          read: boolean
+          related_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          read?: boolean
+          related_id?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          read?: boolean
+          related_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      marketplace_orders: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          delivered_at: string | null
+          delivery_address: string | null
+          delivery_type: string
+          eta: string | null
+          id: string
+          listing_id: string
+          listing_title: string
+          packed_at: string | null
+          payment_status: string
+          placed_at: string
+          platform_fee: number
+          quantity: number
+          seller_id: string
+          shipped_at: string | null
+          status: string
+          stripe_payment_intent: string | null
+          stripe_session_id: string | null
+          subtotal: number
+          total: number
+          tracking_number: string | null
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          delivered_at?: string | null
+          delivery_address?: string | null
+          delivery_type?: string
+          eta?: string | null
+          id?: string
+          listing_id: string
+          listing_title: string
+          packed_at?: string | null
+          payment_status?: string
+          placed_at?: string
+          platform_fee?: number
+          quantity?: number
+          seller_id: string
+          shipped_at?: string | null
+          status?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          subtotal: number
+          total: number
+          tracking_number?: string | null
+          unit_price: number
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          delivered_at?: string | null
+          delivery_address?: string | null
+          delivery_type?: string
+          eta?: string | null
+          id?: string
+          listing_id?: string
+          listing_title?: string
+          packed_at?: string | null
+          payment_status?: string
+          placed_at?: string
+          platform_fee?: number
+          quantity?: number
+          seller_id?: string
+          shipped_at?: string | null
+          status?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          subtotal?: number
+          total?: number
+          tracking_number?: string | null
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_orders_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -430,6 +669,105 @@ export type Database = {
           seller_id?: string
           total_amount?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      seller_kyc: {
+        Row: {
+          address: string | null
+          bank_account_name: string | null
+          bank_account_number: string | null
+          bank_name: string | null
+          business_name: string | null
+          business_type: string | null
+          country: string | null
+          created_at: string
+          full_name: string
+          id: string
+          id_doc_number: string | null
+          id_doc_type: string | null
+          notes: string | null
+          phone: string | null
+          reviewed_at: string | null
+          status: string
+          submitted_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_name?: string | null
+          business_name?: string | null
+          business_type?: string | null
+          country?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          id_doc_number?: string | null
+          id_doc_type?: string | null
+          notes?: string | null
+          phone?: string | null
+          reviewed_at?: string | null
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_name?: string | null
+          business_name?: string | null
+          business_type?: string | null
+          country?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          id_doc_number?: string | null
+          id_doc_type?: string | null
+          notes?: string | null
+          phone?: string | null
+          reviewed_at?: string | null
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      seller_stripe_accounts: {
+        Row: {
+          charges_enabled: boolean
+          created_at: string
+          details_submitted: boolean
+          id: string
+          payouts_enabled: boolean
+          stripe_account_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          charges_enabled?: boolean
+          created_at?: string
+          details_submitted?: boolean
+          id?: string
+          payouts_enabled?: boolean
+          stripe_account_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          charges_enabled?: boolean
+          created_at?: string
+          details_submitted?: boolean
+          id?: string
+          payouts_enabled?: boolean
+          stripe_account_id?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
