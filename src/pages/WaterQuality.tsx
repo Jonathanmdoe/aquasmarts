@@ -3,11 +3,40 @@ import { Droplets, Thermometer, Wind, ChevronRight, Plus } from "lucide-react";
 import { useWaterReadings, useBatches } from "@/hooks/useFarm";
 import AddWaterReadingForm from "@/components/forms/AddWaterReadingForm";
 
-function ParameterBadge({ label, value, unit, safe }: { label: string; value: number | null; unit: string; safe: boolean }) {
+type Status = "safe" | "caution" | "danger";
+
+function rate(value: number | null | undefined, ok: [number, number], warn: [number, number]): Status {
+  if (value == null) return "safe";
+  if (value >= ok[0] && value <= ok[1]) return "safe";
+  if (value >= warn[0] && value <= warn[1]) return "caution";
+  return "danger";
+}
+
+const worst = (s: Status[]): Status =>
+  s.includes("danger") ? "danger" : s.includes("caution") ? "caution" : "safe";
+
+const statusStyles: Record<Status, string> = {
+  safe: "bg-success-light text-success border-success/30",
+  caution: "bg-amber-light text-amber border-amber/30",
+  danger: "bg-danger-light text-danger border-danger/30",
+};
+
+function StatusPill({ status }: { status: Status }) {
+  const label = status === "safe" ? "Safe" : status === "caution" ? "Caution" : "Danger";
   return (
-    <div className={`rounded-lg p-2 text-center ${safe ? "bg-muted/50" : "bg-danger-light"}`}>
+    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${statusStyles[status]}`}>
+      {label}
+    </span>
+  );
+}
+
+function ParameterBadge({ label, value, unit, status }: { label: string; value: number | null; unit: string; status: Status }) {
+  const bg = status === "safe" ? "bg-muted/50" : status === "caution" ? "bg-amber-light" : "bg-danger-light";
+  const fg = status === "safe" ? "text-foreground" : status === "caution" ? "text-amber" : "text-danger";
+  return (
+    <div className={`rounded-lg p-2 text-center ${bg}`}>
       <p className="text-[10px] text-muted-foreground">{label}</p>
-      <p className={`text-sm font-bold ${safe ? "text-foreground" : "text-danger"}`}>
+      <p className={`text-sm font-bold ${fg}`}>
         {value?.toFixed(1) ?? "—"}
         <span className="text-[10px] font-normal text-muted-foreground ml-0.5">{unit}</span>
       </p>
@@ -76,25 +105,37 @@ export default function WaterQuality() {
         ) : (
           pondReadings.map((r, i) => {
             const batch = batches?.find((b) => b.id === r.batch_id);
-            const doSafe = (r.dissolved_oxygen ?? 0) >= 5;
+            const tempStatus = rate(r.temperature, [25, 30], [22, 32]);
+            const doStatus: Status = r.dissolved_oxygen == null ? "safe"
+              : r.dissolved_oxygen >= 5 ? "safe"
+              : r.dissolved_oxygen >= 3 ? "caution" : "danger";
+            const phStatus = rate(r.ph, [6.5, 8.5], [6.0, 9.0]);
+            const nh3Status: Status = r.ammonia == null ? "safe"
+              : r.ammonia < 0.05 ? "safe"
+              : r.ammonia < 0.1 ? "caution" : "danger";
+            const overall = worst([tempStatus, doStatus, phStatus, nh3Status]);
+            const dotColor = overall === "safe" ? "bg-success" : overall === "caution" ? "bg-amber" : "bg-danger";
             return (
               <motion.div key={r.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                 className="bg-card rounded-2xl p-4 shadow-card">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${doSafe ? "bg-success" : "bg-amber"}`} />
+                    <div className={`w-3 h-3 rounded-full ${dotColor}`} />
                     <div>
                       <h3 className="text-sm font-semibold text-foreground">{batch?.pond ?? "Pond"}</h3>
                       <p className="text-xs text-muted-foreground">{batch?.name ?? "Batch"}</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  <div className="flex items-center gap-2">
+                    <StatusPill status={overall} />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </div>
                 </div>
                 <div className="grid grid-cols-4 gap-2">
-                  <ParameterBadge label="Temp" value={r.temperature} unit="°C" safe={(r.temperature ?? 0) >= 25 && (r.temperature ?? 0) <= 30} />
-                  <ParameterBadge label="DO" value={r.dissolved_oxygen} unit="mg/L" safe={doSafe} />
-                  <ParameterBadge label="pH" value={r.ph} unit="" safe={(r.ph ?? 0) >= 6.5 && (r.ph ?? 0) <= 8.5} />
-                  <ParameterBadge label="NH₃" value={r.ammonia} unit="mg/L" safe={(r.ammonia ?? 0) < 0.05} />
+                  <ParameterBadge label="Temp" value={r.temperature} unit="°C" status={tempStatus} />
+                  <ParameterBadge label="DO" value={r.dissolved_oxygen} unit="mg/L" status={doStatus} />
+                  <ParameterBadge label="pH" value={r.ph} unit="" status={phStatus} />
+                  <ParameterBadge label="NH₃" value={r.ammonia} unit="mg/L" status={nh3Status} />
                 </div>
               </motion.div>
             );
