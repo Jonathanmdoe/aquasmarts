@@ -3,11 +3,40 @@ import { Droplets, Thermometer, Wind, ChevronRight, Plus } from "lucide-react";
 import { useWaterReadings, useBatches } from "@/hooks/useFarm";
 import AddWaterReadingForm from "@/components/forms/AddWaterReadingForm";
 
-function ParameterBadge({ label, value, unit, safe }: { label: string; value: number | null; unit: string; safe: boolean }) {
+type Status = "safe" | "caution" | "danger";
+
+function rate(value: number | null | undefined, ok: [number, number], warn: [number, number]): Status {
+  if (value == null) return "safe";
+  if (value >= ok[0] && value <= ok[1]) return "safe";
+  if (value >= warn[0] && value <= warn[1]) return "caution";
+  return "danger";
+}
+
+const worst = (s: Status[]): Status =>
+  s.includes("danger") ? "danger" : s.includes("caution") ? "caution" : "safe";
+
+const statusStyles: Record<Status, string> = {
+  safe: "bg-success-light text-success border-success/30",
+  caution: "bg-amber-light text-amber border-amber/30",
+  danger: "bg-danger-light text-danger border-danger/30",
+};
+
+function StatusPill({ status }: { status: Status }) {
+  const label = status === "safe" ? "Safe" : status === "caution" ? "Caution" : "Danger";
   return (
-    <div className={`rounded-lg p-2 text-center ${safe ? "bg-muted/50" : "bg-danger-light"}`}>
+    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${statusStyles[status]}`}>
+      {label}
+    </span>
+  );
+}
+
+function ParameterBadge({ label, value, unit, status }: { label: string; value: number | null; unit: string; status: Status }) {
+  const bg = status === "safe" ? "bg-muted/50" : status === "caution" ? "bg-amber-light" : "bg-danger-light";
+  const fg = status === "safe" ? "text-foreground" : status === "caution" ? "text-amber" : "text-danger";
+  return (
+    <div className={`rounded-lg p-2 text-center ${bg}`}>
       <p className="text-[10px] text-muted-foreground">{label}</p>
-      <p className={`text-sm font-bold ${safe ? "text-foreground" : "text-danger"}`}>
+      <p className={`text-sm font-bold ${fg}`}>
         {value?.toFixed(1) ?? "—"}
         <span className="text-[10px] font-normal text-muted-foreground ml-0.5">{unit}</span>
       </p>
