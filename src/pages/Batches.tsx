@@ -73,11 +73,12 @@ export default function Batches() {
         ) : (
           <div className="space-y-3">
             {filtered.map((batch, i) => (
-              <BatchCard key={batch.id} batch={batch} index={i} />
+              <BatchCard key={batch.id} batch={batch} index={i} onEdit={setEditId} />
             ))}
           </div>
         )}
       </div>
+      <EditBatchSheet batch={editingBatch as any} open={!!editId} onOpenChange={(v) => !v && setEditId(null)} />
     </div>
   );
 }
