@@ -59,14 +59,16 @@ export default function Settings() {
     setSaving(true);
 
     const ops: Promise<any>[] = [
-      supabase.from("profiles").update({ full_name: fullName }).eq("user_id", user.id),
+      Promise.resolve(supabase.from("profiles").update({ full_name: fullName }).eq("user_id", user.id)),
     ];
     if (farm) {
       ops.push(
-        supabase
-          .from("farms")
-          .update({ name: farmName, location: farmLocation, num_ponds: numPonds })
-          .eq("id", farm.id)
+        Promise.resolve(
+          supabase
+            .from("farms")
+            .update({ name: farmName, location: farmLocation, num_ponds: numPonds })
+            .eq("id", farm.id)
+        )
       );
     }
 
