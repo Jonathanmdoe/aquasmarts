@@ -31,6 +31,33 @@ export function useAddBatch() {
   });
 }
 
+export function useUpdateBatch() {
+  const qc = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (values: { id: string; avg_weight?: number; current_count?: number; mortality_rate?: number; status?: string; stage?: string; pond?: string }) => {
+      const patch: Record<string, any> = {};
+      if (values.avg_weight !== undefined) patch.avg_weight = values.avg_weight;
+      if (values.current_count !== undefined) patch.current_count = values.current_count;
+      if (values.mortality_rate !== undefined) patch.mortality_rate = values.mortality_rate;
+      if (values.status !== undefined) patch.status = values.status;
+      if (values.stage !== undefined) patch.stage = values.stage;
+      if (values.pond !== undefined) patch.pond = values.pond;
+      if (values.avg_weight !== undefined && values.current_count !== undefined) {
+        patch.biomass = Number(((values.avg_weight * values.current_count) / 1000).toFixed(2));
+      }
+      const { error } = await supabase.from("fish_batches").update(patch).eq("id", values.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["batches"] });
+      toast({ title: "Batch updated!" });
+    },
+    onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+}
+
 export function useAddFeedingLog() {
   const qc = useQueryClient();
   const { toast } = useToast();
