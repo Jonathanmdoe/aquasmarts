@@ -22,7 +22,7 @@ const statusStyle = {
   stocked: "bg-amber-light text-amber",
 };
 
-export default function BatchCard({ batch, index = 0 }: { batch: BatchData; index?: number }) {
+export default function BatchCard({ batch, index = 0, onEdit }: { batch: BatchData; index?: number; onEdit?: (id: string) => void }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
