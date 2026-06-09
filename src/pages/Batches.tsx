@@ -4,15 +4,17 @@ import { Search, Filter, Fish } from "lucide-react";
 import BatchCard, { BatchData } from "@/components/BatchCard";
 import { useBatches } from "@/hooks/useFarm";
 import AddBatchForm from "@/components/forms/AddBatchForm";
+import EditBatchSheet from "@/components/forms/EditBatchSheet";
 
 const filters = ["All", "Active", "Stocked", "Harvested"];
 
 export default function Batches() {
   const [activeFilter, setActiveFilter] = useState("All");
+  const [editId, setEditId] = useState<string | null>(null);
   const { data: rawBatches, isLoading } = useBatches();
 
   const batches: BatchData[] = (rawBatches ?? []).map((b) => ({
-    id: b.name,
+    id: b.id,
     name: b.name,
     species: b.species,
     stage: b.stage,
@@ -25,6 +27,8 @@ export default function Batches() {
     status: b.status as BatchData["status"],
     pond: b.pond ?? "—",
   }));
+
+  const editingBatch = rawBatches?.find((b) => b.id === editId) ?? null;
 
   const filtered = activeFilter === "All"
     ? batches
@@ -69,11 +73,12 @@ export default function Batches() {
         ) : (
           <div className="space-y-3">
             {filtered.map((batch, i) => (
-              <BatchCard key={batch.id} batch={batch} index={i} />
+              <BatchCard key={batch.id} batch={batch} index={i} onEdit={setEditId} />
             ))}
           </div>
         )}
       </div>
+      <EditBatchSheet batch={editingBatch as any} open={!!editId} onOpenChange={(v) => !v && setEditId(null)} />
     </div>
   );
 }

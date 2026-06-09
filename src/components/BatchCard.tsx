@@ -22,7 +22,7 @@ const statusStyle = {
   stocked: "bg-amber-light text-amber",
 };
 
-export default function BatchCard({ batch, index = 0 }: { batch: BatchData; index?: number }) {
+export default function BatchCard({ batch, index = 0, onEdit }: { batch: BatchData; index?: number; onEdit?: (id: string) => void }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -44,7 +44,14 @@ export default function BatchCard({ batch, index = 0 }: { batch: BatchData; inde
           <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${statusStyle[batch.status]}`}>
             {batch.status}
           </span>
-          <MoreVertical className="w-4 h-4 text-muted-foreground" />
+          <button
+            type="button"
+            onClick={() => onEdit?.(batch.id)}
+            aria-label="Edit batch"
+            className="w-8 h-8 -mr-1 rounded-full flex items-center justify-center hover:bg-muted active:bg-muted/80 transition"
+          >
+            <MoreVertical className="w-4 h-4 text-muted-foreground" />
+          </button>
         </div>
       </div>
 
