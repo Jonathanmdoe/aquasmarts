@@ -34,7 +34,7 @@ export default function AddWaterReadingForm() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <button className="w-10 h-10 rounded-xl bg-primary-foreground/15 backdrop-blur flex items-center justify-center">
+        <button type="button" aria-label="Log water reading" className="w-10 h-10 rounded-xl bg-primary-foreground/15 backdrop-blur flex items-center justify-center active:scale-95 transition">
           <Plus className="w-5 h-5 text-primary-foreground" />
         </button>
       </SheetTrigger>
