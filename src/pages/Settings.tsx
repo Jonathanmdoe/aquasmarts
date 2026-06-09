@@ -52,22 +52,34 @@ export default function Settings() {
   }, [user]);
 
   const handleSave = async () => {
-    if (!user || !farm) return;
+    if (!user) {
+      toast({ title: "Not signed in", description: "Please sign in again.", variant: "destructive" });
+      return;
+    }
     setSaving(true);
 
-    const [profileRes, farmRes] = await Promise.all([
-      supabase
-        .from("profiles")
-        .update({ full_name: fullName })
-        .eq("user_id", user.id),
-      supabase
-        .from("farms")
-        .update({ name: farmName, location: farmLocation, num_ponds: numPonds })
-        .eq("id", farm.id),
-    ]);
+    const ops: Promise<any>[] = [
+      Promise.resolve(supabase.from("profiles").update({ full_name: fullName }).eq("user_id", user.id)),
+    ];
+    if (farm) {
+      ops.push(
+        Promise.resolve(
+          supabase
+            .from("farms")
+            .update({ name: farmName, location: farmLocation, num_ponds: numPonds })
+            .eq("id", farm.id)
+        )
+      );
+    }
 
-    if (profileRes.error || farmRes.error) {
-      toast({ title: "Error saving", description: (profileRes.error || farmRes.error)?.message, variant: "destructive" });
+    const results = await Promise.all(ops);
+    const err = results.find((r) => r.error)?.error;
+
+    if (err) {
+      toast({ title: "Error saving", description: err.message, variant: "destructive" });
+    } else if (!farm) {
+      toast({ title: "Profile saved", description: "Finish farm setup to edit farm details.", });
+      navigate("/farm-setup");
     } else {
       toast({ title: "Saved!", description: "Your profile has been updated." });
       refetchFarm();
