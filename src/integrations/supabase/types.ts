@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_activity_log: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          target_id: string | null
+          target_type: string | null
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Relationships: []
+      }
       biosecurity_checks: {
         Row: {
           completed_at: string | null
@@ -51,6 +81,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      broadcast_messages: {
+        Row: {
+          audience: string
+          created_at: string
+          id: string
+          message: string
+          recipient_count: number
+          sender_id: string
+          subject: string
+        }
+        Insert: {
+          audience?: string
+          created_at?: string
+          id?: string
+          message: string
+          recipient_count?: number
+          sender_id: string
+          subject: string
+        }
+        Update: {
+          audience?: string
+          created_at?: string
+          id?: string
+          message?: string
+          recipient_count?: number
+          sender_id?: string
+          subject?: string
+        }
+        Relationships: []
       }
       farms: {
         Row: {
@@ -591,31 +651,144 @@ export type Database = {
           },
         ]
       }
+      moderation_flags: {
+        Row: {
+          created_at: string
+          flagged_by: string | null
+          id: string
+          listing_id: string
+          reason: string
+          resolved_at: string | null
+          reviewer_id: string | null
+          reviewer_notes: string | null
+          risk_level: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          flagged_by?: string | null
+          id?: string
+          listing_id: string
+          reason: string
+          resolved_at?: string | null
+          reviewer_id?: string | null
+          reviewer_notes?: string | null
+          risk_level?: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          flagged_by?: string | null
+          id?: string
+          listing_id?: string
+          reason?: string
+          resolved_at?: string | null
+          reviewer_id?: string | null
+          reviewer_notes?: string | null
+          risk_level?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderation_flags_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_settings: {
+        Row: {
+          ai_advisor: boolean
+          assured_delivery: boolean
+          commission_rate: number
+          dispute_auto_escalation: boolean
+          free_user_listings: boolean
+          id: number
+          kyc_required: boolean
+          maintenance_mode: boolean
+          marketplace_open: boolean
+          new_registrations: boolean
+          price_basic_cents: number
+          price_enterprise_cents: number
+          price_pro_cents: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          ai_advisor?: boolean
+          assured_delivery?: boolean
+          commission_rate?: number
+          dispute_auto_escalation?: boolean
+          free_user_listings?: boolean
+          id?: number
+          kyc_required?: boolean
+          maintenance_mode?: boolean
+          marketplace_open?: boolean
+          new_registrations?: boolean
+          price_basic_cents?: number
+          price_enterprise_cents?: number
+          price_pro_cents?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          ai_advisor?: boolean
+          assured_delivery?: boolean
+          commission_rate?: number
+          dispute_auto_escalation?: boolean
+          free_user_listings?: boolean
+          id?: number
+          kyc_required?: boolean
+          maintenance_mode?: boolean
+          marketplace_open?: boolean
+          new_registrations?: boolean
+          price_basic_cents?: number
+          price_enterprise_cents?: number
+          price_pro_cents?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
+          country: string | null
           created_at: string
           email: string | null
           full_name: string | null
           id: string
+          is_suspended: boolean
+          suspended_at: string | null
+          suspension_reason: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
+          country?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
+          is_suspended?: boolean
+          suspended_at?: string | null
+          suspension_reason?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           avatar_url?: string | null
+          country?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
+          is_suspended?: boolean
+          suspended_at?: string | null
+          suspension_reason?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -822,6 +995,75 @@ export type Database = {
           },
         ]
       }
+      subscribers_cache: {
+        Row: {
+          mtd_spend_cents: number
+          plan: string
+          subscribed: boolean
+          total_spend_cents: number
+          trade_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          mtd_spend_cents?: number
+          plan?: string
+          subscribed?: boolean
+          total_spend_cents?: number
+          trade_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          mtd_spend_cents?: number
+          plan?: string
+          subscribed?: boolean
+          total_spend_cents?: number
+          trade_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          id: string
+          message: string
+          priority: string
+          status: string
+          subject: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          priority?: string
+          status?: string
+          subject: string
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          priority?: string
+          status?: string
+          subject?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       team_invitations: {
         Row: {
           created_at: string
@@ -900,6 +1142,41 @@ export type Database = {
             columns: ["farm_id"]
             isOneToOne: false
             referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_replies: {
+        Row: {
+          created_at: string
+          id: string
+          is_staff: boolean
+          message: string
+          ticket_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_staff?: boolean
+          message: string
+          ticket_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_staff?: boolean
+          message?: string
+          ticket_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_replies_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
             referencedColumns: ["id"]
           },
         ]
@@ -991,7 +1268,13 @@ export type Database = {
       is_farm_owner: { Args: { _farm_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "owner" | "manager" | "worker"
+      app_role:
+        | "owner"
+        | "manager"
+        | "worker"
+        | "super_admin"
+        | "moderator"
+        | "support_agent"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1119,7 +1402,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["owner", "manager", "worker"],
+      app_role: [
+        "owner",
+        "manager",
+        "worker",
+        "super_admin",
+        "moderator",
+        "support_agent",
+      ],
     },
   },
 } as const
