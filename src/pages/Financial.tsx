@@ -649,10 +649,6 @@ function IntegrationsTab() {
   );
 }
 
-function useToastSafe() {
-  const { toast } = require("@/hooks/use-toast").useToast();
-  return { toast: (msg: string) => toast({ title: msg }) };
-}
 
 function Empty({ text }: { text: string }) {
   return <div className="bg-card rounded-xl p-6 shadow-card text-center text-sm text-muted-foreground">{text}</div>;
