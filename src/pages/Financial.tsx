@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { useFinancialRecords, useBatches } from "@/hooks/useFarm";
 import { useInvoices, useLoans, useAddInvoice, useUpdateInvoice, useAddLoan, useRecordLoanPayment } from "@/hooks/useFinance";
 import { useAddFinancialRecord } from "@/hooks/useMutations";
+import { useToast } from "@/hooks/use-toast";
 import { formatTZS, formatTZSCompact } from "@/lib/currency";
 import UpgradeGate from "@/components/UpgradeGate";
 import { AIAdvisorButton } from "@/components/finance/AIAdvisor";
@@ -608,8 +609,8 @@ function Chip({ label, active, onClick }: any) {
 }
 
 function IntegrationsTab() {
-  const { toast } = useToastSafe();
-  const sync = (svc: string) => toast(`${svc} sync started (mock)`);
+  const { toast } = useToast();
+  const sync = (svc: string) => toast({ title: `${svc} sync started (mock)` });
   return (
     <div className="space-y-3">
       {["Zoho Books", "QuickBooks"].map(svc => (
