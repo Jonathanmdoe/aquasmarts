@@ -358,6 +358,163 @@ export type Database = {
           },
         ]
       }
+      invoices: {
+        Row: {
+          amount: number
+          batch_id: string | null
+          buyer_contact: string | null
+          buyer_name: string
+          created_at: string
+          due_date: string
+          farm_id: string
+          id: string
+          issue_date: string
+          item: string
+          notes: string | null
+          paid_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          batch_id?: string | null
+          buyer_contact?: string | null
+          buyer_name: string
+          created_at?: string
+          due_date: string
+          farm_id: string
+          id?: string
+          issue_date?: string
+          item: string
+          notes?: string | null
+          paid_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          batch_id?: string | null
+          buyer_contact?: string | null
+          buyer_name?: string
+          created_at?: string
+          due_date?: string
+          farm_id?: string
+          id?: string
+          issue_date?: string
+          item?: string
+          notes?: string | null
+          paid_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "fish_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_farm_id_fkey"
+            columns: ["farm_id"]
+            isOneToOne: false
+            referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loan_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          loan_id: string
+          notes: string | null
+          payment_date: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          loan_id: string
+          notes?: string | null
+          payment_date?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          loan_id?: string
+          notes?: string | null
+          payment_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loan_payments_loan_id_fkey"
+            columns: ["loan_id"]
+            isOneToOne: false
+            referencedRelation: "loans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loans: {
+        Row: {
+          created_at: string
+          farm_id: string
+          id: string
+          interest_rate: number
+          lender: string
+          monthly_installment: number
+          principal: number
+          purpose: string | null
+          remaining_balance: number
+          start_date: string
+          status: string
+          term_months: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          farm_id: string
+          id?: string
+          interest_rate?: number
+          lender: string
+          monthly_installment: number
+          principal: number
+          purpose?: string | null
+          remaining_balance: number
+          start_date?: string
+          status?: string
+          term_months: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          farm_id?: string
+          id?: string
+          interest_rate?: number
+          lender?: string
+          monthly_installment?: number
+          principal?: number
+          purpose?: string | null
+          remaining_balance?: number
+          start_date?: string
+          status?: string
+          term_months?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loans_farm_id_fkey"
+            columns: ["farm_id"]
+            isOneToOne: false
+            referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketplace_cart_items: {
         Row: {
           created_at: string

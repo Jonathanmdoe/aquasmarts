@@ -155,6 +155,10 @@
     @apply bg-card/80 backdrop-blur-xl border border-border/50 shadow-sm;
   }
 
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+
   .gradient-ocean {
     background: var(--gradient-ocean);
   }
