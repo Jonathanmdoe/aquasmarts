@@ -1,10 +1,12 @@
 import { motion } from "framer-motion";
-import { Utensils, Clock, TrendingDown, ChevronRight, Sun, Moon, CheckCircle2, CircleDashed } from "lucide-react";
+import { Utensils, Clock, TrendingDown, ChevronRight, Sun, Moon, CheckCircle2, CircleDashed, Package, Plus, X } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { useFeedingLogs, useBatches } from "@/hooks/useFarm";
+import { useFeedStock, useUpsertFeedStock } from "@/hooks/useFinance";
 import AddFeedingForm from "@/components/forms/AddFeedingForm";
 import { format, differenceInDays, isToday } from "date-fns";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 type FeedStatus = "safe" | "caution" | "danger";
 
