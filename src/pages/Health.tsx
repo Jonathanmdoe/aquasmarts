@@ -2,12 +2,13 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Heart, AlertTriangle, Skull, ShieldCheck, Pill,
-  ChevronRight, CheckCircle2, XCircle
+  ChevronRight, CheckCircle2, XCircle, X
 } from "lucide-react";
 import AddHealthRecordForm from "@/components/forms/AddHealthRecordForm";
 import StatCard from "@/components/StatCard";
 import { useHealthRecords, useBiosecurityChecks, useBatches } from "@/hooks/useFarm";
 import { supabase } from "@/integrations/supabase/client";
+import { useSearchParams } from "react-router-dom";
 
 const severityColors: Record<string, string> = {
   low: "bg-success-light text-success",
