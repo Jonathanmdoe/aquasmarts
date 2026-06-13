@@ -1,19 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Plus } from "lucide-react";
 import { useAddWaterReading } from "@/hooks/useMutations";
 import { useBatches } from "@/hooks/useFarm";
 
-export default function AddWaterReadingForm() {
+export default function AddWaterReadingForm({ preselectedBatchId }: { preselectedBatchId?: string | null }) {
   const [open, setOpen] = useState(false);
   const { data: batches } = useBatches();
-  const [batchId, setBatchId] = useState("");
+  const [batchId, setBatchId] = useState(preselectedBatchId ?? "");
   const [temp, setTemp] = useState<string>("");
   const [ph, setPh] = useState<string>("");
   const [doVal, setDoVal] = useState<string>("");
   const [ammonia, setAmmonia] = useState<string>("");
   const [nitrite, setNitrite] = useState<string>("");
   const mutation = useAddWaterReading();
+  useEffect(() => { if (preselectedBatchId) setBatchId(preselectedBatchId); }, [preselectedBatchId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
