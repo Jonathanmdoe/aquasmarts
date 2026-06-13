@@ -125,6 +125,8 @@ export function useAddHealthRecord() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["health_records"] });
+      qc.invalidateQueries({ queryKey: ["batches"] });
+      qc.invalidateQueries({ queryKey: ["notifications_unread"] });
       toast({ title: "Health record added!" });
     },
     onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
