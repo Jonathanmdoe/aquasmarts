@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { Droplets, Thermometer, Wind, ChevronRight, Plus } from "lucide-react";
+import { Droplets, Thermometer, Wind, ChevronRight, Plus, X } from "lucide-react";
 import { useWaterReadings, useBatches } from "@/hooks/useFarm";
 import AddWaterReadingForm from "@/components/forms/AddWaterReadingForm";
+import { useSearchParams } from "react-router-dom";
 
 type Status = "safe" | "caution" | "danger";
 
