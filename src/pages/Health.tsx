@@ -23,10 +23,15 @@ const typeIcons: Record<string, any> = {
 };
 
 export default function Health() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeBatchId = searchParams.get("batchId");
   const [activeTab, setActiveTab] = useState<"records" | "biosecurity">("records");
-  const { data: records, isLoading: recordsLoading } = useHealthRecords();
+  const { data: allRecords, isLoading: recordsLoading } = useHealthRecords();
   const { data: checks, isLoading: checksLoading, refetch: refetchChecks } = useBiosecurityChecks();
   const { data: batches } = useBatches();
+
+  const records = activeBatchId ? allRecords?.filter((r: any) => r.batch_id === activeBatchId) : allRecords;
+  const activeBatch = batches?.find((b: any) => b.id === activeBatchId);
 
   const totalMortality = records?.reduce((s, r) => s + (r.mortality_count ?? 0), 0) ?? 0;
   const completedChecks = checks?.filter(c => c.is_completed).length ?? 0;
@@ -44,13 +49,22 @@ export default function Health() {
     <div className="min-h-screen">
       <div className="gradient-ocean px-4 pt-10 pb-6">
         <div className="flex items-center justify-between mb-4">
-          <div>
+          <div className="min-w-0">
             <h1 className="text-xl font-bold font-display text-primary-foreground">Health & Mortality</h1>
-            <p className="text-xs text-primary-foreground/70">Disease tracking & biosecurity</p>
+            <p className="text-xs text-primary-foreground/70 truncate">
+              {activeBatch ? `Batch: ${activeBatch.name}` : "Disease tracking & biosecurity"}
+            </p>
           </div>
-          <AddHealthRecordForm />
+          <AddHealthRecordForm preselectedBatchId={activeBatchId} />
         </div>
+        {activeBatchId && (
+          <button onClick={() => setSearchParams({})}
+            className="flex items-center gap-1 text-[10px] text-primary-foreground/80 mt-1">
+            <X className="w-3 h-3" /> Clear batch filter
+          </button>
+        )}
       </div>
+
 
       <div className="px-4 -mt-3 relative z-10 space-y-4 pb-4">
         <div className="grid grid-cols-3 gap-2">
