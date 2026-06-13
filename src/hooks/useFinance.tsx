@@ -63,7 +63,45 @@ export function useUpdateInvoice() {
       const { error } = await supabase.from("invoices").update(patch).eq("id", v.id);
       if (error) throw error;
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["invoices"] }); toast({ title: "Invoice updated" }); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["invoices"] });
+      qc.invalidateQueries({ queryKey: ["financial_records"] });
+      qc.invalidateQueries({ queryKey: ["notifications_unread"] });
+      toast({ title: "Invoice updated" });
+    },
+    onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+}
+
+export function useFeedStock() {
+  const { data: farm } = useFarm();
+  return useQuery({
+    queryKey: ["feed_stock", farm?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("feed_stock" as any).select("*").eq("farm_id", farm!.id)
+        .order("feed_type", { ascending: true });
+      if (error) throw error;
+      return (data as any[]) ?? [];
+    },
+    enabled: !!farm?.id,
+  });
+}
+
+export function useUpsertFeedStock() {
+  const qc = useQueryClient();
+  const { data: farm } = useFarm();
+  const { toast } = useToast();
+  return useMutation({
+    mutationFn: async (v: { feed_type: string; quantity_kg: number; unit_cost?: number; low_threshold_kg?: number }) => {
+      if (!farm) throw new Error("No farm");
+      const { error } = await supabase.from("feed_stock" as any).upsert({
+        farm_id: farm.id, feed_type: v.feed_type, quantity_kg: v.quantity_kg,
+        unit_cost: v.unit_cost ?? 0, low_threshold_kg: v.low_threshold_kg ?? 10,
+      }, { onConflict: "farm_id,feed_type" });
+      if (error) throw error;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["feed_stock"] }); toast({ title: "Stock updated" }); },
     onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 }
