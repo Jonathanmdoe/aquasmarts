@@ -61,11 +61,18 @@ export default function MobileLayout({ children }: { children: ReactNode }) {
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
-                <tab.icon
-                  className={`relative z-10 w-5 h-5 transition-colors ${
-                    active ? "text-primary" : "text-muted-foreground"
-                  }`}
-                />
+                <div className="relative">
+                  <tab.icon
+                    className={`relative z-10 w-5 h-5 transition-colors ${
+                      active ? "text-primary" : "text-muted-foreground"
+                    }`}
+                  />
+                  {tab.path === "/more" && unread > 0 && (
+                    <span className="absolute -top-1.5 -right-2 z-20 min-w-[16px] h-4 px-1 rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground flex items-center justify-center">
+                      {unread > 99 ? "99+" : unread}
+                    </span>
+                  )}
+                </div>
                 <span
                   className={`relative z-10 text-[9px] font-medium transition-colors ${
                     active ? "text-primary" : "text-muted-foreground"
