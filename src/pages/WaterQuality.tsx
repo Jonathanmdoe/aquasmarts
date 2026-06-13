@@ -46,8 +46,12 @@ function ParameterBadge({ label, value, unit, status }: { label: string; value: 
 }
 
 export default function WaterQuality() {
-  const { data: readings, isLoading } = useWaterReadings();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeBatchId = searchParams.get("batchId");
+  const { data: allReadings, isLoading } = useWaterReadings();
   const { data: batches } = useBatches();
+  const readings = activeBatchId ? allReadings?.filter((r: any) => r.batch_id === activeBatchId) : allReadings;
+  const activeBatch = batches?.find((b: any) => b.id === activeBatchId);
 
   // Group latest reading per batch
   const latestByBatch = new Map<string, typeof readings extends (infer U)[] ? U : never>();
