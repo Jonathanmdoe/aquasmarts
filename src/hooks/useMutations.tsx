@@ -102,6 +102,7 @@ export function useAddWaterReading() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["water_readings"] });
+      qc.invalidateQueries({ queryKey: ["notifications_unread"] });
       toast({ title: "Water reading saved!" });
     },
     onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
