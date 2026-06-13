@@ -74,6 +74,8 @@ export function useAddFeedingLog() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["feeding_logs"] });
+      qc.invalidateQueries({ queryKey: ["feed_stock"] });
+      qc.invalidateQueries({ queryKey: ["notifications_unread"] });
       toast({ title: "Feeding logged!" });
     },
     onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
