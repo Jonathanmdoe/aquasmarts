@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { Droplets, Thermometer, Wind, ChevronRight, Plus } from "lucide-react";
+import { Droplets, Thermometer, Wind, ChevronRight, Plus, X } from "lucide-react";
 import { useWaterReadings, useBatches } from "@/hooks/useFarm";
 import AddWaterReadingForm from "@/components/forms/AddWaterReadingForm";
+import { useSearchParams } from "react-router-dom";
 
 type Status = "safe" | "caution" | "danger";
 
@@ -45,8 +46,12 @@ function ParameterBadge({ label, value, unit, status }: { label: string; value: 
 }
 
 export default function WaterQuality() {
-  const { data: readings, isLoading } = useWaterReadings();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeBatchId = searchParams.get("batchId");
+  const { data: allReadings, isLoading } = useWaterReadings();
   const { data: batches } = useBatches();
+  const readings = activeBatchId ? allReadings?.filter((r: any) => r.batch_id === activeBatchId) : allReadings;
+  const activeBatch = batches?.find((b: any) => b.id === activeBatchId);
 
   // Group latest reading per batch
   const latestByBatch = new Map<string, typeof readings extends (infer U)[] ? U : never>();
@@ -69,12 +74,20 @@ export default function WaterQuality() {
     <div className="min-h-screen">
       <div className="gradient-ocean px-4 pt-10 pb-6">
         <div className="flex items-center justify-between mb-2">
-          <div>
+          <div className="min-w-0">
             <h1 className="text-xl font-bold font-display text-primary-foreground">Water Quality</h1>
-            <p className="text-xs text-primary-foreground/70 mt-1">Real-time environmental monitoring</p>
+            <p className="text-xs text-primary-foreground/70 mt-1 truncate">
+              {activeBatch ? `Batch: ${activeBatch.name}` : "Real-time environmental monitoring"}
+            </p>
           </div>
-          <AddWaterReadingForm />
+          <AddWaterReadingForm preselectedBatchId={activeBatchId} />
         </div>
+        {activeBatchId && (
+          <button onClick={() => setSearchParams({})}
+            className="flex items-center gap-1 text-[10px] text-primary-foreground/80 mt-2">
+            <X className="w-3 h-3" /> Clear batch filter
+          </button>
+        )}
         <div className="flex items-center gap-3 mt-4">
           <div className="flex-1 bg-primary-foreground/10 backdrop-blur rounded-xl p-3 text-center">
             <Thermometer className="w-4 h-4 text-primary-foreground mx-auto mb-1" />

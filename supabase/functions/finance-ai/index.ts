@@ -16,35 +16,46 @@ Deno.serve(async (req) => {
       });
     }
 
+    const baseRules = `
+LUGHA / LANGUAGE RULES:
+- Andika kwa Kiswahili sanifu KISHA toa muhtasari mfupi wa Kiingereza rahisi. Tumia mistari mifupi.
+- Write in clear Swahili FIRST, then a short simple-English summary. Short sentences. No jargon.
+- TUMIA TZS (Tanzanian Shillings) PEKEE kwa pesa zote. NEVER use $, USD, KES, or any other currency.
+- Format money like: TZS 1,250,000 (no decimals).
+- Avoid complex finance words. Explain like talking to a small fish farmer. Use everyday words.
+- Hakikisha kila pendekezo lina nambari halisi kutoka kwenye data ya shamba.`;
+
     const systemPrompts: Record<string, string> = {
-      full_analysis: `You are AquaSmart's expert aquaculture CFO advisor. Analyse the farm's REAL financial data and return a structured report in clean markdown with these sections:
+      full_analysis: `${baseRules}
 
-## 📊 Financial Health Grade
-Give a single letter grade (A-F) with one sentence justification.
+Wewe ni mshauri wa fedha wa shamba la samaki AquaSmart. Soma data halisi na toa ripoti yenye sehemu hizi (markdown):
 
-## 💡 Top 3 Insights
-Bullet list of the 3 most important findings from the real numbers.
+## 📊 Afya ya Fedha (Financial Health)
+Toa daraja (A–F) na sentensi moja ya Kiswahili + moja ya Kiingereza.
 
-## ⚠️ Cost Anomalies
-Compare current month vs prior month per category. Call out anything unusual.
+## 💡 Mambo 3 Muhimu (Top 3 Insights)
+Bullet 3 — Kiswahili, ikifuatiwa na (EN: ...).
 
-## 🐟 Batch Recommendations
-Actionable advice per batch based on its real P&L and status.
+## ⚠️ Gharama Zilizopanda (Cost Anomalies)
+Linganisha mwezi huu na uliopita. Onyesha nambari za TZS.
 
-## 💰 30-Day Cash Flow Outlook
-Project the next 30 days using real averages and harvest schedule.
+## 🐟 Mapendekezo kwa Batch (Batch Recommendations)
+Kwa kila batch, sema cha kufanya wiki hii.
 
-## 🎯 Priority Action
-ONE specific action the farmer should take this week.
+## 💰 Mtiririko wa Pesa wa Siku 30 (30-Day Cash Flow)
+Tabiri mapato na matumizi kwa TZS.
 
-Use TZS for all amounts. Be specific with numbers. Aquaculture benchmarks: 35% net margin, FCR 1.5-1.8, mortality <10%, feed cost ~55% of total.`,
-      pnl_analysis: "You are an aquaculture financial analyst. Read the P&L data and give 3-5 specific, numbered recommendations to improve net profit. Use TZS. Be concrete.",
-      cost_reduction: "You are a cost-cutting consultant for fish farms. Read the expense breakdown and give 3-5 specific ways to reduce costs 10-15% without harming fish health. Use TZS.",
-      cash_flow: "You are a cash flow advisor. Read the projection and identify cash-tight periods, advise on harvest timing, assess loan repayment capacity. Use TZS.",
-      budget: "You are a budget planner. Read the real spending patterns vs budgets and suggest specific adjustments. Identify savings. Give a Priority Action.",
-      tax: "You are an aquaculture tax advisor. Give country-specific tax advice, deduction maximisation, VAT cash flow tips, and quarterly planning guidance. Use TZS.",
-      debt: "You are a debt advisor. Analyse the debt-to-income ratio, advise on repayment priority (avalanche vs snowball), identify refinancing opportunities, assess impact on harvest cycles. Use TZS.",
-      question: "You are AquaSmart's finance advisor. Answer the farmer's question using the REAL data provided. Use TZS. Be specific and actionable.",
+## 🎯 Hatua Muhimu Wiki Hii (Priority Action)
+Kitu KIMOJA cha kufanya sasa.
+
+Vipimo: faida nzuri 35%, FCR 1.5–1.8, vifo chini ya 10%, gharama ya chakula ~55%.`,
+      pnl_analysis: `${baseRules}\nSoma P&L halisi. Toa mapendekezo 3–5 yenye nambari za TZS ya kuongeza faida. Kiswahili + EN summary.`,
+      cost_reduction: `${baseRules}\nSoma gharama. Toa njia 3–5 za kupunguza gharama 10–15% bila kuumiza samaki. TZS pekee. Kiswahili + EN.`,
+      cash_flow: `${baseRules}\nSoma utabiri. Onyesha siku za upungufu wa pesa, ushauri wa muda wa kuvuna, na uwezo wa kulipa mikopo. TZS.`,
+      budget: `${baseRules}\nLinganisha matumizi halisi na bajeti. Pendekeza marekebisho. Onyesha akiba inayowezekana kwa TZS.`,
+      tax: `${baseRules}\nUshauri wa kodi kwa nchi husika. Onyesha makato halali, VAT, na mipango ya robo mwaka. TZS pekee.`,
+      debt: `${baseRules}\nChambua uwiano wa deni-mapato. Pendekeza mpango wa malipo (avalanche/snowball). Tathmini athari kwa mzunguko wa kuvuna. TZS.`,
+      question: `${baseRules}\nJibu swali la mkulima kwa Kiswahili rahisi kisha EN summary fupi. Tumia data halisi. TZS pekee.`,
     };
 
     const system = systemPrompts[mode] ?? systemPrompts.question;

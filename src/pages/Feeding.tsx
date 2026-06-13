@@ -1,10 +1,12 @@
 import { motion } from "framer-motion";
-import { Utensils, Clock, TrendingDown, ChevronRight, Sun, Moon, CheckCircle2, CircleDashed } from "lucide-react";
+import { Utensils, Clock, TrendingDown, ChevronRight, Sun, Moon, CheckCircle2, CircleDashed, Package, Plus, X } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { useFeedingLogs, useBatches } from "@/hooks/useFarm";
+import { useFeedStock, useUpsertFeedStock } from "@/hooks/useFinance";
 import AddFeedingForm from "@/components/forms/AddFeedingForm";
 import { format, differenceInDays, isToday } from "date-fns";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 type FeedStatus = "safe" | "caution" | "danger";
 
@@ -54,45 +56,120 @@ const StatusPill = ({ status }: { status: FeedStatus }) => {
 };
 
 export default function Feeding() {
-  const { data: logs, isLoading } = useFeedingLogs();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeBatchId = searchParams.get("batchId");
+  const { data: allLogs, isLoading } = useFeedingLogs();
   const { data: batches } = useBatches();
+  const { data: stocks } = useFeedStock();
+  const upsertStock = useUpsertFeedStock();
+  const [stockOpen, setStockOpen] = useState(false);
+  const [stockType, setStockType] = useState("Floating Pellets");
+  const [stockQty, setStockQty] = useState(50);
+  const [stockCost, setStockCost] = useState(0);
+
+  const logs = useMemo(
+    () => activeBatchId ? (allLogs ?? []).filter((l: any) => l.batch_id === activeBatchId) : allLogs,
+    [allLogs, activeBatchId]
+  );
+  const activeBatch = batches?.find((b: any) => b.id === activeBatchId);
 
   const todayTotal = useMemo(
     () => logs?.filter(l => isToday(new Date(l.feeding_time))).reduce((s, l) => s + l.amount_kg, 0) ?? 0,
     [logs]
   );
 
-  // Today's plan per batch (AM = before 12:00, PM = >= 12:00)
   const todaysPlan = useMemo(() => {
     if (!batches) return [];
-    return batches
+    const filtered = activeBatchId ? batches.filter((b: any) => b.id === activeBatchId) : batches;
+    return filtered
       .filter((b: any) => b.status !== "harvested" && b.current_count > 0)
       .map((b: any) => {
         const target = targetDailyKg(b);
-        const todays = logs?.filter(l => l.batch_id === b.id && isToday(new Date(l.feeding_time))) ?? [];
+        const todays = allLogs?.filter(l => l.batch_id === b.id && isToday(new Date(l.feeding_time))) ?? [];
         const am = todays.find(l => new Date(l.feeding_time).getHours() < 12);
         const pm = todays.find(l => new Date(l.feeding_time).getHours() >= 12);
         return { batch: b, target, am, pm };
       });
-  }, [batches, logs]);
+  }, [batches, allLogs, activeBatchId]);
 
   return (
     <div className="min-h-screen">
       <div className="gradient-ocean px-4 pt-10 pb-6">
         <div className="flex items-center justify-between mb-4">
-          <div>
+          <div className="min-w-0">
             <h1 className="text-xl font-bold font-display text-primary-foreground">Feeding</h1>
-            <p className="text-xs text-primary-foreground/70">Smart feeding management</p>
+            <p className="text-xs text-primary-foreground/70 truncate">
+              {activeBatch ? `Batch: ${activeBatch.name}` : "Smart feeding management"}
+            </p>
           </div>
-          <AddFeedingForm />
+          <AddFeedingForm preselectedBatchId={activeBatchId} />
         </div>
       </div>
 
       <div className="px-4 -mt-3 relative z-10 space-y-4 pb-4">
+        {activeBatchId && (
+          <button onClick={() => setSearchParams({})}
+            className="flex items-center gap-1 text-xs text-primary font-medium">
+            <X className="w-3 h-3" /> Clear batch filter
+          </button>
+        )}
         <div className="grid grid-cols-2 gap-3">
           <StatCard icon={<Utensils className="w-4 h-4" />} label="Total Fed Today" value={`${todayTotal.toFixed(1)} kg`} color="primary" />
           <StatCard icon={<TrendingDown className="w-4 h-4" />} label="Log Count" value={`${logs?.length ?? 0}`} color="teal" />
         </div>
+
+        {/* Feed Stock */}
+        <div className="bg-card rounded-2xl p-3 shadow-card">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+              <Package className="w-4 h-4 text-primary" /> Feed Stock
+            </h2>
+            <button onClick={() => setStockOpen(o => !o)}
+              className="text-[10px] text-primary font-semibold flex items-center gap-1">
+              <Plus className="w-3 h-3" /> Add / Update
+            </button>
+          </div>
+          {(stocks?.length ?? 0) === 0 ? (
+            <p className="text-xs text-muted-foreground">No stock recorded yet. Add stock to track usage.</p>
+          ) : (
+            <div className="space-y-1.5">
+              {stocks!.map((s: any) => {
+                const low = Number(s.quantity_kg) <= Number(s.low_threshold_kg);
+                return (
+                  <div key={s.id} className="flex items-center justify-between text-xs">
+                    <span className="text-foreground">{s.feed_type}</span>
+                    <span className={`font-semibold ${low ? "text-danger" : "text-foreground"}`}>
+                      {Number(s.quantity_kg).toFixed(1)} kg {low && "· LOW"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {stockOpen && (
+            <form
+              onSubmit={async (e) => { e.preventDefault(); await upsertStock.mutateAsync({ feed_type: stockType, quantity_kg: stockQty, unit_cost: stockCost }); setStockOpen(false); }}
+              className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-border/50"
+            >
+              <select value={stockType} onChange={e => setStockType(e.target.value)}
+                className="col-span-3 bg-muted/50 border border-border rounded-lg px-2 py-1.5 text-xs">
+                <option>Floating Pellets</option>
+                <option>Sinking Pellets</option>
+                <option>Crumble</option>
+                <option>Live Feed</option>
+                <option>Other</option>
+              </select>
+              <input type="number" step="0.1" placeholder="kg" value={stockQty} onChange={e => setStockQty(Number(e.target.value))}
+                className="bg-muted/50 border border-border rounded-lg px-2 py-1.5 text-xs" />
+              <input type="number" step="1" placeholder="TZS/kg" value={stockCost} onChange={e => setStockCost(Number(e.target.value))}
+                className="bg-muted/50 border border-border rounded-lg px-2 py-1.5 text-xs" />
+              <button type="submit" className="bg-primary text-primary-foreground rounded-lg text-xs font-semibold">
+                Save
+              </button>
+            </form>
+          )}
+        </div>
+
 
         {/* Today's Plan Strip */}
         {todaysPlan.length > 0 && (

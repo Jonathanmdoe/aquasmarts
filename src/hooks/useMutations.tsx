@@ -74,6 +74,8 @@ export function useAddFeedingLog() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["feeding_logs"] });
+      qc.invalidateQueries({ queryKey: ["feed_stock"] });
+      qc.invalidateQueries({ queryKey: ["notifications_unread"] });
       toast({ title: "Feeding logged!" });
     },
     onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
@@ -100,6 +102,7 @@ export function useAddWaterReading() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["water_readings"] });
+      qc.invalidateQueries({ queryKey: ["notifications_unread"] });
       toast({ title: "Water reading saved!" });
     },
     onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
@@ -125,6 +128,8 @@ export function useAddHealthRecord() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["health_records"] });
+      qc.invalidateQueries({ queryKey: ["batches"] });
+      qc.invalidateQueries({ queryKey: ["notifications_unread"] });
       toast({ title: "Health record added!" });
     },
     onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),

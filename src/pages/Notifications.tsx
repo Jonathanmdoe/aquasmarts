@@ -1,126 +1,98 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
-import {
-  ArrowLeft, Bell, Droplets, Heart, Fish, DollarSign,
-  Mail, BellRing, Smartphone
-} from "lucide-react";
+import { ArrowLeft, Bell, Check, CheckCheck, Trash2, Inbox } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
-
-interface NotifSetting {
-  id: string;
-  label: string;
-  desc: string;
-  icon: typeof Bell;
-  enabled: boolean;
-}
+import { formatDistanceToNow } from "date-fns";
+import { useNotifications, useMarkNotificationRead, useMarkAllRead } from "@/hooks/useNotifications";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Notifications() {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const qc = useQueryClient();
+  const { data: notifs = [], isLoading } = useNotifications();
+  const markRead = useMarkNotificationRead();
+  const markAll = useMarkAllRead();
 
-  const [inApp, setInApp] = useState<NotifSetting[]>([
-    { id: "water", label: "Water Quality Alerts", desc: "pH, oxygen, temperature warnings", icon: Droplets, enabled: true },
-    { id: "health", label: "Health Alerts", desc: "Disease, mortality notifications", icon: Heart, enabled: true },
-    { id: "feeding", label: "Feeding Reminders", desc: "Scheduled feeding notifications", icon: Fish, enabled: true },
-    { id: "financial", label: "Financial Updates", desc: "Expense & revenue summaries", icon: DollarSign, enabled: false },
-  ]);
+  const unreadCount = notifs.filter((n: any) => !n.read).length;
 
-  const [channels, setChannels] = useState([
-    { id: "email", label: "Email Notifications", desc: "Receive alerts via email", icon: Mail, enabled: false },
-    { id: "push", label: "Push Notifications", desc: "Browser push for critical alerts", icon: BellRing, enabled: false },
-    { id: "sms", label: "SMS Notifications", desc: "Text messages for emergencies", icon: Smartphone, enabled: false },
-  ]);
-
-  const toggleInApp = (id: string) => {
-    setInApp(prev => prev.map(s => s.id === id ? { ...s, enabled: !s.enabled } : s));
-    toast({ title: "Preference updated", description: "Your notification settings have been saved." });
+  const handleClick = async (n: any) => {
+    if (!n.read) await markRead.mutateAsync(n.id);
+    if (n.link) navigate(n.link);
   };
 
-  const toggleChannel = (id: string) => {
-    const channel = channels.find(c => c.id === id);
-    if (id === "email" || id === "push" || id === "sms") {
-      if (!channel?.enabled) {
-        toast({ title: "Coming Soon", description: `${channel?.label} will be available in a future update.` });
-        return;
-      }
-    }
-    setChannels(prev => prev.map(c => c.id === id ? { ...c, enabled: !c.enabled } : c));
+  const del = async (id: string) => {
+    await supabase.from("notifications" as any).delete().eq("id", id);
+    qc.invalidateQueries({ queryKey: ["notifications"] });
+    qc.invalidateQueries({ queryKey: ["notifications_unread"] });
   };
-
-  const Toggle = ({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) => (
-    <button onClick={onToggle}
-      className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${enabled ? "bg-primary" : "bg-muted"}`}
-    >
-      <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-card shadow transition-transform ${enabled ? "translate-x-5" : "translate-x-0.5"}`} />
-    </button>
-  );
 
   return (
     <div className="min-h-screen">
       <div className="gradient-ocean px-4 pt-10 pb-6">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate("/settings")} className="w-8 h-8 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
-            <ArrowLeft className="w-4 h-4 text-primary-foreground" />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold font-display text-primary-foreground">Notifications</h1>
-            <p className="text-xs text-primary-foreground/70 mt-0.5">Manage your alert preferences</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
+              <ArrowLeft className="w-4 h-4 text-primary-foreground" />
+            </button>
+            <div>
+              <h1 className="text-xl font-bold font-display text-primary-foreground">Notifications</h1>
+              <p className="text-xs text-primary-foreground/70 mt-0.5">
+                {unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}
+              </p>
+            </div>
           </div>
+          {unreadCount > 0 && (
+            <button onClick={() => markAll.mutate()}
+              className="flex items-center gap-1 text-xs font-semibold text-primary-foreground bg-primary-foreground/15 px-3 py-1.5 rounded-xl">
+              <CheckCheck className="w-3.5 h-3.5" /> Mark all read
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="px-4 -mt-3 relative z-10 space-y-4 pb-4">
-        {/* In-App Alerts */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-card rounded-2xl shadow-card p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-            <Bell className="w-4 h-4 text-primary" /> In-App Alerts
-          </h3>
-          <div className="space-y-1">
-            {inApp.map(setting => (
-              <div key={setting.id} className="flex items-center justify-between py-3 border-b border-border/50 last:border-0">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center">
-                    <setting.icon className="w-4 h-4 text-muted-foreground" />
+      <div className="px-4 -mt-3 relative z-10 pb-4">
+        {isLoading ? (
+          <div className="text-center py-8"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" /></div>
+        ) : notifs.length === 0 ? (
+          <div className="bg-card rounded-2xl p-8 shadow-card text-center">
+            <Inbox className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+            <p className="text-sm font-medium text-foreground">No notifications yet</p>
+            <p className="text-xs text-muted-foreground mt-1">Alerts about water quality, mortality, orders & payments will appear here.</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {notifs.map((n: any, i: number) => (
+              <motion.div
+                key={n.id}
+                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                className={`bg-card rounded-2xl p-3 shadow-card flex items-start gap-3 ${!n.read ? "border-l-4 border-primary" : ""}`}
+              >
+                <button onClick={() => handleClick(n)} className="flex-1 text-left min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="text-sm font-semibold text-foreground truncate">{n.title}</p>
+                    {!n.read && <span className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />}
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{setting.label}</p>
-                    <p className="text-xs text-muted-foreground">{setting.desc}</p>
-                  </div>
+                  <p className="text-xs text-muted-foreground line-clamp-2">{n.body}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
+                  </p>
+                </button>
+                <div className="flex flex-col gap-1">
+                  {!n.read && (
+                    <button onClick={() => markRead.mutate(n.id)} aria-label="Mark read"
+                      className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center">
+                      <Check className="w-3.5 h-3.5 text-muted-foreground" />
+                    </button>
+                  )}
+                  <button onClick={() => del(n.id)} aria-label="Delete"
+                    className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center">
+                    <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
+                  </button>
                 </div>
-                <Toggle enabled={setting.enabled} onToggle={() => toggleInApp(setting.id)} />
-              </div>
+              </motion.div>
             ))}
           </div>
-        </motion.div>
-
-        {/* Notification Channels */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="bg-card rounded-2xl shadow-card p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-            <BellRing className="w-4 h-4 text-primary" /> Notification Channels
-          </h3>
-          <div className="space-y-1">
-            {channels.map(channel => (
-              <div key={channel.id} className="flex items-center justify-between py-3 border-b border-border/50 last:border-0">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center">
-                    <channel.icon className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{channel.label}</p>
-                    <p className="text-xs text-muted-foreground">{channel.desc}</p>
-                  </div>
-                </div>
-                <Toggle enabled={channel.enabled} onToggle={() => toggleChannel(channel.id)} />
-              </div>
-            ))}
-          </div>
-          <p className="text-[10px] text-muted-foreground mt-3 px-1">
-            Email, push, and SMS channels will be available in a future update. In-app alerts are active now.
-          </p>
-        </motion.div>
+        )}
       </div>
     </div>
   );
