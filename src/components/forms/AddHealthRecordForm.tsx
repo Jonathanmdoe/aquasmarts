@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Plus } from "lucide-react";
 import { useAddHealthRecord } from "@/hooks/useMutations";
 import { useBatches } from "@/hooks/useFarm";
 
-export default function AddHealthRecordForm() {
+export default function AddHealthRecordForm({ preselectedBatchId }: { preselectedBatchId?: string | null }) {
   const [open, setOpen] = useState(false);
   const { data: batches } = useBatches();
-  const [batchId, setBatchId] = useState("");
+  const [batchId, setBatchId] = useState(preselectedBatchId ?? "");
   const [title, setTitle] = useState("");
   const [recordType, setRecordType] = useState("observation");
   const [severity, setSeverity] = useState("low");
@@ -15,6 +15,7 @@ export default function AddHealthRecordForm() {
   const [treatment, setTreatment] = useState("");
   const [mortalityCount, setMortalityCount] = useState(0);
   const mutation = useAddHealthRecord();
+  useEffect(() => { if (preselectedBatchId) setBatchId(preselectedBatchId); }, [preselectedBatchId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
