@@ -9,6 +9,7 @@ import {
   DollarSign,
   MoreHorizontal,
 } from "lucide-react";
+import { useUnreadNotificationCount } from "@/hooks/useNotifications";
 
 const tabs = [
   { path: "/", icon: LayoutDashboard, label: "Home" },
@@ -21,6 +22,7 @@ const tabs = [
 export default function MobileLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { data: unread = 0 } = useUnreadNotificationCount();
 
   const isActive = (path: string) => location.pathname === path;
 
