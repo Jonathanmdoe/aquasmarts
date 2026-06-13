@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Fish, Activity, TrendingUp, MoreVertical } from "lucide-react";
+import { Fish, Activity, TrendingUp, MoreVertical, Utensils, Droplets, Heart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export interface BatchData {
   id: string;
@@ -23,6 +24,9 @@ const statusStyle = {
 };
 
 export default function BatchCard({ batch, index = 0, onEdit }: { batch: BatchData; index?: number; onEdit?: (id: string) => void }) {
+  const navigate = useNavigate();
+  const go = (path: string) => navigate(`${path}?batchId=${batch.id}`);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -82,6 +86,21 @@ export default function BatchCard({ batch, index = 0, onEdit }: { batch: BatchDa
         <div className="flex items-center gap-1.5">
           <span className="text-xs text-muted-foreground">Mort <strong className="text-danger">{batch.mortality}%</strong></span>
         </div>
+      </div>
+
+      <div className="flex items-center gap-2 mt-3">
+        <button type="button" onClick={() => go("/feeding")}
+          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-ocean-surface text-primary text-xs font-semibold active:scale-95 transition">
+          <Utensils className="w-3.5 h-3.5" /> Feed
+        </button>
+        <button type="button" onClick={() => go("/water")}
+          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-ocean-surface text-primary text-xs font-semibold active:scale-95 transition">
+          <Droplets className="w-3.5 h-3.5" /> Water
+        </button>
+        <button type="button" onClick={() => go("/health")}
+          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-ocean-surface text-primary text-xs font-semibold active:scale-95 transition">
+          <Heart className="w-3.5 h-3.5" /> Health
+        </button>
       </div>
     </motion.div>
   );
