@@ -1,17 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Plus } from "lucide-react";
 import { useAddFeedingLog } from "@/hooks/useMutations";
 import { useBatches } from "@/hooks/useFarm";
 
-export default function AddFeedingForm() {
+export default function AddFeedingForm({ preselectedBatchId }: { preselectedBatchId?: string | null }) {
   const [open, setOpen] = useState(false);
   const { data: batches } = useBatches();
-  const [batchId, setBatchId] = useState("");
+  const [batchId, setBatchId] = useState(preselectedBatchId ?? "");
   const [feedType, setFeedType] = useState("Floating Pellets");
   const [amount, setAmount] = useState(1);
   const [notes, setNotes] = useState("");
   const mutation = useAddFeedingLog();
+
+  useEffect(() => { if (preselectedBatchId) setBatchId(preselectedBatchId); }, [preselectedBatchId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
