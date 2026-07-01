@@ -33,6 +33,7 @@ import MarketplaceKYC from "./pages/MarketplaceKYC";
 import MarketplaceDisputes from "./pages/MarketplaceDisputes";
 import MarketplaceNotifications from "./pages/MarketplaceNotifications";
 import MarketplaceAnalytics from "./pages/MarketplaceAnalytics";
+import DevLogin from "./pages/DevLogin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
