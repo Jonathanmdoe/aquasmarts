@@ -33,6 +33,7 @@ import MarketplaceKYC from "./pages/MarketplaceKYC";
 import MarketplaceDisputes from "./pages/MarketplaceDisputes";
 import MarketplaceNotifications from "./pages/MarketplaceNotifications";
 import MarketplaceAnalytics from "./pages/MarketplaceAnalytics";
+import DevLogin from "./pages/DevLogin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,9 +46,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function OwnerRoute({ children }: { children: React.ReactNode }) {
-  const { isOwner, loading } = useUserRole();
+  const { isOwner, isSuperAdmin, loading } = useUserRole();
   if (loading) return <div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
-  if (!isOwner) return <Navigate to="/settings" replace />;
+  if (!isOwner && !isSuperAdmin) return <Navigate to="/settings" replace />;
   return <>{children}</>;
 }
 
@@ -69,6 +70,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/auth" element={<AuthRoute><Auth /></AuthRoute>} />
+      <Route path="/dev-login" element={<DevLogin />} />
       <Route path="/farm-setup" element={<ProtectedRoute><FarmSetup /></ProtectedRoute>} />
       <Route path="/" element={<ProtectedRoute><MobileLayout><Index /></MobileLayout></ProtectedRoute>} />
       <Route path="/batches" element={<ProtectedRoute><MobileLayout><Batches /></MobileLayout></ProtectedRoute>} />
