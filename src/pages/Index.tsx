@@ -16,6 +16,8 @@ import { useSmartAlerts } from "@/hooks/useSmartAlerts";
 import { formatTZSCompact } from "@/lib/currency";
 import { useAuth } from "@/hooks/useAuth";
 
+import { useUserRole } from "@/hooks/useUserRole";
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
@@ -23,16 +25,27 @@ export default function Dashboard() {
   const { data: batches } = useBatches();
   const { data: financials } = useFinancialRecords();
   const { alerts } = useSmartAlerts();
+  const { isSuperAdmin, isWorker, isOwner, isManager, loading: rolesLoading } = useUserRole();
 
-  // Only redirect to farm setup when we've definitively confirmed no farm exists.
-  // Guards against token-refresh races that briefly clear the query result.
+  // Role-based routing (per auth flow diagram):
+  // - Super admin → /admin
+  // - Worker (not owner/manager) → /worker
+  // - Others (owner/manager) → this dashboard, but only after farm check
   useEffect(() => {
-    if (authLoading || !user) return;
+    if (authLoading || !user || rolesLoading) return;
+    if (isSuperAdmin) {
+      navigate("/admin", { replace: true });
+      return;
+    }
+    if (isWorker && !isOwner && !isManager) {
+      navigate("/worker", { replace: true });
+      return;
+    }
     if (farmLoading || farmFetching) return;
     if (farmLoaded && !farm) {
       navigate("/farm-setup", { replace: true });
     }
-  }, [authLoading, user, farm, farmLoading, farmFetching, farmLoaded, navigate]);
+  }, [authLoading, user, rolesLoading, isSuperAdmin, isWorker, isOwner, isManager, farm, farmLoading, farmFetching, farmLoaded, navigate]);
 
   const activeBatches = batches?.filter((b) => b.status === "active" || b.status === "stocked") ?? [];
   const totalBiomass = batches?.reduce((s, b) => s + (b.biomass ?? 0), 0) ?? 0;
