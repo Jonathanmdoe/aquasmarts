@@ -70,6 +70,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/auth" element={<AuthRoute><Auth /></AuthRoute>} />
+      <Route path="/dev-login" element={<DevLogin />} />
       <Route path="/farm-setup" element={<ProtectedRoute><FarmSetup /></ProtectedRoute>} />
       <Route path="/" element={<ProtectedRoute><MobileLayout><Index /></MobileLayout></ProtectedRoute>} />
       <Route path="/batches" element={<ProtectedRoute><MobileLayout><Batches /></MobileLayout></ProtectedRoute>} />
