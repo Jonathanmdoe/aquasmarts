@@ -28,6 +28,7 @@ import More from "./pages/More";
 import Notifications from "./pages/Notifications";
 import Security from "./pages/Security";
 import HelpSupport from "./pages/HelpSupport";
+import WorkerDashboard from "./pages/WorkerDashboard";
 import MarketplaceKYC from "./pages/MarketplaceKYC";
 import MarketplaceDisputes from "./pages/MarketplaceDisputes";
 import MarketplaceNotifications from "./pages/MarketplaceNotifications";
