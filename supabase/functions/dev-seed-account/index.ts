@@ -71,8 +71,11 @@ Deno.serve(async (req) => {
           user_id: userId,
           name: "Demo Aqua Farm",
           location: "Dar es Salaam, Tanzania",
-          farm_type: "pond",
+          operation_type: "grow_out",
+          production_system: "ponds",
+          market_orientation: "local",
           num_ponds: 3,
+          onboarding_complete: true,
         });
       }
     }
