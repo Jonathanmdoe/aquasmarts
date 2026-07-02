@@ -102,7 +102,7 @@ Deno.serve(async (req) => {
           await admin.from("user_roles").upsert({ user_id: ownerId, role: "owner" }, { onConflict: "user_id,role" });
           const { data: nf } = await admin
             .from("farms")
-            .insert({ user_id: ownerId, name: "Demo Aqua Farm", location: "Dar es Salaam, Tanzania", farm_type: "pond", num_ponds: 3 })
+            .insert({ user_id: ownerId, name: "Demo Aqua Farm", location: "Dar es Salaam, Tanzania", operation_type: "grow_out", production_system: "ponds", market_orientation: "local", num_ponds: 3, onboarding_complete: true })
             .select("id, user_id")
             .single();
           firstFarm = nf;
