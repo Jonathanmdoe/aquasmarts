@@ -58,15 +58,53 @@ Deno.serve(async (req) => {
       { onConflict: "user_id,role" }
     );
 
+    // Owner: ensure a demo farm exists so the dashboard works immediately
+    if (role === "owner") {
+      const { data: ownFarm } = await admin
+        .from("farms")
+        .select("id")
+        .eq("user_id", userId)
+        .limit(1)
+        .maybeSingle();
+      if (!ownFarm) {
+        await admin.from("farms").insert({
+          user_id: userId,
+          name: "Demo Aqua Farm",
+          location: "Dar es Salaam, Tanzania",
+          farm_type: "pond",
+          num_ponds: 3,
+        });
+      }
+    }
+
     // For non-owner roles that need a farm to exist for dashboards to work,
-    // attach them as team members to the first farm on the platform (if any).
+    // attach them as team members to the seeded owner's farm (or first farm).
     if (role === "manager" || role === "worker") {
-      const { data: firstFarm } = await admin
+      let { data: firstFarm } = await admin
         .from("farms")
         .select("id, user_id")
         .order("created_at", { ascending: true })
         .limit(1)
         .maybeSingle();
+      if (!firstFarm) {
+        // No farm on the platform yet — create the demo owner + farm
+        const { data: created2 } = await admin.auth.admin.createUser({
+          email: "owner@aquasmart.test",
+          password: "Owner@12345",
+          email_confirm: true,
+          user_metadata: { full_name: "Farm Owner" },
+        });
+        const ownerId = created2?.user?.id;
+        if (ownerId) {
+          await admin.from("user_roles").upsert({ user_id: ownerId, role: "owner" }, { onConflict: "user_id,role" });
+          const { data: nf } = await admin
+            .from("farms")
+            .insert({ user_id: ownerId, name: "Demo Aqua Farm", location: "Dar es Salaam, Tanzania", farm_type: "pond", num_ponds: 3 })
+            .select("id, user_id")
+            .single();
+          firstFarm = nf;
+        }
+      }
       if (firstFarm) {
         await admin.from("team_members").upsert(
           { farm_id: firstFarm.id, user_id: userId, role, invited_by: firstFarm.user_id },
