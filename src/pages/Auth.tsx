@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Fish, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { Fish, Mail, Lock, User, Eye, EyeOff, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -123,6 +123,24 @@ export default function Auth() {
             </button>
           </form>
         </motion.div>
+
+        <motion.button
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.15 }}
+          onClick={() => navigate("/dev-login")}
+          className="w-full mt-4 bg-card rounded-2xl shadow-card p-4 flex items-center gap-3 text-left hover:scale-[1.01] active:scale-[0.99] transition"
+        >
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shrink-0">
+            <Shield className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-foreground">Test Role Logins</p>
+            <p className="text-[11px] text-muted-foreground">
+              One-tap login as Admin, Owner, Manager or Worker
+            </p>
+          </div>
+        </motion.button>
       </div>
     </div>
   );

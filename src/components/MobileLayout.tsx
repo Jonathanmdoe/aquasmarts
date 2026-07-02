@@ -10,6 +10,7 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import { useUnreadNotificationCount } from "@/hooks/useNotifications";
+import RoleBadge from "@/components/RoleBadge";
 
 const tabs = [
   { path: "/", icon: LayoutDashboard, label: "Home" },
@@ -28,6 +29,7 @@ export default function MobileLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex flex-col min-h-screen max-w-md mx-auto bg-background">
+      <RoleBadge />
       <main className="flex-1 overflow-y-auto pb-20">
         <AnimatePresence mode="wait">
           <motion.div

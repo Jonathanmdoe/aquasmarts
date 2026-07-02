@@ -8,6 +8,7 @@ export function useFarm() {
   return useQuery({
     queryKey: ["farm", user?.id],
     queryFn: async () => {
+      // 1. Farm the user owns
       const { data, error } = await supabase
         .from("farms")
         .select("*")
@@ -16,7 +17,22 @@ export function useFarm() {
         .limit(1)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      if (data) return data;
+
+      // 2. Farm the user is a team member of (manager/worker)
+      const { data: tm } = await supabase
+        .from("team_members")
+        .select("farm_id")
+        .eq("user_id", user!.id)
+        .limit(1)
+        .maybeSingle();
+      if (!tm?.farm_id) return null;
+      const { data: teamFarm } = await supabase
+        .from("farms")
+        .select("*")
+        .eq("id", tm.farm_id)
+        .maybeSingle();
+      return teamFarm ?? null;
     },
     enabled: !!user,
   });
