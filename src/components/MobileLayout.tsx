@@ -12,11 +12,21 @@ import {
 import { useUnreadNotificationCount } from "@/hooks/useNotifications";
 import RoleBadge from "@/components/RoleBadge";
 
-const tabs = [
+import { useUserRole } from "@/hooks/useUserRole";
+
+const ownerTabs = [
   { path: "/", icon: LayoutDashboard, label: "Home" },
   { path: "/batches", icon: Fish, label: "Batches" },
   { path: "/financial", icon: DollarSign, label: "Finance" },
   { path: "/marketplace", icon: ShoppingCart, label: "Market" },
+  { path: "/more", icon: MoreHorizontal, label: "More" },
+];
+
+const workerTabs = [
+  { path: "/worker", icon: LayoutDashboard, label: "Home" },
+  { path: "/batches", icon: Fish, label: "Batches" },
+  { path: "/feeding", icon: Fish, label: "Feed" },
+  { path: "/health", icon: Heart, label: "Health" },
   { path: "/more", icon: MoreHorizontal, label: "More" },
 ];
 
