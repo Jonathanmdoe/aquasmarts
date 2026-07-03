@@ -52,6 +52,18 @@ function OwnerRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+type RoleName = "owner" | "manager" | "worker" | "super_admin";
+function RoleRoute({ children, allow }: { children: React.ReactNode; allow: RoleName[] }) {
+  const { primaryRole, isSuperAdmin, loading } = useUserRole();
+  if (loading) return <div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  if (isSuperAdmin) return <>{children}</>;
+  const role = (primaryRole ?? "owner") as RoleName;
+  if (!allow.includes(role)) {
+    return <Navigate to={role === "worker" ? "/worker" : "/"} replace />;
+  }
+  return <>{children}</>;
+}
+
 function EnterpriseRoute({ children }: { children: React.ReactNode }) {
   const { currentTier, loading } = useSubscription();
   if (loading) return <div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
