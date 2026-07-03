@@ -34,6 +34,8 @@ export default function MobileLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { data: unread = 0 } = useUnreadNotificationCount();
+  const { isWorker, isOwner, isManager } = useUserRole();
+  const tabs = isWorker && !isOwner && !isManager ? workerTabs : ownerTabs;
 
   const isActive = (path: string) => location.pathname === path;
 
