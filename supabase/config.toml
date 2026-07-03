@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.dev-seed-account]
 verify_jwt = false
+
+[functions.send-team-invitation]
+verify_jwt = false
