@@ -97,17 +97,26 @@ export default function TeamManagement() {
     if (!farm?.id || !user?.id || !inviteEmail.trim()) return;
     setSending(true);
 
-    const { error } = await supabase.from("team_invitations").insert({
-      farm_id: farm.id,
-      email: inviteEmail.trim().toLowerCase(),
-      role: inviteRole,
-      invited_by: user.id,
+    const { data, error } = await supabase.functions.invoke("send-team-invitation", {
+      body: {
+        farm_id: farm.id,
+        email: inviteEmail.trim().toLowerCase(),
+        role: inviteRole,
+        redirect_to: window.location.origin,
+      },
     });
 
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+    if (error || (data as any)?.error) {
+      toast({
+        title: "Could not send invitation",
+        description: (data as any)?.error ?? error?.message ?? "Please try again.",
+        variant: "destructive",
+      });
     } else {
-      toast({ title: "Invitation sent", description: `Invited ${inviteEmail} as ${inviteRole}` });
+      toast({
+        title: "Invitation sent",
+        description: `${inviteEmail} will receive an email invite as ${inviteRole}.`,
+      });
       setInviteEmail("");
       setInviteOpen(false);
       fetchTeam();
