@@ -27,7 +27,7 @@ export default function MarketplaceNotifications() {
 
   useEffect(() => {
     if (!user) return;
-    const ch = supabase.channel("mp-notifs").on("postgres_changes",
+    const ch = supabase.channel(`mp-notifs-${user.id}`).on("postgres_changes",
       { event: "*", schema: "public", table: "marketplace_notifications", filter: `user_id=eq.${user.id}` },
       () => qc.invalidateQueries({ queryKey: ["mp_notifs"] })).subscribe();
     return () => { supabase.removeChannel(ch); };
