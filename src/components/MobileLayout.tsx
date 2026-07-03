@@ -12,7 +12,9 @@ import {
 import { useUnreadNotificationCount } from "@/hooks/useNotifications";
 import RoleBadge from "@/components/RoleBadge";
 
-const tabs = [
+import { useUserRole } from "@/hooks/useUserRole";
+
+const ownerTabs = [
   { path: "/", icon: LayoutDashboard, label: "Home" },
   { path: "/batches", icon: Fish, label: "Batches" },
   { path: "/financial", icon: DollarSign, label: "Finance" },
@@ -20,10 +22,20 @@ const tabs = [
   { path: "/more", icon: MoreHorizontal, label: "More" },
 ];
 
+const workerTabs = [
+  { path: "/worker", icon: LayoutDashboard, label: "Home" },
+  { path: "/batches", icon: Fish, label: "Batches" },
+  { path: "/feeding", icon: Fish, label: "Feed" },
+  { path: "/health", icon: Heart, label: "Health" },
+  { path: "/more", icon: MoreHorizontal, label: "More" },
+];
+
 export default function MobileLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { data: unread = 0 } = useUnreadNotificationCount();
+  const { isWorker, isOwner, isManager } = useUserRole();
+  const tabs = isWorker && !isOwner && !isManager ? workerTabs : ownerTabs;
 
   const isActive = (path: string) => location.pathname === path;
 

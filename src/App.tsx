@@ -52,6 +52,18 @@ function OwnerRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+type RoleName = "owner" | "manager" | "worker" | "super_admin";
+function RoleRoute({ children, allow }: { children: React.ReactNode; allow: RoleName[] }) {
+  const { primaryRole, isSuperAdmin, loading } = useUserRole();
+  if (loading) return <div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  if (isSuperAdmin) return <>{children}</>;
+  const role = (primaryRole ?? "owner") as RoleName;
+  if (!allow.includes(role)) {
+    return <Navigate to={role === "worker" ? "/worker" : "/"} replace />;
+  }
+  return <>{children}</>;
+}
+
 function EnterpriseRoute({ children }: { children: React.ReactNode }) {
   const { currentTier, loading } = useSubscription();
   if (loading) return <div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
@@ -73,29 +85,30 @@ function AppRoutes() {
       <Route path="/dev-login" element={<DevLogin />} />
       <Route path="/farm-setup" element={<ProtectedRoute><FarmSetup /></ProtectedRoute>} />
       <Route path="/" element={<ProtectedRoute><MobileLayout><Index /></MobileLayout></ProtectedRoute>} />
-      <Route path="/batches" element={<ProtectedRoute><MobileLayout><Batches /></MobileLayout></ProtectedRoute>} />
-      <Route path="/feeding" element={<ProtectedRoute><MobileLayout><Feeding /></MobileLayout></ProtectedRoute>} />
-      <Route path="/water" element={<ProtectedRoute><MobileLayout><WaterQuality /></MobileLayout></ProtectedRoute>} />
-      <Route path="/health" element={<ProtectedRoute><MobileLayout><Health /></MobileLayout></ProtectedRoute>} />
-      <Route path="/financial" element={<ProtectedRoute><MobileLayout><Financial /></MobileLayout></ProtectedRoute>} />
-      <Route path="/marketplace" element={<ProtectedRoute><MobileLayout><Marketplace /></MobileLayout></ProtectedRoute>} />
-      <Route path="/my-listings" element={<ProtectedRoute><MobileLayout><MyListings /></MobileLayout></ProtectedRoute>} />
+      <Route path="/batches" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Batches /></MobileLayout></RoleRoute></ProtectedRoute>} />
+      <Route path="/feeding" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Feeding /></MobileLayout></RoleRoute></ProtectedRoute>} />
+      <Route path="/water" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><WaterQuality /></MobileLayout></RoleRoute></ProtectedRoute>} />
+      <Route path="/health" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Health /></MobileLayout></RoleRoute></ProtectedRoute>} />
+      <Route path="/financial" element={<ProtectedRoute><RoleRoute allow={["owner","manager"]}><MobileLayout><Financial /></MobileLayout></RoleRoute></ProtectedRoute>} />
+      <Route path="/marketplace" element={<ProtectedRoute><RoleRoute allow={["owner","manager"]}><MobileLayout><Marketplace /></MobileLayout></RoleRoute></ProtectedRoute>} />
+      <Route path="/my-listings" element={<ProtectedRoute><RoleRoute allow={["owner","manager"]}><MobileLayout><MyListings /></MobileLayout></RoleRoute></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><MobileLayout><Settings /></MobileLayout></ProtectedRoute>} />
       <Route path="/more" element={<ProtectedRoute><MobileLayout><More /></MobileLayout></ProtectedRoute>} />
-      <Route path="/subscription" element={<ProtectedRoute><MobileLayout><Subscription /></MobileLayout></ProtectedRoute>} />
-      <Route path="/ai-predictions" element={<ProtectedRoute><MobileLayout><AIPredictions /></MobileLayout></ProtectedRoute>} />
+      <Route path="/subscription" element={<ProtectedRoute><RoleRoute allow={["owner"]}><MobileLayout><Subscription /></MobileLayout></RoleRoute></ProtectedRoute>} />
+      <Route path="/ai-predictions" element={<ProtectedRoute><RoleRoute allow={["owner","manager"]}><MobileLayout><AIPredictions /></MobileLayout></RoleRoute></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><OwnerRoute><MobileLayout><Admin /></MobileLayout></OwnerRoute></ProtectedRoute>} />
       <Route path="/enterprise" element={<ProtectedRoute><EnterpriseRoute><MobileLayout><Enterprise /></MobileLayout></EnterpriseRoute></ProtectedRoute>} />
-      <Route path="/sales" element={<ProtectedRoute><MobileLayout><Sales /></MobileLayout></ProtectedRoute>} />
+      <Route path="/sales" element={<ProtectedRoute><RoleRoute allow={["owner","manager"]}><MobileLayout><Sales /></MobileLayout></RoleRoute></ProtectedRoute>} />
       <Route path="/notifications" element={<ProtectedRoute><MobileLayout><Notifications /></MobileLayout></ProtectedRoute>} />
       <Route path="/security" element={<ProtectedRoute><MobileLayout><Security /></MobileLayout></ProtectedRoute>} />
       <Route path="/help" element={<ProtectedRoute><MobileLayout><HelpSupport /></MobileLayout></ProtectedRoute>} />
       <Route path="/worker" element={<ProtectedRoute><MobileLayout><WorkerDashboard /></MobileLayout></ProtectedRoute>} />
-      <Route path="/marketplace/kyc" element={<ProtectedRoute><MobileLayout><MarketplaceKYC /></MobileLayout></ProtectedRoute>} />
-      <Route path="/marketplace/disputes" element={<ProtectedRoute><MobileLayout><MarketplaceDisputes /></MobileLayout></ProtectedRoute>} />
-      <Route path="/marketplace/disputes/:id" element={<ProtectedRoute><MobileLayout><MarketplaceDisputes /></MobileLayout></ProtectedRoute>} />
-      <Route path="/marketplace/notifications" element={<ProtectedRoute><MobileLayout><MarketplaceNotifications /></MobileLayout></ProtectedRoute>} />
-      <Route path="/marketplace/analytics" element={<ProtectedRoute><MobileLayout><MarketplaceAnalytics /></MobileLayout></ProtectedRoute>} />
+      <Route path="/marketplace/kyc" element={<ProtectedRoute><RoleRoute allow={["owner"]}><MobileLayout><MarketplaceKYC /></MobileLayout></RoleRoute></ProtectedRoute>} />
+      <Route path="/marketplace/disputes" element={<ProtectedRoute><RoleRoute allow={["owner","manager"]}><MobileLayout><MarketplaceDisputes /></MobileLayout></RoleRoute></ProtectedRoute>} />
+      <Route path="/marketplace/disputes/:id" element={<ProtectedRoute><RoleRoute allow={["owner","manager"]}><MobileLayout><MarketplaceDisputes /></MobileLayout></RoleRoute></ProtectedRoute>} />
+      <Route path="/marketplace/notifications" element={<ProtectedRoute><RoleRoute allow={["owner","manager"]}><MobileLayout><MarketplaceNotifications /></MobileLayout></RoleRoute></ProtectedRoute>} />
+      <Route path="/marketplace/analytics" element={<ProtectedRoute><RoleRoute allow={["owner","manager"]}><MobileLayout><MarketplaceAnalytics /></MobileLayout></RoleRoute></ProtectedRoute>} />
+
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
