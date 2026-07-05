@@ -34,6 +34,7 @@ import MarketplaceDisputes from "./pages/MarketplaceDisputes";
 import MarketplaceNotifications from "./pages/MarketplaceNotifications";
 import MarketplaceAnalytics from "./pages/MarketplaceAnalytics";
 import DevLogin from "./pages/DevLogin";
+import RoleCheck from "./pages/RoleCheck";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -103,6 +104,7 @@ function AppRoutes() {
       <Route path="/security" element={<ProtectedRoute><MobileLayout><Security /></MobileLayout></ProtectedRoute>} />
       <Route path="/help" element={<ProtectedRoute><MobileLayout><HelpSupport /></MobileLayout></ProtectedRoute>} />
       <Route path="/worker" element={<ProtectedRoute><MobileLayout><WorkerDashboard /></MobileLayout></ProtectedRoute>} />
+      <Route path="/role-check" element={<ProtectedRoute><MobileLayout><RoleCheck /></MobileLayout></ProtectedRoute>} />
       <Route path="/marketplace/kyc" element={<ProtectedRoute><RoleRoute allow={["owner"]}><MobileLayout><MarketplaceKYC /></MobileLayout></RoleRoute></ProtectedRoute>} />
       <Route path="/marketplace/disputes" element={<ProtectedRoute><RoleRoute allow={["owner","manager"]}><MobileLayout><MarketplaceDisputes /></MobileLayout></RoleRoute></ProtectedRoute>} />
       <Route path="/marketplace/disputes/:id" element={<ProtectedRoute><RoleRoute allow={["owner","manager"]}><MobileLayout><MarketplaceDisputes /></MobileLayout></RoleRoute></ProtectedRoute>} />
