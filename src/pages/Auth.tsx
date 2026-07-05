@@ -4,6 +4,7 @@ import { Fish, Mail, Lock, User, Eye, EyeOff, Shield, Crown, Wrench } from "luci
 import { useAuth, SignupRole } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const roleOptions: { value: SignupRole; label: string; icon: any; desc: string }[] = [
   { value: "owner", label: "Farm Owner", icon: Crown, desc: "Full access — manage farms, finance, team" },
@@ -30,8 +31,23 @@ export default function Auth() {
 
     if (isLogin) {
       const { error } = await signIn(email, password);
-      if (error) toast({ title: "Login failed", description: error.message, variant: "destructive" });
-      else navigate("/");
+      if (error) {
+        toast({ title: "Login failed", description: error.message, variant: "destructive" });
+        setLoading(false);
+        return;
+      }
+      // Route to the correct home based on the user's role
+      const { data: sess } = await supabase.auth.getUser();
+      const uid = sess.user?.id;
+      if (uid) {
+        const { data: roleRows } = await supabase.from("user_roles").select("role").eq("user_id", uid);
+        const roles = (roleRows ?? []).map((r: any) => r.role);
+        if (roles.includes("super_admin")) navigate("/admin", { replace: true });
+        else if (roles.includes("worker") && !roles.includes("owner") && !roles.includes("manager")) navigate("/worker", { replace: true });
+        else navigate("/", { replace: true });
+      } else {
+        navigate("/");
+      }
     } else {
       const { error } = await signUp(email, password, fullName, role);
       if (error) toast({ title: "Signup failed", description: error.message, variant: "destructive" });
@@ -196,24 +212,6 @@ export default function Auth() {
             {googleLoading ? "Redirecting..." : "Continue with Google"}
           </button>
         </motion.div>
-
-        <motion.button
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.15 }}
-          onClick={() => navigate("/dev-login")}
-          className="w-full mt-4 bg-card rounded-2xl shadow-card p-4 flex items-center gap-3 text-left hover:scale-[1.01] active:scale-[0.99] transition"
-        >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shrink-0">
-            <Shield className="w-5 h-5 text-white" />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-foreground">Test Role Logins</p>
-            <p className="text-[11px] text-muted-foreground">
-              One-tap login as Admin, Owner, Manager or Worker (dev only)
-            </p>
-          </div>
-        </motion.button>
       </div>
     </div>
   );
