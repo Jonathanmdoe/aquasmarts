@@ -63,29 +63,32 @@ function LiveHeader({ onBack }: { onBack: () => void }) {
   );
 }
 
-// ---------- KPI Card ----------
+// ---------- KPI Card (with mini bar chart) ----------
 function KPI({ label, value, delta, sparkColor = "hsl(var(--primary))", onClick }: {
   label: string; value: string; delta?: number; sparkColor?: string; onClick?: () => void;
 }) {
-  const data = useMemo(() => sparkData(12, 100), []);
+  const data = useMemo(() => sparkData(8, 100), []);
   return (
     <motion.button whileTap={{ scale: 0.97 }} onClick={onClick}
       className="bg-card rounded-2xl shadow-card p-3 text-left w-full">
       <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</p>
       <p className="text-lg font-bold text-foreground mt-0.5">{value}</p>
-      <div className="flex items-end justify-between mt-1">
+      <div className="flex items-end justify-between mt-1 gap-2">
         <span className={`text-[10px] font-medium ${(delta ?? 0) >= 0 ? "text-emerald-500" : "text-destructive"}`}>
           {(delta ?? 0) >= 0 ? "▲" : "▼"} {Math.abs(delta ?? 0).toFixed(1)}%
         </span>
-        <div className="w-16 h-6">
+        <div className="w-20 h-8">
           <ResponsiveContainer>
-            <LineChart data={data}><Line type="monotone" dataKey="v" stroke={sparkColor} strokeWidth={1.5} dot={false} /></LineChart>
+            <BarChart data={data} barCategoryGap={2}>
+              <Bar dataKey="v" fill={sparkColor} radius={[2, 2, 0, 0]} />
+            </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
     </motion.button>
   );
 }
+
 
 // ============================================================
 // Main Page
