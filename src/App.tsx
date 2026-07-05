@@ -33,7 +33,7 @@ import MarketplaceKYC from "./pages/MarketplaceKYC";
 import MarketplaceDisputes from "./pages/MarketplaceDisputes";
 import MarketplaceNotifications from "./pages/MarketplaceNotifications";
 import MarketplaceAnalytics from "./pages/MarketplaceAnalytics";
-import DevLogin from "./pages/DevLogin";
+
 import RoleCheck from "./pages/RoleCheck";
 import NotFound from "./pages/NotFound";
 
@@ -83,7 +83,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/auth" element={<AuthRoute><Auth /></AuthRoute>} />
-      <Route path="/dev-login" element={<DevLogin />} />
+      <Route path="/dev-login" element={<Navigate to="/auth" replace />} />
       <Route path="/farm-setup" element={<ProtectedRoute><FarmSetup /></ProtectedRoute>} />
       <Route path="/" element={<ProtectedRoute><MobileLayout><Index /></MobileLayout></ProtectedRoute>} />
       <Route path="/batches" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Batches /></MobileLayout></RoleRoute></ProtectedRoute>} />
