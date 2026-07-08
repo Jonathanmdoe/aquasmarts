@@ -22,7 +22,7 @@ export default function Settings() {
   const navigate = useNavigate();
   const { devMode, setDevMode } = useFeatureAccess();
   const { theme, toggleTheme } = useTheme();
-  const { isOwner } = useUserRole();
+  const { isSuperAdmin } = useUserRole();
 
   const [fullName, setFullName] = useState("");
   const [farmName, setFarmName] = useState("");
@@ -93,7 +93,7 @@ export default function Settings() {
   };
 
   const menuItems = [
-    ...(isOwner ? [{ icon: Shield, label: "Admin Dashboard", desc: "Platform overview", onClick: () => navigate("/admin") }] : []),
+    ...(isSuperAdmin ? [{ icon: Shield, label: "Admin Dashboard", desc: "Platform overview", onClick: () => navigate("/admin") }] : []),
     { icon: CreditCard, label: "Subscription", desc: "Manage your plan", onClick: () => navigate("/subscription") },
     { icon: ClipboardList, label: "Sales Records", desc: "Track buyers & deliveries", onClick: () => navigate("/sales") },
     { icon: Crown, label: "Enterprise", desc: "White-label & integrations", onClick: () => navigate("/enterprise") },
