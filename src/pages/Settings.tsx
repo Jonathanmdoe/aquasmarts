@@ -22,7 +22,7 @@ export default function Settings() {
   const navigate = useNavigate();
   const { devMode, setDevMode } = useFeatureAccess();
   const { theme, toggleTheme } = useTheme();
-  const { isOwner } = useUserRole();
+  const { isSuperAdmin } = useUserRole();
 
   const [fullName, setFullName] = useState("");
   const [farmName, setFarmName] = useState("");
