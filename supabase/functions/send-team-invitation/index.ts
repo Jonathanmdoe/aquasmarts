@@ -58,7 +58,33 @@ Deno.serve(async (req) => {
     }).select().single();
     if (invErr) return json({ error: invErr.message }, 400);
 
-    // Send the invitation email through Supabase Auth (uses built-in email delivery)
+    // Check if a user with this email already exists
+    const { data: existing } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    const existingUser = existing?.users?.find(
+      (u) => (u.email ?? "").toLowerCase() === email
+    );
+
+    if (existingUser) {
+      // Add them directly to the team and accept the invitation
+      await admin.from("team_members").insert({
+        farm_id, user_id: existingUser.id, role, invited_by: user.id, is_active: true,
+      });
+      await admin.from("user_roles").insert({ user_id: existingUser.id, role }).select();
+      await admin.from("team_invitations")
+        .update({ status: "accepted", accepted_at: new Date().toISOString() })
+        .eq("id", inv.id);
+      await admin.from("notifications").insert({
+        user_id: existingUser.id,
+        farm_id,
+        type: "team_invite",
+        title: `You joined ${farm.name}`,
+        body: `You were added as ${role} on ${farm.name}.`,
+        link: "/",
+      });
+      return json({ ok: true, invitation_id: inv.id, added_existing: true });
+    }
+
+    // New user — send Supabase auth invitation email
     const { error: mailErr } = await admin.auth.admin.inviteUserByEmail(email, {
       data: {
         full_name: email.split("@")[0],
@@ -70,7 +96,6 @@ Deno.serve(async (req) => {
     });
 
     if (mailErr) {
-      // Roll back invitation row so the UI can retry cleanly
       await admin.from("team_invitations").delete().eq("id", inv.id);
       return json({ error: mailErr.message }, 400);
     }
