@@ -28,7 +28,7 @@ const ALL_ITEMS: { title: string; items: Item[] }[] = [
     items: [
       { icon: SettingsIcon, label: "Settings", desc: "Profile & farm", to: "/settings", tint: "bg-primary/10 text-primary", allow: ["super_admin","owner","manager","worker"] },
       { icon: CreditCard, label: "Subscription", desc: "Manage your plan", to: "/subscription", tint: "bg-accent/10 text-accent", allow: ["owner"] },
-      { icon: Crown, label: "Enterprise", desc: "White-label & integrations", to: "/enterprise", tint: "bg-amber-500/10 text-amber-600", allow: ["owner"] },
+      
     ],
   },
   {
