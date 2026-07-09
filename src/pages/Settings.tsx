@@ -96,7 +96,7 @@ export default function Settings() {
     ...(isSuperAdmin ? [{ icon: Shield, label: "Admin Dashboard", desc: "Platform overview", onClick: () => navigate("/admin") }] : []),
     { icon: CreditCard, label: "Subscription", desc: "Manage your plan", onClick: () => navigate("/subscription") },
     { icon: ClipboardList, label: "Sales Records", desc: "Track buyers & deliveries", onClick: () => navigate("/sales") },
-    { icon: Crown, label: "Enterprise", desc: "White-label & integrations", onClick: () => navigate("/enterprise") },
+    
     { icon: Bell, label: "Notifications", desc: "Alert preferences", onClick: () => navigate("/notifications") },
     { icon: Shield, label: "Security", desc: "Password & 2FA", onClick: () => navigate("/security") },
     { icon: HelpCircle, label: "Help & Support", desc: "FAQs & contact", onClick: () => navigate("/help") },
