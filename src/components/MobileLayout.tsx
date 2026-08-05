@@ -37,7 +37,7 @@ const adminTabs = [
   { path: "/admin", icon: LayoutDashboard, label: "Console" },
   { path: "/admin?tab=users", icon: Users, label: "Users" },
   { path: "/admin?tab=moderation", icon: Flag, label: "Moderate" },
-  { path: "/admin?tab=tickets", icon: LifeBuoy, label: "Tickets" },
+  { path: "/admin?tab=support", icon: LifeBuoy, label: "Tickets" },
   { path: "/more", icon: MoreHorizontal, label: "More" },
 ];
 
