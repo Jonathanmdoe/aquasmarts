@@ -7,7 +7,7 @@ import {
   ArrowUp, ArrowDown, Send, Download, FileText, RefreshCw, Pause, Play,
   Database, Server, Zap, HardDrive,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -95,7 +95,13 @@ function KPI({ label, value, delta, sparkColor = "hsl(var(--primary))", onClick 
 // ============================================================
 export default function Admin() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState("overview");
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState(searchParams.get("tab") ?? "overview");
+  useEffect(() => {
+    const t = searchParams.get("tab");
+    if (t) setTab(t);
+  }, [searchParams]);
+
 
   // Datasets
   const [profiles, setProfiles] = useState<any[]>([]);
@@ -714,10 +720,38 @@ function LeaderboardTab({ orders, profileById }: any) {
 // ============================================================
 // Roles & Permissions
 // ============================================================
+const STAFF_ROLES = ["super_admin", "moderator", "support_agent"] as const;
+
 function RolesTab({ staff, profileById, onAction }: any) {
+  const [editing, setEditing] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const roleByUser: Record<string, string[]> = {};
   staff.forEach((s: any) => { (roleByUser[s.user_id] = roleByUser[s.user_id] ?? []).push(s.role); });
   const entries = Object.entries(roleByUser);
+  const editingRoles = editing ? (roleByUser[editing] ?? []) : [];
+
+  const toggleRole = async (uid: string, role: string, has: boolean) => {
+    setBusy(true);
+    try {
+      await callAdmin(has ? "revoke_role" : "grant_role", { user_id: uid, role, target_type: "user", target_id: uid });
+      toast.success(has ? `Revoked ${role.replace("_", " ")}` : `Granted ${role.replace("_", " ")}`);
+      onAction?.();
+    } catch { /* toast handled in callAdmin */ }
+    setBusy(false);
+  };
+
+  const revokeAll = async (uid: string, roles: string[]) => {
+    setBusy(true);
+    try {
+      for (const r of roles) {
+        await callAdmin("revoke_role", { user_id: uid, role: r, target_type: "user", target_id: uid });
+      }
+      toast.success("All staff roles revoked");
+      setEditing(null);
+      onAction?.();
+    } catch { /* handled */ }
+    setBusy(false);
+  };
 
   const matrix = [
     ["Users", true, true, false, false], ["Trades", true, true, true, false],
@@ -739,12 +773,35 @@ function RolesTab({ staff, profileById, onAction }: any) {
             </div>
           </div>
           <div className="flex gap-2 mt-2">
-            <Button size="sm" variant="outline" className="flex-1 h-7 text-[11px]" onClick={() => toast.info("Permission editor coming soon")}>Edit</Button>
-            <Button size="sm" variant="destructive" className="flex-1 h-7 text-[11px]" onClick={() => toast.warning("Use database to revoke roles")}>Revoke</Button>
+            <Button size="sm" variant="outline" className="flex-1 h-7 text-[11px]" onClick={() => setEditing(uid)}>Edit</Button>
+            <Button size="sm" variant="destructive" disabled={busy} className="flex-1 h-7 text-[11px]" onClick={() => revokeAll(uid, roles)}>Revoke all</Button>
           </div>
         </div>
       ))}
       {!entries.length && <p className="text-xs text-muted-foreground text-center py-4">No staff members</p>}
+
+      <Sheet open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+        <SheetContent side="bottom" className="rounded-t-3xl">
+          <SheetHeader>
+            <SheetTitle className="text-base">Edit roles</SheetTitle>
+            <SheetDescription className="text-xs">
+              {editing ? (profileById[editing]?.email ?? editing) : ""}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="space-y-2 mt-3">
+            {STAFF_ROLES.map((r) => {
+              const has = editingRoles.includes(r);
+              return (
+                <div key={r} className="flex items-center justify-between bg-muted/40 rounded-xl px-3 py-2">
+                  <span className="text-xs font-medium capitalize">{r.replace("_", " ")}</span>
+                  <Switch checked={has} disabled={busy} onCheckedChange={() => editing && toggleRole(editing, r, has)} />
+                </div>
+              );
+            })}
+          </div>
+        </SheetContent>
+      </Sheet>
+
 
       <div className="bg-card rounded-2xl shadow-card p-3 overflow-x-auto">
         <h3 className="text-sm font-semibold mb-2">Permission Matrix</h3>
