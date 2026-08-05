@@ -8,6 +8,9 @@ import {
   ShoppingCart,
   DollarSign,
   MoreHorizontal,
+  Users,
+  Flag,
+  LifeBuoy,
 } from "lucide-react";
 import { useUnreadNotificationCount } from "@/hooks/useNotifications";
 import RoleBadge from "@/components/RoleBadge";
@@ -30,14 +33,28 @@ const workerTabs = [
   { path: "/more", icon: MoreHorizontal, label: "More" },
 ];
 
+const adminTabs = [
+  { path: "/admin", icon: LayoutDashboard, label: "Console" },
+  { path: "/admin?tab=users", icon: Users, label: "Users" },
+  { path: "/admin?tab=moderation", icon: Flag, label: "Moderate" },
+  { path: "/admin?tab=tickets", icon: LifeBuoy, label: "Tickets" },
+  { path: "/more", icon: MoreHorizontal, label: "More" },
+];
+
 export default function MobileLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { data: unread = 0 } = useUnreadNotificationCount();
-  const { isWorker, isOwner, isManager } = useUserRole();
-  const tabs = isWorker && !isOwner && !isManager ? workerTabs : ownerTabs;
+  const { isWorker, isOwner, isManager, isSuperAdmin } = useUserRole();
+  const tabs = isSuperAdmin
+    ? adminTabs
+    : isWorker && !isOwner && !isManager
+      ? workerTabs
+      : ownerTabs;
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) =>
+    location.pathname + location.search === path || location.pathname === path;
+
 
   return (
     <div className="flex flex-col min-h-screen max-w-md mx-auto bg-background">
