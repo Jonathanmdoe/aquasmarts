@@ -95,7 +95,13 @@ function KPI({ label, value, delta, sparkColor = "hsl(var(--primary))", onClick 
 // ============================================================
 export default function Admin() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState("overview");
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState(searchParams.get("tab") ?? "overview");
+  useEffect(() => {
+    const t = searchParams.get("tab");
+    if (t) setTab(t);
+  }, [searchParams]);
+
 
   // Datasets
   const [profiles, setProfiles] = useState<any[]>([]);
