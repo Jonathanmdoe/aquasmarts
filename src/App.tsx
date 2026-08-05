@@ -79,13 +79,22 @@ function AuthRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function RoleHome() {
+  const { isSuperAdmin, isWorker, isOwner, isManager, loading } = useUserRole();
+  if (loading) return <div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  if (isSuperAdmin) return <Navigate to="/admin" replace />;
+  if (isWorker && !isOwner && !isManager) return <Navigate to="/worker" replace />;
+  return <MobileLayout><Index /></MobileLayout>;
+}
+
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/auth" element={<AuthRoute><Auth /></AuthRoute>} />
       <Route path="/dev-login" element={<Navigate to="/auth" replace />} />
       <Route path="/farm-setup" element={<ProtectedRoute><FarmSetup /></ProtectedRoute>} />
-      <Route path="/" element={<ProtectedRoute><MobileLayout><Index /></MobileLayout></ProtectedRoute>} />
+      <Route path="/" element={<ProtectedRoute><RoleHome /></ProtectedRoute>} />
+
       <Route path="/batches" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Batches /></MobileLayout></RoleRoute></ProtectedRoute>} />
       <Route path="/feeding" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Feeding /></MobileLayout></RoleRoute></ProtectedRoute>} />
       <Route path="/water" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><WaterQuality /></MobileLayout></RoleRoute></ProtectedRoute>} />
