@@ -7,7 +7,7 @@ import {
   ArrowUp, ArrowDown, Send, Download, FileText, RefreshCw, Pause, Play,
   Database, Server, Zap, HardDrive,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
