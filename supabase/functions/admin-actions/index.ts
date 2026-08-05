@@ -129,7 +129,27 @@ Deno.serve(async (req) => {
         await log();
         return json({ ok: true });
       }
+      case "grant_role": {
+        const { user_id, role } = payload as { user_id: string; role: string };
+        const allowed = ["owner", "manager", "worker", "super_admin", "moderator", "support_agent"];
+        if (!allowed.includes(role)) return json({ error: "Invalid role" }, 400);
+        const { error } = await admin.from("user_roles").insert({ user_id, role });
+        if (error && !String(error.message).includes("duplicate")) return json({ error: error.message }, 400);
+        await log({ granted: role });
+        return json({ ok: true });
+      }
+      case "revoke_role": {
+        const { user_id, role } = payload as { user_id: string; role: string };
+        if (user_id === user.id && role === "super_admin") {
+          return json({ error: "You cannot revoke your own super_admin role" }, 400);
+        }
+        const { error } = await admin.from("user_roles").delete().eq("user_id", user_id).eq("role", role);
+        if (error) return json({ error: error.message }, 400);
+        await log({ revoked: role });
+        return json({ ok: true });
+      }
       case "wipe_test_data": {
+
         // Only clear admin_activity_log + subscribers_cache rows tagged as test
         await admin.from("admin_activity_log").delete().eq("action", "test");
         await log({ note: "test cleanup" });
