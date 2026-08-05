@@ -52,8 +52,8 @@ export default function MobileLayout({ children }: { children: ReactNode }) {
       ? workerTabs
       : ownerTabs;
 
-  const isActive = (path: string) =>
-    location.pathname + location.search === path || location.pathname === path;
+  const isActive = (path: string) => location.pathname + location.search === path;
+
 
 
   return (
