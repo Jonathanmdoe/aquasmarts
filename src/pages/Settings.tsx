@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import TeamManagement from "@/components/TeamManagement";
 import UpgradeGate from "@/components/UpgradeGate";
-import { useFeatureAccess } from "@/hooks/useFeatureAccess";
+
 import { useTheme } from "@/hooks/useTheme";
 import { useUserRole } from "@/hooks/useUserRole";
 
