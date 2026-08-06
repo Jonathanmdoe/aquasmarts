@@ -64,7 +64,7 @@ serve(async (req) => {
       quantity: i.quantity,
     }));
 
-    const subtotal = items.reduce((s: number, i: any) => s + Number(i.listing.price) * i.quantity, 0);
+    const subtotal = items.reduce((s: number, i: any) => s + Number(i.listing.price) * Number(i.quantity), 0);
     const platformFee = Math.round(subtotal * PLATFORM_FEE_RATE * 100); // cents
 
     const origin = req.headers.get("origin") || "http://localhost:3000";
@@ -90,18 +90,20 @@ serve(async (req) => {
 
     // Persist orders (one per cart item)
     const orderRows = items.map((i: any) => {
-      const sub = Number(i.listing.price) * i.quantity;
-      const fee = +(sub * PLATFORM_FEE_RATE).toFixed(2);
+      const qty = Number(i.quantity) || 0;
+      const unit = Number(i.listing.price) || 0;
+      const sub = Math.round(unit * qty);
+      const fee = Math.round(sub * PLATFORM_FEE_RATE);
       return {
         buyer_id: user.id,
         seller_id: sellerId,
         listing_id: i.listing.id,
         listing_title: i.listing.title,
-        unit_price: i.listing.price,
-        quantity: i.quantity,
+        unit_price: unit,
+        quantity: qty,
         subtotal: sub,
         platform_fee: fee,
-        total: +(sub + 0).toFixed(2), // buyer pays subtotal; fee deducted from seller payout
+        total: sub, // buyer pays the line subtotal; fee is deducted from the seller payout
         delivery_type: deliveryType,
         delivery_address: deliveryAddress,
         stripe_session_id: session.id,

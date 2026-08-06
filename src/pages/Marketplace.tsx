@@ -476,7 +476,7 @@ function CartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   });
 
   const subtotal = items.reduce((s: number, i: any) => s + Number(i.listing?.price || 0) * i.quantity, 0);
-  const fee = +(subtotal * 0.035).toFixed(2);
+  const fee = Math.round(subtotal * 0.035);
 
   const updateQty = async (id: string, q: number) => {
     if (q < 1) {
