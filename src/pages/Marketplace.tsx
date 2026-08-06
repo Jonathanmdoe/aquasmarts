@@ -49,10 +49,11 @@ function StageTracker({ status }: { status: string }) {
 }
 
 /* ---------------- BROWSE TAB ---------------- */
-function BrowseTab({ onAddToCart, cartCount, onOpenCart }: { onAddToCart: (l: any) => void; cartCount: number; onOpenCart: () => void }) {
+function BrowseTab({ onAddToCart, cartCount, onOpenCart }: { onAddToCart: (l: any, qty: number) => void; cartCount: number; onOpenCart: () => void }) {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<"recent" | "price_asc" | "price_desc">("recent");
+  const [qty, setQty] = useState<Record<string, string>>({});
 
   const { data: listings = [], isLoading } = useQuery({
     queryKey: ["marketplace_listings"],
@@ -141,14 +142,36 @@ function BrowseTab({ onAddToCart, cartCount, onOpenCart }: { onAddToCart: (l: an
                 <span className="text-[10px] font-medium bg-success-light text-success px-2 py-0.5 rounded-full whitespace-nowrap">{l.survival_guarantee}% survival</span>
               )}
             </div>
-            <div className="flex items-end justify-between mt-2">
+            <div className="mt-2 space-y-2">
               <div>
-                <p className="text-base font-bold text-foreground">{formatTZS(l.price)} <span className="text-[10px] font-normal text-muted-foreground">{l.unit}</span></p>
-                <p className="text-[10px] text-muted-foreground">Min order: 1 · {l.quantity} available</p>
+                <p className="text-base font-bold text-foreground">{formatTZS(l.price)} <span className="text-[10px] font-normal text-muted-foreground">per {l.unit}</span></p>
+                <p className="text-[10px] text-muted-foreground">{l.quantity} available</p>
               </div>
-              <button onClick={() => onAddToCart(l)} className="text-xs font-semibold bg-primary text-primary-foreground px-3 py-2 rounded-lg flex items-center gap-1">
-                <Plus className="w-3 h-3" /> Add
-              </button>
+              <div className="flex items-end gap-2">
+                <div className="flex-1">
+                  <label className="text-[10px] text-muted-foreground">Quantity ({l.unit})</label>
+                  <input
+                    type="number"
+                    min={1}
+                    inputMode="numeric"
+                    value={qty[l.id] ?? "1"}
+                    onChange={(e) => setQty((q) => ({ ...q, [l.id]: e.target.value }))}
+                    className="w-full bg-muted/50 border border-border rounded-lg px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-muted-foreground">Total</p>
+                  <p className="text-sm font-bold text-primary">
+                    {formatTZS(Number(l.price) * Math.max(1, Number(qty[l.id] ?? 1) || 1))}
+                  </p>
+                </div>
+                <button
+                  onClick={() => onAddToCart(l, Math.max(1, Number(qty[l.id] ?? 1) || 1))}
+                  className="text-xs font-semibold bg-primary text-primary-foreground px-3 py-2 rounded-lg flex items-center gap-1"
+                >
+                  <Plus className="w-3 h-3" /> Add
+                </button>
+              </div>
             </div>
           </motion.div>
         ))
