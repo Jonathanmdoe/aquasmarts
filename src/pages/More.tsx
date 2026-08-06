@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Shield, CreditCard, Crown, Bell, Lock, HelpCircle,
   ClipboardList, Settings as SettingsIcon, Sparkles, ShoppingBag,
-  Heart, Droplets, Utensils, ChevronRight, DollarSign, ShoppingCart, Fish,
+  Heart, Droplets, Utensils, ChevronRight, DollarSign, ShoppingCart, Fish, LineChart,
 } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 
@@ -45,6 +45,7 @@ const ALL_ITEMS: { title: string; items: Item[] }[] = [
   {
     title: "Farm",
     items: [
+      { icon: LineChart, label: "Growth & Sampling", desc: "Weight, length & growth curve", to: "/growth", tint: "bg-indigo-500/10 text-indigo-600", allow: ["owner","manager","worker"] },
       { icon: Droplets, label: "Water Quality", desc: "Pond readings", to: "/water", tint: "bg-cyan-500/10 text-cyan-600", allow: ["owner","manager","worker"] },
       { icon: Utensils, label: "Feeding", desc: "Feed logs", to: "/feeding", tint: "bg-orange-500/10 text-orange-600", allow: ["owner","manager","worker"] },
       { icon: Heart, label: "Health", desc: "Disease & treatment", to: "/health", tint: "bg-rose-500/10 text-rose-600", allow: ["owner","manager","worker"] },
