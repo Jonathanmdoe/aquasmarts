@@ -352,6 +352,53 @@ export type Database = {
           },
         ]
       }
+      growth_samples: {
+        Row: {
+          avg_length_cm: number | null
+          avg_weight_g: number
+          batch_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          sample_date: string
+          sample_size: number
+          updated_at: string
+        }
+        Insert: {
+          avg_length_cm?: number | null
+          avg_weight_g: number
+          batch_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          sample_date?: string
+          sample_size?: number
+          updated_at?: string
+        }
+        Update: {
+          avg_length_cm?: number | null
+          avg_weight_g?: number
+          batch_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          sample_date?: string
+          sample_size?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "growth_samples_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "fish_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       health_records: {
         Row: {
           batch_id: string
