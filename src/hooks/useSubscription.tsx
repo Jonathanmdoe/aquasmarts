@@ -70,20 +70,40 @@ export function useSubscription() {
       return;
     }
 
+    const TIER_ORDER: TierKey[] = ["free", "pro", "enterprise"];
+
+    // Plan granted manually by a platform admin (subscribers_cache)
+    let adminTier: TierKey = "free";
+    try {
+      const { data: cached } = await supabase
+        .from("subscribers_cache")
+        .select("plan, subscribed")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const plan = (cached?.plan ?? "free") as string;
+      if (plan === "enterprise") adminTier = "enterprise";
+      else if (plan === "pro" || plan === "basic") adminTier = "pro";
+    } catch (err) {
+      console.error("Error reading plan cache:", err);
+    }
+
     try {
       const { data, error } = await supabase.functions.invoke("check-subscription");
       if (error) throw error;
 
-      let currentTier: TierKey = "free";
+      let stripeTier: TierKey = "free";
       if (data?.subscribed && data?.product_id) {
         const match = Object.entries(TIERS).find(
           ([, t]) => t.product_id === data.product_id
         );
-        if (match) currentTier = match[0] as TierKey;
+        if (match) stripeTier = match[0] as TierKey;
       }
 
+      const currentTier =
+        TIER_ORDER.indexOf(adminTier) > TIER_ORDER.indexOf(stripeTier) ? adminTier : stripeTier;
+
       setState({
-        subscribed: data?.subscribed ?? false,
+        subscribed: (data?.subscribed ?? false) || adminTier !== "free",
         productId: data?.product_id ?? null,
         subscriptionEnd: data?.subscription_end ?? null,
         currentTier,
@@ -91,9 +111,15 @@ export function useSubscription() {
       });
     } catch (err) {
       console.error("Error checking subscription:", err);
-      setState((s) => ({ ...s, loading: false }));
+      setState((s) => ({
+        ...s,
+        subscribed: adminTier !== "free",
+        currentTier: adminTier,
+        loading: false,
+      }));
     }
   }, [user]);
+
 
   useEffect(() => {
     checkSubscription();
