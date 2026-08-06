@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, Filter, Fish } from "lucide-react";
+import { Search, Filter, Fish, LineChart } from "lucide-react";
 import BatchCard, { BatchData } from "@/components/BatchCard";
 import { useBatches } from "@/hooks/useFarm";
 import AddBatchForm from "@/components/forms/AddBatchForm";
@@ -9,6 +10,7 @@ import EditBatchSheet from "@/components/forms/EditBatchSheet";
 const filters = ["All", "Active", "Stocked", "Harvested"];
 
 export default function Batches() {
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("All");
   const [editId, setEditId] = useState<string | null>(null);
   const { data: rawBatches, isLoading } = useBatches();
@@ -42,7 +44,12 @@ export default function Batches() {
             <h1 className="text-xl font-bold font-display text-primary-foreground">Batches</h1>
             <p className="text-xs text-primary-foreground/70">{batches.length} total batches</p>
           </div>
-          <AddBatchForm />
+          <div className="flex items-center gap-2">
+            <button onClick={() => navigate("/growth")} className="text-[11px] font-medium bg-primary-foreground/15 text-primary-foreground rounded-full px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
+              <LineChart className="w-3 h-3" /> Growth
+            </button>
+            <AddBatchForm />
+          </div>
         </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-foreground/50" />

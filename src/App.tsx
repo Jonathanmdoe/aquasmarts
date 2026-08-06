@@ -12,6 +12,7 @@ import Enterprise from "./pages/Enterprise";
 import Sales from "./pages/Sales";
 import Index from "./pages/Index";
 import Batches from "./pages/Batches";
+import Growth from "./pages/Growth";
 import Feeding from "./pages/Feeding";
 import WaterQuality from "./pages/WaterQuality";
 import Marketplace from "./pages/Marketplace";
@@ -96,6 +97,7 @@ function AppRoutes() {
       <Route path="/" element={<ProtectedRoute><RoleHome /></ProtectedRoute>} />
 
       <Route path="/batches" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Batches /></MobileLayout></RoleRoute></ProtectedRoute>} />
+      <Route path="/growth" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Growth /></MobileLayout></RoleRoute></ProtectedRoute>} />
       <Route path="/feeding" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Feeding /></MobileLayout></RoleRoute></ProtectedRoute>} />
       <Route path="/water" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><WaterQuality /></MobileLayout></RoleRoute></ProtectedRoute>} />
       <Route path="/health" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Health /></MobileLayout></RoleRoute></ProtectedRoute>} />

@@ -49,10 +49,11 @@ function StageTracker({ status }: { status: string }) {
 }
 
 /* ---------------- BROWSE TAB ---------------- */
-function BrowseTab({ onAddToCart, cartCount, onOpenCart }: { onAddToCart: (l: any) => void; cartCount: number; onOpenCart: () => void }) {
+function BrowseTab({ onAddToCart, cartCount, onOpenCart }: { onAddToCart: (l: any, qty: number) => void; cartCount: number; onOpenCart: () => void }) {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<"recent" | "price_asc" | "price_desc">("recent");
+  const [qty, setQty] = useState<Record<string, string>>({});
 
   const { data: listings = [], isLoading } = useQuery({
     queryKey: ["marketplace_listings"],
@@ -141,14 +142,36 @@ function BrowseTab({ onAddToCart, cartCount, onOpenCart }: { onAddToCart: (l: an
                 <span className="text-[10px] font-medium bg-success-light text-success px-2 py-0.5 rounded-full whitespace-nowrap">{l.survival_guarantee}% survival</span>
               )}
             </div>
-            <div className="flex items-end justify-between mt-2">
+            <div className="mt-2 space-y-2">
               <div>
-                <p className="text-base font-bold text-foreground">{formatTZS(l.price)} <span className="text-[10px] font-normal text-muted-foreground">{l.unit}</span></p>
-                <p className="text-[10px] text-muted-foreground">Min order: 1 · {l.quantity} available</p>
+                <p className="text-base font-bold text-foreground">{formatTZS(l.price)} <span className="text-[10px] font-normal text-muted-foreground">per {l.unit}</span></p>
+                <p className="text-[10px] text-muted-foreground">{l.quantity} available</p>
               </div>
-              <button onClick={() => onAddToCart(l)} className="text-xs font-semibold bg-primary text-primary-foreground px-3 py-2 rounded-lg flex items-center gap-1">
-                <Plus className="w-3 h-3" /> Add
-              </button>
+              <div className="flex items-end gap-2">
+                <div className="flex-1">
+                  <label className="text-[10px] text-muted-foreground">Quantity ({l.unit})</label>
+                  <input
+                    type="number"
+                    min={1}
+                    inputMode="numeric"
+                    value={qty[l.id] ?? "1"}
+                    onChange={(e) => setQty((q) => ({ ...q, [l.id]: e.target.value }))}
+                    className="w-full bg-muted/50 border border-border rounded-lg px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-muted-foreground">Total</p>
+                  <p className="text-sm font-bold text-primary">
+                    {formatTZS(Number(l.price) * Math.max(1, Number(qty[l.id] ?? 1) || 1))}
+                  </p>
+                </div>
+                <button
+                  onClick={() => onAddToCart(l, Math.max(1, Number(qty[l.id] ?? 1) || 1))}
+                  className="text-xs font-semibold bg-primary text-primary-foreground px-3 py-2 rounded-lg flex items-center gap-1"
+                >
+                  <Plus className="w-3 h-3" /> Add
+                </button>
+              </div>
             </div>
           </motion.div>
         ))
@@ -453,7 +476,7 @@ function CartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   });
 
   const subtotal = items.reduce((s: number, i: any) => s + Number(i.listing?.price || 0) * i.quantity, 0);
-  const fee = +(subtotal * 0.035).toFixed(2);
+  const fee = Math.round(subtotal * 0.035);
 
   const updateQty = async (id: string, q: number) => {
     if (q < 1) {
@@ -501,17 +524,29 @@ function CartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
             <p className="text-sm text-muted-foreground text-center py-6">Cart is empty</p>
           ) : (
             items.map((i: any) => (
-              <div key={i.id} className="flex items-center gap-3 bg-muted/50 rounded-xl p-3">
-                <div className="w-10 h-10 rounded-lg bg-ocean-surface flex items-center justify-center">
-                  <Fish className="w-5 h-5 text-primary" />
+              <div key={i.id} className="bg-muted/50 rounded-xl p-3 space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-ocean-surface flex items-center justify-center">
+                    <Fish className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate">{i.listing?.title}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {formatTZS(Number(i.listing?.price))} × {i.quantity} {i.listing?.unit ?? ""}
+                    </p>
+                  </div>
+                  <p className="text-sm font-bold">{formatTZS(Number(i.listing?.price) * i.quantity)}</p>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">{i.listing?.title}</p>
-                  <p className="text-[11px] text-muted-foreground">{formatTZS(Number(i.listing?.price) * i.quantity)}</p>
-                </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <button onClick={() => updateQty(i.id, i.quantity - 1)} className="w-7 h-7 rounded-lg bg-card border border-border flex items-center justify-center"><Minus className="w-3 h-3" /></button>
-                  <span className="text-xs font-bold w-6 text-center">{i.quantity}</span>
+                  <input
+                    type="number"
+                    min={0}
+                    inputMode="numeric"
+                    value={i.quantity}
+                    onChange={(e) => updateQty(i.id, Math.max(0, Number(e.target.value) || 0))}
+                    className="flex-1 text-center text-sm font-semibold bg-card border border-border rounded-lg py-1.5 outline-none focus:ring-2 focus:ring-primary/30"
+                  />
                   <button onClick={() => updateQty(i.id, i.quantity + 1)} className="w-7 h-7 rounded-lg bg-card border border-border flex items-center justify-center"><Plus className="w-3 h-3" /></button>
                 </div>
               </div>
@@ -530,9 +565,15 @@ function CartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
                 </select>
               </div>
               <div className="space-y-1 text-sm pt-2 border-t border-border">
-                <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatTZS(subtotal)}</span></div>
-                <div className="flex justify-between text-[11px] text-muted-foreground"><span>Platform fee (3.5% — paid by seller)</span><span>{formatTZS(fee)}</span></div>
-                <div className="flex justify-between font-bold text-base pt-1"><span>Total</span><span>{formatTZS(subtotal)}</span></div>
+                {items.map((i: any) => (
+                  <div key={i.id} className="flex justify-between text-[11px] text-muted-foreground">
+                    <span className="truncate max-w-[60%]">{i.listing?.title} ({i.quantity} × {formatTZS(Number(i.listing?.price))})</span>
+                    <span>{formatTZS(Number(i.listing?.price) * i.quantity)}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between pt-1"><span className="text-muted-foreground">Subtotal</span><span>{formatTZS(subtotal)}</span></div>
+                <div className="flex justify-between text-[11px] text-muted-foreground"><span>Platform fee 3.5% (deducted from seller payout)</span><span>-{formatTZS(fee)}</span></div>
+                <div className="flex justify-between font-bold text-base pt-1 border-t border-border mt-1"><span>You pay</span><span>{formatTZS(subtotal)}</span></div>
               </div>
               <button onClick={checkout} disabled={submitting} className="w-full bg-primary text-primary-foreground rounded-xl py-3 font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50">
                 {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
@@ -581,18 +622,20 @@ function MarketplaceContent() {
     enabled: !!user,
   });
 
-  const addToCart = async (l: any) => {
+  const addToCart = async (l: any, qty = 1) => {
     if (!user) return;
+    const add = Math.max(1, Math.floor(qty) || 1);
     const { data: existing } = await supabase.from("marketplace_cart_items" as any).select("*").eq("user_id", user.id).eq("listing_id", l.id).maybeSingle();
     if (existing) {
-      await supabase.from("marketplace_cart_items" as any).update({ quantity: (existing as any).quantity + 1 }).eq("id", (existing as any).id);
+      await supabase.from("marketplace_cart_items" as any).update({ quantity: (existing as any).quantity + add }).eq("id", (existing as any).id);
     } else {
-      await supabase.from("marketplace_cart_items" as any).insert({ user_id: user.id, listing_id: l.id, quantity: 1 });
+      await supabase.from("marketplace_cart_items" as any).insert({ user_id: user.id, listing_id: l.id, quantity: add });
     }
     qc.invalidateQueries({ queryKey: ["cart"] });
     qc.invalidateQueries({ queryKey: ["cart_count"] });
-    toast({ title: "Added to cart" });
+    toast({ title: "Added to cart", description: `${add} × ${l.title} — ${formatTZS(Number(l.price) * add)}` });
   };
+
 
   const tabs: { id: Tab; label: string; icon: any }[] = [
     { id: "browse", label: "Browse", icon: Search },
