@@ -10,6 +10,7 @@ import EditBatchSheet from "@/components/forms/EditBatchSheet";
 const filters = ["All", "Active", "Stocked", "Harvested"];
 
 export default function Batches() {
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("All");
   const [editId, setEditId] = useState<string | null>(null);
   const { data: rawBatches, isLoading } = useBatches();
