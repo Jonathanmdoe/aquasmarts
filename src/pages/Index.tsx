@@ -27,25 +27,18 @@ export default function Dashboard() {
   const { alerts } = useSmartAlerts();
   const { isSuperAdmin, isWorker, isOwner, isManager, loading: rolesLoading } = useUserRole();
 
-  // Role-based routing (per auth flow diagram):
-  // - Super admin → /admin
-  // - Worker (not owner/manager) → /worker
-  // - Others (owner/manager) → this dashboard, but only after farm check
+  // Role routing is handled by RoleHome in App.tsx (no flashing of the wrong
+  // dashboard). Here we only send owners/managers without a farm to setup.
   useEffect(() => {
     if (authLoading || !user || rolesLoading) return;
-    if (isSuperAdmin) {
-      navigate("/admin", { replace: true });
-      return;
-    }
-    if (isWorker && !isOwner && !isManager) {
-      navigate("/worker", { replace: true });
-      return;
-    }
+    if (isSuperAdmin) return;
+    if (isWorker && !isOwner && !isManager) return;
     if (farmLoading || farmFetching) return;
     if (farmLoaded && !farm) {
       navigate("/farm-setup", { replace: true });
     }
   }, [authLoading, user, rolesLoading, isSuperAdmin, isWorker, isOwner, isManager, farm, farmLoading, farmFetching, farmLoaded, navigate]);
+
 
   const activeBatches = batches?.filter((b) => b.status === "active" || b.status === "stocked") ?? [];
   const totalBiomass = batches?.reduce((s, b) => s + (b.biomass ?? 0), 0) ?? 0;

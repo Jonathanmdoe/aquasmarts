@@ -4,6 +4,7 @@ import { Utensils, Droplets, Heart, Fish, ClipboardList, Bell } from "lucide-rea
 import { useFarm, useBatches, useFeedingLogs } from "@/hooks/useFarm";
 import { useAuth } from "@/hooks/useAuth";
 import QuickAction from "@/components/QuickAction";
+import { useI18n } from "@/i18n";
 
 export default function WorkerDashboard() {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ export default function WorkerDashboard() {
   const { data: farm } = useFarm();
   const { data: batches } = useBatches();
   const { data: feedings } = useFeedingLogs();
+  const { t } = useI18n();
 
   const activeBatches = batches?.filter((b) => b.status === "active" || b.status === "stocked") ?? [];
   const today = new Date().toDateString();
@@ -21,12 +23,12 @@ export default function WorkerDashboard() {
       <div className="gradient-ocean px-4 pt-10 pb-6 text-primary-foreground">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs opacity-80">Karibu / Welcome</p>
+            <p className="text-xs opacity-80">{t("common.welcome")}</p>
             <h1 className="text-xl font-bold font-display">
               {user?.user_metadata?.full_name || "Worker"}
             </h1>
             <p className="text-xs opacity-80 mt-0.5">
-              {farm?.name ?? "Farm"} · Worker view
+              {farm?.name ?? "Farm"} · {t("worker.view")}
             </p>
           </div>
           <button
@@ -39,15 +41,15 @@ export default function WorkerDashboard() {
 
         <div className="grid grid-cols-3 gap-2 mt-4">
           <div className="bg-primary-foreground/15 backdrop-blur-md rounded-xl px-3 py-2">
-            <p className="text-[10px] opacity-70">Active batches</p>
+            <p className="text-[10px] opacity-70">{t("worker.activeBatches")}</p>
             <p className="text-sm font-bold">{activeBatches.length}</p>
           </div>
           <div className="bg-primary-foreground/15 backdrop-blur-md rounded-xl px-3 py-2">
-            <p className="text-[10px] opacity-70">Feedings today</p>
+            <p className="text-[10px] opacity-70">{t("worker.feedingsToday")}</p>
             <p className="text-sm font-bold">{feedingsToday}</p>
           </div>
           <div className="bg-primary-foreground/15 backdrop-blur-md rounded-xl px-3 py-2">
-            <p className="text-[10px] opacity-70">Ponds</p>
+            <p className="text-[10px] opacity-70">{t("worker.ponds")}</p>
             <p className="text-sm font-bold">{farm?.num_ponds ?? 0}</p>
           </div>
         </div>
@@ -55,21 +57,21 @@ export default function WorkerDashboard() {
 
       <div className="px-4 py-4 space-y-4">
         <div>
-          <h2 className="text-sm font-semibold text-foreground mb-3">Today's Tasks</h2>
+          <h2 className="text-sm font-semibold text-foreground mb-3">{t("worker.todaysTasks")}</h2>
           <div className="grid grid-cols-4 gap-2">
-            <QuickAction icon={Utensils} label="Feed" onClick={() => navigate("/feeding")} />
-            <QuickAction icon={Droplets} label="Water" onClick={() => navigate("/water")} />
-            <QuickAction icon={Heart} label="Health" onClick={() => navigate("/health")} />
-            <QuickAction icon={Fish} label="Batches" onClick={() => navigate("/batches")} />
+            <QuickAction icon={Utensils} label={t("worker.feed")} onClick={() => navigate("/feeding")} />
+            <QuickAction icon={Droplets} label={t("worker.water")} onClick={() => navigate("/water")} />
+            <QuickAction icon={Heart} label={t("worker.health")} onClick={() => navigate("/health")} />
+            <QuickAction icon={Fish} label={t("worker.batches")} onClick={() => navigate("/batches")} />
           </div>
         </div>
 
         <div>
-          <h2 className="text-sm font-semibold text-foreground mb-3">Active Batches</h2>
+          <h2 className="text-sm font-semibold text-foreground mb-3">{t("worker.activeBatches")}</h2>
           <div className="space-y-2">
             {activeBatches.length === 0 && (
               <div className="bg-card rounded-xl p-4 text-center text-xs text-muted-foreground shadow-card">
-                No active batches assigned yet.
+                {t("worker.noBatches")}
               </div>
             )}
             {activeBatches.slice(0, 5).map((b) => (

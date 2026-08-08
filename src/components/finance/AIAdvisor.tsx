@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import { Brain, Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/i18n";
 
 interface Props {
   mode: string;
@@ -17,6 +18,7 @@ export function AIAdvisorButton({ mode, context, label, question, compact }: Pro
   const [streaming, setStreaming] = useState(false);
   const [text, setText] = useState("");
   const { toast } = useToast();
+  const { langName } = useI18n();
 
   const run = async () => {
     setOpen(true); setText(""); setStreaming(true);
@@ -25,7 +27,7 @@ export function AIAdvisorButton({ mode, context, label, question, compact }: Pro
       const resp = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
-        body: JSON.stringify({ mode, context, question }),
+        body: JSON.stringify({ mode, context, question, language: langName }),
       });
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({ error: "AI request failed" }));

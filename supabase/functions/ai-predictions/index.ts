@@ -9,7 +9,8 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { batches, waterReadings, feedingLogs, financials } = await req.json();
+    const { batches, waterReadings, feedingLogs, financials, language } = await req.json();
+    const lang = typeof language === "string" && language.trim() ? language.trim() : "English";
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -22,7 +23,8 @@ Analyze the farm data provided and give actionable predictions and recommendatio
   "growth_forecast": { "current_trend": string, "projected_biomass_30d": number, "reasoning": string },
   "cost_optimization": { "tip": string, "potential_saving_pct": number }
 }
-Keep responses practical for Tanzanian fish farmers. Use TZS for any monetary references. Be concise.`;
+Keep responses practical for Tanzanian fish farmers. Use TZS for any monetary references. Be concise.
+IMPORTANT: write every human-readable text value (reasoning, tips, concerns, actions, status) in ${lang}, using simple everyday words. Keep the JSON keys in English.`;
 
     const userPrompt = `Farm data summary:
 - Active batches: ${JSON.stringify(batches ?? [])}
