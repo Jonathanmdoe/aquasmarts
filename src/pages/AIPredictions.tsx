@@ -4,6 +4,7 @@ import { Brain, Sprout, Droplets, Utensils, DollarSign, RefreshCw, AlertTriangle
 import { supabase } from "@/integrations/supabase/client";
 import { useBatches, useFeedingLogs, useWaterReadings, useFinancialRecords } from "@/hooks/useFarm";
 import UpgradeGate from "@/components/UpgradeGate";
+import { useI18n } from "@/i18n";
 
 interface Predictions {
   harvest_prediction?: { ready: boolean; estimated_days: number; confidence: string; reasoning: string };
@@ -27,6 +28,7 @@ function AIPredictionsContent() {
   const { data: feedingLogs } = useFeedingLogs();
   const { data: waterReadings } = useWaterReadings();
   const { data: financials } = useFinancialRecords();
+  const { langName } = useI18n();
   const [predictions, setPredictions] = useState<Predictions | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -37,6 +39,7 @@ function AIPredictionsContent() {
     try {
       const { data, error: fnError } = await supabase.functions.invoke("ai-predictions", {
         body: {
+          language: langName,
           batches: (batches ?? []).slice(0, 10).map(b => ({ name: b.name, species: b.species, status: b.status, current_count: b.current_count, avg_weight: b.avg_weight, biomass: b.biomass, fcr: b.fcr, mortality_rate: b.mortality_rate, stage: b.stage, pond: b.pond })),
           waterReadings: (waterReadings ?? []).slice(0, 10).map(r => ({ temperature: r.temperature, ph: r.ph, dissolved_oxygen: r.dissolved_oxygen, ammonia: r.ammonia, nitrite: r.nitrite })),
           feedingLogs: (feedingLogs ?? []).slice(0, 10).map(l => ({ feed_type: l.feed_type, amount_kg: l.amount_kg, status: l.status })),
