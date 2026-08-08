@@ -5,6 +5,7 @@ import { useAuth, SignupRole } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n, LANGUAGES, Lang } from "@/i18n";
 
 const roleOptions: { value: SignupRole; label: string; icon: any; desc: string }[] = [
   { value: "owner", label: "Farm Owner", icon: Crown, desc: "Full access — manage farms, finance, team" },
@@ -13,6 +14,7 @@ const roleOptions: { value: SignupRole; label: string; icon: any; desc: string }
 ];
 
 export default function Auth() {
+  const { lang, setLang } = useI18n();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
