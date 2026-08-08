@@ -14,6 +14,7 @@ import UpgradeGate from "@/components/UpgradeGate";
 
 import { useTheme } from "@/hooks/useTheme";
 import { useUserRole } from "@/hooks/useUserRole";
+import LanguageSelector from "@/components/LanguageSelector";
 
 export default function Settings() {
   const { user, signOut } = useAuth();
@@ -203,6 +204,8 @@ export default function Settings() {
             </button>
           ))}
         </motion.div>
+
+        <LanguageSelector />
 
         {/* Theme Toggle */}
         <motion.div
