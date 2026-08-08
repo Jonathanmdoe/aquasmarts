@@ -8,7 +8,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { mode, question, context } = await req.json();
+    const { mode, question, context, language } = await req.json();
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) {
       return new Response(JSON.stringify({ error: "Missing LOVABLE_API_KEY" }), {
@@ -16,14 +16,16 @@ Deno.serve(async (req) => {
       });
     }
 
+    const lang = typeof language === "string" && language.trim() ? language.trim() : "Swahili (Kiswahili)";
+    const isSwahili = lang.toLowerCase().includes("swahili");
+
     const baseRules = `
-LUGHA / LANGUAGE RULES:
-- Andika kwa Kiswahili sanifu KISHA toa muhtasari mfupi wa Kiingereza rahisi. Tumia mistari mifupi.
-- Write in clear Swahili FIRST, then a short simple-English summary. Short sentences. No jargon.
-- TUMIA TZS (Tanzanian Shillings) PEKEE kwa pesa zote. NEVER use $, USD, KES, or any other currency.
+LANGUAGE RULES:
+- Reply ONLY in ${lang}. This is the language the farmer chose in the app.${isSwahili ? "\n- Andika kwa Kiswahili sanifu na rahisi, kisha toa muhtasari mfupi wa Kiingereza rahisi." : "\n- Add a one-line simple-English summary at the end."}
+- Use very simple words and short sentences. No jargon. Explain like talking to a small fish farmer.
+- USE TZS (Tanzanian Shillings) ONLY for all money. NEVER use $, USD, KES, or any other currency.
 - Format money like: TZS 1,250,000 (no decimals).
-- Avoid complex finance words. Explain like talking to a small fish farmer. Use everyday words.
-- Hakikisha kila pendekezo lina nambari halisi kutoka kwenye data ya shamba.`;
+- Every recommendation must use real numbers from the farm data.`;
 
     const systemPrompts: Record<string, string> = {
       full_analysis: `${baseRules}
