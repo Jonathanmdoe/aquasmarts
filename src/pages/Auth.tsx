@@ -67,7 +67,20 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="gradient-ocean px-6 pt-16 pb-12 text-center">
+      <div className="gradient-ocean px-6 pt-16 pb-12 text-center relative">
+        <select
+          aria-label="Language"
+          value={lang}
+          onChange={(e) => setLang(e.target.value as Lang)}
+          className="absolute top-4 right-4 h-8 rounded-lg bg-primary-foreground/15 backdrop-blur text-primary-foreground text-xs px-2 border border-primary-foreground/20"
+        >
+          {LANGUAGES.map((l) => (
+            <option key={l.code} value={l.code} className="text-foreground">
+              {l.flag} {l.native}
+            </option>
+          ))}
+        </select>
+
         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
           <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary-foreground/15 backdrop-blur flex items-center justify-center">
             <Fish className="w-8 h-8 text-primary-foreground" />
