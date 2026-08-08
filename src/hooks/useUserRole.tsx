@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -20,32 +20,70 @@ const PRECEDENCE: AppRole[] = [
   "worker",
 ];
 
-export function useUserRole() {
-  const { user } = useAuth();
-  const [roles, setRoles] = useState<AppRole[]>([]);
-  const [loading, setLoading] = useState(true);
+const cacheKey = (userId: string) => `aquasmart.roles.${userId}`;
+
+function readCache(userId: string): AppRole[] | null {
+  try {
+    const raw = sessionStorage.getItem(cacheKey(userId));
+    return raw ? (JSON.parse(raw) as AppRole[]) : null;
+  } catch {
+    return null;
+  }
+}
+
+type RoleState = { roles: AppRole[]; loading: boolean };
+
+const RoleContext = createContext<RoleState | undefined>(undefined);
+
+export function RoleProvider({ children }: { children: ReactNode }) {
+  const { user, loading: authLoading } = useAuth();
+  const [state, setState] = useState<RoleState>({ roles: [], loading: true });
+  const fetchedFor = useRef<string | null>(null);
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) {
-      setRoles([]);
-      setLoading(false);
+      fetchedFor.current = null;
+      setState({ roles: [], loading: false });
       return;
     }
+
+    // Instant hydration from cache so navigation never flashes the wrong UI.
+    const cached = readCache(user.id);
+    if (cached) setState({ roles: cached, loading: false });
+    else setState((s) => ({ ...s, loading: true }));
+
+    if (fetchedFor.current === user.id) return;
+    fetchedFor.current = user.id;
+
     let active = true;
-    setLoading(true);
     supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
       .then(({ data }) => {
         if (!active) return;
-        setRoles((data ?? []).map((r: any) => r.role as AppRole));
-        setLoading(false);
+        const roles = (data ?? []).map((r: any) => r.role as AppRole);
+        try {
+          sessionStorage.setItem(cacheKey(user.id), JSON.stringify(roles));
+        } catch {
+          /* ignore */
+        }
+        setState({ roles, loading: false });
       });
+
     return () => {
       active = false;
     };
-  }, [user]);
+  }, [user, authLoading]);
+
+  return <RoleContext.Provider value={state}>{children}</RoleContext.Provider>;
+}
+
+export function useUserRole() {
+  const ctx = useContext(RoleContext);
+  const state = ctx ?? { roles: [], loading: true };
+  const { roles, loading } = state;
 
   const primaryRole: AppRole | null =
     PRECEDENCE.find((r) => roles.includes(r)) ?? null;
