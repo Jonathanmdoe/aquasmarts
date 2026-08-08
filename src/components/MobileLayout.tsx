@@ -14,38 +14,40 @@ import {
 } from "lucide-react";
 import { useUnreadNotificationCount } from "@/hooks/useNotifications";
 import RoleBadge from "@/components/RoleBadge";
+import { useI18n } from "@/i18n";
 
 import { useUserRole } from "@/hooks/useUserRole";
 
 const ownerTabs = [
-  { path: "/", icon: LayoutDashboard, label: "Home" },
-  { path: "/batches", icon: Fish, label: "Batches" },
-  { path: "/financial", icon: DollarSign, label: "Finance" },
-  { path: "/marketplace", icon: ShoppingCart, label: "Market" },
-  { path: "/more", icon: MoreHorizontal, label: "More" },
+  { path: "/", icon: LayoutDashboard, labelKey: "nav.home" },
+  { path: "/batches", icon: Fish, labelKey: "nav.batches" },
+  { path: "/financial", icon: DollarSign, labelKey: "nav.finance" },
+  { path: "/marketplace", icon: ShoppingCart, labelKey: "nav.market" },
+  { path: "/more", icon: MoreHorizontal, labelKey: "nav.more" },
 ];
 
 const workerTabs = [
-  { path: "/worker", icon: LayoutDashboard, label: "Home" },
-  { path: "/batches", icon: Fish, label: "Batches" },
-  { path: "/feeding", icon: Fish, label: "Feed" },
-  { path: "/health", icon: Heart, label: "Health" },
-  { path: "/more", icon: MoreHorizontal, label: "More" },
+  { path: "/worker", icon: LayoutDashboard, labelKey: "nav.home" },
+  { path: "/batches", icon: Fish, labelKey: "nav.batches" },
+  { path: "/feeding", icon: Fish, labelKey: "nav.feed" },
+  { path: "/health", icon: Heart, labelKey: "nav.health" },
+  { path: "/more", icon: MoreHorizontal, labelKey: "nav.more" },
 ];
 
 const adminTabs = [
-  { path: "/admin", icon: LayoutDashboard, label: "Console" },
-  { path: "/admin?tab=users", icon: Users, label: "Users" },
-  { path: "/admin?tab=moderation", icon: Flag, label: "Moderate" },
-  { path: "/admin?tab=support", icon: LifeBuoy, label: "Tickets" },
-  { path: "/more", icon: MoreHorizontal, label: "More" },
+  { path: "/admin", icon: LayoutDashboard, labelKey: "nav.console" },
+  { path: "/admin?tab=users", icon: Users, labelKey: "nav.users" },
+  { path: "/admin?tab=moderation", icon: Flag, labelKey: "nav.moderate" },
+  { path: "/admin?tab=support", icon: LifeBuoy, labelKey: "nav.tickets" },
+  { path: "/more", icon: MoreHorizontal, labelKey: "nav.more" },
 ];
 
 export default function MobileLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useI18n();
   const { data: unread = 0 } = useUnreadNotificationCount();
-  const { isWorker, isOwner, isManager, isSuperAdmin } = useUserRole();
+  const { isWorker, isOwner, isManager, isSuperAdmin, loading: rolesLoading } = useUserRole();
   const tabs = isSuperAdmin
     ? adminTabs
     : isWorker && !isOwner && !isManager
@@ -53,6 +55,7 @@ export default function MobileLayout({ children }: { children: ReactNode }) {
       : ownerTabs;
 
   const isActive = (path: string) => location.pathname + location.search === path;
+
 
 
 
