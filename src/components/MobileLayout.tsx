@@ -80,7 +80,8 @@ export default function MobileLayout({ children }: { children: ReactNode }) {
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/90 backdrop-blur-xl border-t border-border/50 safe-bottom"
         style={{ boxShadow: "var(--shadow-nav)" }}>
         <div className="max-w-md mx-auto flex items-center justify-around px-1 py-1.5">
-          {tabs.map((tab) => {
+          {(rolesLoading ? [] : tabs).map((tab) => {
+
             const active = isActive(tab.path);
             return (
               <button
@@ -112,7 +113,7 @@ export default function MobileLayout({ children }: { children: ReactNode }) {
                     active ? "text-primary" : "text-muted-foreground"
                   }`}
                 >
-                  {tab.label}
+                  {t(tab.labelKey)}
                 </span>
               </button>
             );
