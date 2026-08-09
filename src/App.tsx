@@ -39,6 +39,8 @@ import MarketplaceAnalytics from "./pages/MarketplaceAnalytics";
 
 import RoleCheck from "./pages/RoleCheck";
 import NotFound from "./pages/NotFound";
+import PaymentResult from "./pages/PaymentResult";
+
 
 const queryClient = new QueryClient();
 
