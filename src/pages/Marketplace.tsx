@@ -461,6 +461,8 @@ function CartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
+  const [showPay, setShowPay] = useState(false);
+
   const [deliveryType, setDeliveryType] = useState("standard");
 
   const { data: items = [] } = useQuery({
