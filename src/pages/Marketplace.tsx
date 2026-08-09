@@ -8,6 +8,8 @@ import {
   BarChart3, Bell, AlertTriangle, X, Minus, BadgeCheck, Filter
 } from "lucide-react";
 import { formatTZS } from "@/lib/currency";
+import MobileMoneyDialog from "@/components/payments/MobileMoneyDialog";
+
 import UpgradeGate from "@/components/UpgradeGate";
 import AddListingForm from "@/components/forms/AddListingForm";
 import { supabase } from "@/integrations/supabase/client";
