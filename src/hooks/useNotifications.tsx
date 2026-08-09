@@ -53,7 +53,10 @@ export function useUnreadNotificationCount() {
       return count ?? 0;
     },
     enabled: !!user,
-    refetchInterval: 30000,
+    staleTime: 60000,
+    refetchInterval: 120000,
+    refetchIntervalInBackground: false,
+
   });
 }
 

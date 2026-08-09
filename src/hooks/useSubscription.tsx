@@ -123,9 +123,14 @@ export function useSubscription() {
 
   useEffect(() => {
     checkSubscription();
-    const interval = setInterval(checkSubscription, 60000);
+    // Re-check occasionally, but only while the tab is actually visible so we
+    // don't keep the app in a permanent loading/refetch loop.
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") checkSubscription();
+    }, 300000);
     return () => clearInterval(interval);
   }, [checkSubscription]);
+
 
   const checkout = async (priceId: string) => {
     const { data, error } = await supabase.functions.invoke("create-checkout", {

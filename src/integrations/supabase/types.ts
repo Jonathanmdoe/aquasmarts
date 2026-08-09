@@ -1050,6 +1050,7 @@ export type Database = {
           full_name: string | null
           id: string
           is_suspended: boolean
+          preferred_language: string | null
           suspended_at: string | null
           suspension_reason: string | null
           updated_at: string
@@ -1063,6 +1064,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_suspended?: boolean
+          preferred_language?: string | null
           suspended_at?: string | null
           suspension_reason?: string | null
           updated_at?: string
@@ -1076,6 +1078,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_suspended?: boolean
+          preferred_language?: string | null
           suspended_at?: string | null
           suspension_reason?: string | null
           updated_at?: string
