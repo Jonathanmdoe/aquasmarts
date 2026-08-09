@@ -987,6 +987,63 @@ export type Database = {
           },
         ]
       }
+      payment_transactions: {
+        Row: {
+          amount_tzs: number
+          channel: string
+          created_at: string
+          id: string
+          payment_url: string | null
+          phone: string | null
+          plan: string | null
+          provider: string
+          purpose: string
+          raw: Json | null
+          reference: string
+          related_id: string | null
+          selcom_transid: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_tzs: number
+          channel?: string
+          created_at?: string
+          id?: string
+          payment_url?: string | null
+          phone?: string | null
+          plan?: string | null
+          provider?: string
+          purpose: string
+          raw?: Json | null
+          reference: string
+          related_id?: string | null
+          selcom_transid?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_tzs?: number
+          channel?: string
+          created_at?: string
+          id?: string
+          payment_url?: string | null
+          phone?: string | null
+          plan?: string | null
+          provider?: string
+          purpose?: string
+          raw?: Json | null
+          reference?: string
+          related_id?: string | null
+          selcom_transid?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           ai_advisor: boolean

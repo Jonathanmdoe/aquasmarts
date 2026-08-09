@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Crown, Zap, Building2, RefreshCw, ExternalLink } from "lucide-react";
+import { Check, Crown, Zap, Building2, RefreshCw, ExternalLink, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSubscription, TIERS } from "@/hooks/useSubscription";
 import { toast } from "@/hooks/use-toast";
+import MobileMoneyDialog from "@/components/payments/MobileMoneyDialog";
 
 const tierIcons = {
   free: Zap,
@@ -22,6 +23,7 @@ export default function Subscription() {
   const { currentTier, subscribed, subscriptionEnd, loading, checkout, manageSubscription, refresh } = useSubscription();
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [payTier, setPayTier] = useState<"pro" | "enterprise" | null>(null);
 
   const handleCheckout = async (tierKey: string) => {
     const tier = TIERS[tierKey as keyof typeof TIERS];
@@ -35,6 +37,7 @@ export default function Subscription() {
       setCheckoutLoading(null);
     }
   };
+
 
   const handleManage = async () => {
     try {
@@ -119,10 +122,13 @@ export default function Subscription() {
                   <h3 className="font-bold text-foreground">{tier.name}</h3>
                   <div className="flex items-baseline gap-1 mt-1">
                     <span className="text-2xl font-bold text-foreground">
-                      ${tier.price}
+                      {tier.price_tzs === 0 ? "TZS 0" : `TZS ${tier.price_tzs.toLocaleString("en-TZ")}`}
                     </span>
                     <span className="text-sm text-muted-foreground">/mo</span>
                   </div>
+                  {tier.price > 0 && (
+                    <p className="text-xs text-muted-foreground">or ${tier.price} by card</p>
+                  )}
                 </div>
               </div>
 
@@ -135,7 +141,7 @@ export default function Subscription() {
                 ))}
               </ul>
 
-              <div className="mt-5">
+              <div className="mt-5 space-y-2">
                 {isCurrentPlan ? (
                   <Button variant="outline" className="w-full" disabled>
                     Current Plan
@@ -145,23 +151,46 @@ export default function Subscription() {
                     Free Forever
                   </Button>
                 ) : (
-                  <Button
-                    className={`w-full ${isPopular ? "bg-secondary hover:bg-secondary/90 text-secondary-foreground" : ""}`}
-                    onClick={() => handleCheckout(key)}
-                    disabled={checkoutLoading === key}
-                  >
-                    {checkoutLoading === key ? (
-                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      `Upgrade to ${tier.name}`
-                    )}
-                  </Button>
+                  <>
+                    <Button
+                      className={`w-full gap-2 ${isPopular ? "bg-secondary hover:bg-secondary/90 text-secondary-foreground" : ""}`}
+                      onClick={() => setPayTier(key as "pro" | "enterprise")}
+                    >
+                      <Smartphone className="w-4 h-4" />
+                      Pay with mobile money
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => handleCheckout(key)}
+                      disabled={checkoutLoading === key}
+                    >
+                      {checkoutLoading === key ? (
+                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        "Pay by card (international)"
+                      )}
+                    </Button>
+                  </>
                 )}
               </div>
             </motion.div>
           );
         })}
       </div>
+
+      {payTier && (
+        <MobileMoneyDialog
+          open={!!payTier}
+          onOpenChange={(o) => !o && setPayTier(null)}
+          purpose="subscription"
+          plan={payTier}
+          amountTzs={TIERS[payTier].price_tzs}
+          title={`Upgrade to ${TIERS[payTier].name}`}
+          onPaid={refresh}
+        />
+      )}
     </div>
   );
 }
+

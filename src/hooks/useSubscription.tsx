@@ -8,6 +8,7 @@ export const TIERS = {
     price_id: "price_1T3rlT5QBKHmumrV3gx7DGpR",
     product_id: "prod_U1vc1eRNCiKxqL",
     price: 0,
+    price_tzs: 0,
     features: [
       "Up to 2 ponds",
       "Basic water monitoring",
@@ -20,6 +21,7 @@ export const TIERS = {
     price_id: "price_1T3rli5QBKHmumrVmhjCZjeP",
     product_id: "prod_U1vczhh3nu9qex",
     price: 29.99,
+    price_tzs: 79000,
     features: [
       "Unlimited ponds",
       "AI predictions & alerts",
@@ -33,6 +35,7 @@ export const TIERS = {
     price_id: "price_1T3rm35QBKHmumrVVpM7NNrs",
     product_id: "prod_U1vd1S5APQaaOl",
     price: 99.99,
+    price_tzs: 259000,
     features: [
       "Everything in Pro",
       "Unlimited team members",
@@ -43,6 +46,7 @@ export const TIERS = {
     ],
   },
 } as const;
+
 
 type TierKey = keyof typeof TIERS;
 

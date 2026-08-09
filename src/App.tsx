@@ -39,6 +39,8 @@ import MarketplaceAnalytics from "./pages/MarketplaceAnalytics";
 
 import RoleCheck from "./pages/RoleCheck";
 import NotFound from "./pages/NotFound";
+import PaymentResult from "./pages/PaymentResult";
+
 
 const queryClient = new QueryClient();
 
@@ -124,7 +126,10 @@ function AppRoutes() {
       <Route path="/marketplace/notifications" element={<ProtectedRoute><RoleRoute allow={["owner","manager"]}><MobileLayout><MarketplaceNotifications /></MobileLayout></RoleRoute></ProtectedRoute>} />
       <Route path="/marketplace/analytics" element={<ProtectedRoute><RoleRoute allow={["owner","manager"]}><MobileLayout><MarketplaceAnalytics /></MobileLayout></RoleRoute></ProtectedRoute>} />
 
+      <Route path="/payment-success" element={<PaymentResult outcome="success" />} />
+      <Route path="/payment-canceled" element={<PaymentResult outcome="canceled" />} />
       <Route path="*" element={<NotFound />} />
+
     </Routes>
   );
 }
