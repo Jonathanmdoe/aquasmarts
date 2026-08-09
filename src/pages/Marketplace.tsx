@@ -575,10 +575,27 @@ function CartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
                 <div className="flex justify-between text-[11px] text-muted-foreground"><span>Platform fee 3.5% (deducted from seller payout)</span><span>-{formatTZS(fee)}</span></div>
                 <div className="flex justify-between font-bold text-base pt-1 border-t border-border mt-1"><span>You pay</span><span>{formatTZS(subtotal)}</span></div>
               </div>
-              <button onClick={checkout} disabled={submitting} className="w-full bg-primary text-primary-foreground rounded-xl py-3 font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50">
-                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-                Place Assured Order
+              <button onClick={() => setShowPay(true)} className="w-full bg-primary text-primary-foreground rounded-xl py-3 font-semibold text-sm flex items-center justify-center gap-2">
+                <ShieldCheck className="w-4 h-4" />
+                Pay with mobile money (TZS)
               </button>
+              <button onClick={checkout} disabled={submitting} className="w-full bg-card border border-border text-foreground rounded-xl py-3 font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50">
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wallet className="w-4 h-4" />}
+                Pay by card (international)
+              </button>
+              <MobileMoneyDialog
+                open={showPay}
+                onOpenChange={setShowPay}
+                purpose="marketplace"
+                amountTzs={subtotal}
+                deliveryType={deliveryType}
+                title="Complete your order"
+                onPaid={() => {
+                  qc.invalidateQueries({ queryKey: ["cart"] });
+                  qc.invalidateQueries({ queryKey: ["marketplace_orders"] });
+                }}
+              />
+
             </>
           )}
         </div>
