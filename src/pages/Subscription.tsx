@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Crown, Zap, Building2, RefreshCw, ExternalLink } from "lucide-react";
+import { Check, Crown, Zap, Building2, RefreshCw, ExternalLink, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSubscription, TIERS } from "@/hooks/useSubscription";
 import { toast } from "@/hooks/use-toast";
+import MobileMoneyDialog from "@/components/payments/MobileMoneyDialog";
 
 const tierIcons = {
   free: Zap,
@@ -22,6 +23,7 @@ export default function Subscription() {
   const { currentTier, subscribed, subscriptionEnd, loading, checkout, manageSubscription, refresh } = useSubscription();
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [payTier, setPayTier] = useState<"pro" | "enterprise" | null>(null);
 
   const handleCheckout = async (tierKey: string) => {
     const tier = TIERS[tierKey as keyof typeof TIERS];
@@ -35,6 +37,7 @@ export default function Subscription() {
       setCheckoutLoading(null);
     }
   };
+
 
   const handleManage = async () => {
     try {
