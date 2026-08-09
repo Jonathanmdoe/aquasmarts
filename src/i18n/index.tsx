@@ -412,6 +412,48 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = lang;
   }, [lang]);
 
+  // Keep the language in sync with the signed-in user's profile so it survives
+  // logins on any device, not just this browser.
+  useEffect(() => {
+    let cancelled = false;
+
+    const syncFromProfile = async (userId: string) => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("preferred_language")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (cancelled) return;
+      const remote = (data as { preferred_language?: string | null } | null)?.preferred_language as Lang | undefined;
+      if (remote && DICTS[remote]) {
+        setLangState(remote);
+        try {
+          localStorage.setItem(STORAGE_KEY, remote);
+        } catch {
+          /* ignore */
+        }
+      } else {
+        const local = initialLang();
+        await supabase.from("profiles").update({ preferred_language: local }).eq("user_id", userId);
+      }
+    };
+
+    supabase.auth.getSession().then(({ data }) => {
+      const uid = data.session?.user?.id;
+      if (uid) syncFromProfile(uid);
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      const uid = session?.user?.id;
+      if (uid) setTimeout(() => syncFromProfile(uid), 0);
+    });
+
+    return () => {
+      cancelled = true;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
   const setLang = useCallback((l: Lang) => {
     setLangState(l);
     try {
@@ -419,6 +461,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     } catch {
       /* ignore */
     }
+    supabase.auth.getSession().then(({ data }) => {
+      const uid = data.session?.user?.id;
+      if (uid) supabase.from("profiles").update({ preferred_language: l }).eq("user_id", uid);
+    });
   }, []);
 
   const t = useCallback((key: string) => DICTS[lang][key] ?? en[key] ?? key, [lang]);
@@ -429,6 +475,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     </I18nContext.Provider>
   );
 }
+
 
 export function useI18n() {
   const ctx = useContext(I18nContext);
