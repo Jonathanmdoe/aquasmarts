@@ -258,8 +258,10 @@ export default function Feeding() {
             <div className="space-y-2">
               {logs?.map((log, i) => {
                 const batch = batches?.find((b: any) => b.id === log.batch_id);
-                const target = batch ? targetDailyKg(batch) : 0;
-                const status = rateLog(log.amount_kg, target);
+                const target = batch ? targetDailyKg(batch, feedMode, feedingsPerDay) : 0;
+                const days = batch?.stock_date ? differenceInDays(new Date(), new Date(batch.stock_date)) + 1 : 0;
+                const perDaySplits = feedMode === "table" && days > 0 && days <= 21 ? feedingsPerDay : 2;
+                const status = rateLog(log.amount_kg, target, perDaySplits);
                 return (
                   <motion.div
                     key={log.id}
