@@ -74,6 +74,14 @@ export default function Feeding() {
   const [stockType, setStockType] = useState("Floating Pellets");
   const [stockQty, setStockQty] = useState(50);
   const [stockCost, setStockCost] = useState(0);
+  const [feedMode, setFeedMode] = useState<FeedMode>(
+    () => (localStorage.getItem("fryFeedMode") as FeedMode) || "standard"
+  );
+  const [feedingsPerDay, setFeedingsPerDay] = useState<number>(
+    () => Number(localStorage.getItem("fryFeedingsPerDay")) || 5
+  );
+  const setMode = (m: FeedMode) => { setFeedMode(m); localStorage.setItem("fryFeedMode", m); };
+  const setFeedings = (n: number) => { setFeedingsPerDay(n); localStorage.setItem("fryFeedingsPerDay", String(n)); };
 
   const logs = useMemo(
     () => activeBatchId ? (allLogs ?? []).filter((l: any) => l.batch_id === activeBatchId) : allLogs,
@@ -92,13 +100,14 @@ export default function Feeding() {
     return filtered
       .filter((b: any) => b.status !== "harvested" && b.current_count > 0)
       .map((b: any) => {
-        const target = targetDailyKg(b);
+        const target = targetDailyKg(b, feedMode, feedingsPerDay);
         const todays = allLogs?.filter(l => l.batch_id === b.id && isToday(new Date(l.feeding_time))) ?? [];
         const am = todays.find(l => new Date(l.feeding_time).getHours() < 12);
         const pm = todays.find(l => new Date(l.feeding_time).getHours() >= 12);
         return { batch: b, target, am, pm };
       });
-  }, [batches, allLogs, activeBatchId]);
+  }, [batches, allLogs, activeBatchId, feedMode, feedingsPerDay]);
+
 
   return (
     <div className="min-h-screen">
