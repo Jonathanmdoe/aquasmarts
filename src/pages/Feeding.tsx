@@ -135,6 +135,36 @@ export default function Feeding() {
           <StatCard icon={<TrendingDown className="w-4 h-4" />} label="Log Count" value={`${logs?.length ?? 0}`} color="teal" />
         </div>
 
+        {/* Fry feeding method */}
+        <div className="bg-card rounded-2xl p-3 shadow-card">
+          <h2 className="text-sm font-semibold text-foreground mb-2">Fry Feeding Method (first 21 days)</h2>
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => setMode("standard")}
+              className={`rounded-xl px-3 py-2 text-xs font-medium border transition ${feedMode === "standard" ? "bg-primary text-primary-foreground border-primary" : "bg-muted/40 text-muted-foreground border-border"}`}>
+              Normal schedule
+            </button>
+            <button onClick={() => setMode("table")}
+              className={`rounded-xl px-3 py-2 text-xs font-medium border transition ${feedMode === "table" ? "bg-primary text-primary-foreground border-primary" : "bg-muted/40 text-muted-foreground border-border"}`}>
+              21-day fry table
+            </button>
+          </div>
+          {feedMode === "table" && (
+            <div className="mt-3 flex items-center justify-between gap-3">
+              <label className="text-xs text-muted-foreground">Feedings per day</label>
+              <input type="number" min={1} max={10} value={feedingsPerDay}
+                onChange={e => setFeedings(Math.max(1, Math.min(10, Number(e.target.value) || 1)))}
+                className="w-20 bg-muted/50 border border-border rounded-lg px-2 py-1.5 text-xs" />
+            </div>
+          )}
+          <p className="text-[10px] text-muted-foreground mt-2">
+            {feedMode === "table"
+              ? "Uses the hatchery table (grams per 5,000 fry per feeding × feedings/day)."
+              : "Uses the smooth daily ramp estimate."}
+          </p>
+        </div>
+
+
+
         {/* Feed Stock */}
         <div className="bg-card rounded-2xl p-3 shadow-card">
           <div className="flex items-center justify-between mb-2">
