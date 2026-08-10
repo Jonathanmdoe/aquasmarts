@@ -9,21 +9,28 @@ import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 type FeedStatus = "safe" | "caution" | "danger";
+export type FeedMode = "table" | "standard";
 
-// 21-day fry feeding schedule (grams/day per 5,000 fingerlings)
-// Ramps from ~150g/day on day 1 to ~1.2kg/day by day 21
+// Grams of feed per feeding time, per 5,000 fingerlings (hatchery 21-day fry table)
+const FRY_TABLE_PER_5K = [2, 4, 7, 9, 11, 11, 12, 13, 15, 16, 16, 17, 18, 18, 18, 18, 18, 19, 19, 20, 20];
+
+// 21-day fry feeding schedule (grams/day per 5,000 fingerlings) — smooth ramp
 const fryGramsPer5k = (day: number): number => {
   if (day < 1) return 0;
   if (day > 21) return 1200;
-  // linear ramp 150 -> 1200 across 21 days
   return Math.round(150 + ((day - 1) / 20) * (1200 - 150));
 };
 
 // Target daily feed in kg for a batch
-const targetDailyKg = (batch: any): number => {
+const targetDailyKg = (batch: any, mode: FeedMode = "standard", feedingsPerDay = 5): number => {
   if (!batch?.stock_date || !batch?.current_count) return 0;
   const days = differenceInDays(new Date(), new Date(batch.stock_date)) + 1;
   if (days <= 21) {
+    if (mode === "table") {
+      const perFeedPer5k = FRY_TABLE_PER_5K[Math.max(0, days - 1)] ?? 0;
+      const grams = perFeedPer5k * (batch.current_count / 5000) * feedingsPerDay;
+      return +(grams / 1000).toFixed(2);
+    }
     return +(fryGramsPer5k(days) * (batch.current_count / 5000) / 1000).toFixed(2);
   }
   // Post-fry: estimate avg weight by days, feed at 3% biomass
@@ -32,12 +39,13 @@ const targetDailyKg = (batch: any): number => {
   return +(biomassKg * 0.03).toFixed(2);
 };
 
-const rateLog = (amount: number, target: number): FeedStatus => {
+const rateLog = (amount: number, target: number, feedingsPerDay = 2): FeedStatus => {
   if (target <= 0) return "safe";
-  const halfTarget = target / 2;
-  const ratio = amount / halfTarget;
+  const perFeed = target / Math.max(1, feedingsPerDay);
+  const ratio = amount / perFeed;
   if (ratio >= 0.8 && ratio <= 1.25) return "safe";
   if (ratio >= 0.5 && ratio <= 1.6) return "caution";
+
   return "danger";
 };
 
