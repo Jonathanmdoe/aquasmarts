@@ -5,7 +5,7 @@ import {
   Flag, Trophy, Shield, HeartPulse, LifeBuoy, Settings as SettingsIcon,
   AlertTriangle, CheckCircle, XCircle, Search, Mail, Ban, RotateCw, Trash2,
   ArrowUp, ArrowDown, Send, Download, FileText, RefreshCw, Pause, Play,
-  Database, Server, Zap, HardDrive,
+  Database, Server, Zap, HardDrive, Wallet,
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -175,6 +175,7 @@ export default function Admin() {
                 ["activity", Activity, "Activity"], ["moderation", Flag, "Moderation"],
                 ["leaderboard", Trophy, "Leaderboard"], ["roles", Shield, "Roles"],
                 ["health", HeartPulse, "Health"], ["support", LifeBuoy, "Support"],
+                ["payments", Wallet, "Payments"],
                 ["settings", SettingsIcon, "Settings"],
               ].map(([k, Icon, label]: any) => (
                 <TabsTrigger key={k} value={k} className="rounded-lg text-[11px] px-2.5 py-1.5 flex items-center gap-1 whitespace-nowrap">
@@ -264,7 +265,10 @@ export default function Admin() {
           {/* ============ 10. SUPPORT ============ */}
           <TabsContent value="support" className="mt-2"><SupportTab tickets={tickets} profileById={profileById} onAction={refresh} /></TabsContent>
 
-          {/* ============ 11. SETTINGS ============ */}
+          {/* ============ 11. PAYMENTS ============ */}
+          <TabsContent value="payments" className="mt-2"><PaymentsTab /></TabsContent>
+
+          {/* ============ 12. SETTINGS ============ */}
           <TabsContent value="settings" className="mt-2"><SettingsTab settings={settings} onAction={refresh} /></TabsContent>
         </Tabs>
       </div>
@@ -941,6 +945,94 @@ function SupportTab({ tickets, profileById, onAction }: any) {
 }
 
 // ============================================================
+// Payments (manual M-Pesa confirmations)
+// ============================================================
+function PaymentsTab() {
+  const [payments, setPayments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.functions.invoke("manual-payment", { body: { action: "list" } });
+    if (error || data?.error) toast.error(data?.error ?? error?.message ?? "Failed to load payments");
+    else setPayments(data.payments ?? []);
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, []);
+
+  const review = async (id: string, decision: "approve" | "reject") => {
+    setBusy(id);
+    const { data, error } = await supabase.functions.invoke("manual-payment", {
+      body: { action: "review", id, decision },
+    });
+    setBusy(null);
+    if (error || data?.error) { toast.error(data?.error ?? error?.message); return; }
+    toast.success(decision === "approve" ? "Payment confirmed" : "Payment rejected");
+    load();
+  };
+
+  if (loading) return <p className="text-xs text-muted-foreground text-center py-6">Loading payments…</p>;
+  if (!payments.length) return <p className="text-xs text-muted-foreground text-center py-6">No M-Pesa payments yet.</p>;
+
+  const pending = payments.filter((p) => p.status === "pending_review");
+
+  return (
+    <div className="space-y-3">
+      <div className="bg-card rounded-2xl shadow-card p-3 flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold">Awaiting confirmation</p>
+          <p className="text-[11px] text-muted-foreground">{pending.length} payment(s) to verify</p>
+        </div>
+        <Button size="sm" variant="outline" className="h-8 text-[11px] gap-1" onClick={load}>
+          <RefreshCw className="w-3 h-3" /> Refresh
+        </Button>
+      </div>
+
+      {payments.map((p) => (
+        <div key={p.id} className="bg-card rounded-2xl shadow-card p-3 space-y-2">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold truncate">
+                {p.profile?.full_name || p.profile?.email || "Unknown user"}
+              </p>
+              <p className="text-[11px] text-muted-foreground truncate">
+                {p.purpose === "subscription" ? `${p.plan} plan` : "Marketplace order"} · {p.phone}
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                Code: <span className="font-mono font-semibold text-foreground">{p.provider_ref}</span>
+              </p>
+              <p className="text-[11px] text-muted-foreground">Ref: {p.reference}</p>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="text-sm font-bold">{formatTZS(Number(p.amount_tzs))}</p>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                p.status === "paid" ? "bg-secondary/15 text-secondary"
+                : p.status === "failed" ? "bg-destructive/15 text-destructive"
+                : "bg-primary/15 text-primary"}`}>
+                {p.status === "pending_review" ? "pending" : p.status}
+              </span>
+            </div>
+          </div>
+          {p.status === "pending_review" && (
+            <div className="flex gap-2">
+              <Button size="sm" className="flex-1 h-8 text-[11px] gap-1" disabled={busy === p.id}
+                onClick={() => review(p.id, "approve")}>
+                <CheckCircle className="w-3 h-3" /> Confirm
+              </Button>
+              <Button size="sm" variant="outline" className="flex-1 h-8 text-[11px] gap-1" disabled={busy === p.id}
+                onClick={() => review(p.id, "reject")}>
+                <XCircle className="w-3 h-3" /> Reject
+              </Button>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ============================================================
 // Settings
 // ============================================================
 function SettingsTab({ settings, onAction }: any) {
@@ -975,6 +1067,23 @@ function SettingsTab({ settings, onAction }: any) {
       </div>
 
       <div className="bg-card rounded-2xl shadow-card p-3 space-y-2">
+        <h3 className="text-sm font-semibold">M-Pesa (Vodacom) Lipa Namba</h3>
+        <p className="text-[11px] text-muted-foreground">Shown to buyers when they pay for plans or orders.</p>
+        <div className="flex items-center gap-2">
+          <span className="text-xs w-20">Namba</span>
+          <Input value={s.mpesa_number ?? ""} className="h-8 text-xs flex-1" placeholder="e.g. 123456"
+            onChange={(e) => setS({ ...s, mpesa_number: e.target.value })} />
+          <Button size="sm" className="h-8 text-[11px]" onClick={() => saveField({ mpesa_number: s.mpesa_number })}>Save</Button>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs w-20">Name</span>
+          <Input value={s.mpesa_account_name ?? ""} className="h-8 text-xs flex-1" placeholder="AquaSmart"
+            onChange={(e) => setS({ ...s, mpesa_account_name: e.target.value })} />
+          <Button size="sm" className="h-8 text-[11px]" onClick={() => saveField({ mpesa_account_name: s.mpesa_account_name })}>Save</Button>
+        </div>
+      </div>
+
+      <div className="bg-card rounded-2xl shadow-card p-3 space-y-2">
         <h3 className="text-sm font-semibold">Commission Rate (%)</h3>
         <div className="flex items-center gap-2">
           <Input type="number" step="0.5" value={s.commission_rate} className="h-8 text-xs flex-1"
@@ -982,6 +1091,7 @@ function SettingsTab({ settings, onAction }: any) {
           <Button size="sm" className="h-8 text-[11px]" onClick={() => saveField({ commission_rate: s.commission_rate })}>Update</Button>
         </div>
       </div>
+
 
       <div className="bg-card rounded-2xl shadow-card p-3 space-y-1.5">
         <h3 className="text-sm font-semibold mb-1">Feature Toggles</h3>

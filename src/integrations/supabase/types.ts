@@ -997,10 +997,14 @@ export type Database = {
           phone: string | null
           plan: string | null
           provider: string
+          provider_ref: string | null
           purpose: string
           raw: Json | null
           reference: string
           related_id: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           selcom_transid: string | null
           status: string
           updated_at: string
@@ -1015,10 +1019,14 @@ export type Database = {
           phone?: string | null
           plan?: string | null
           provider?: string
+          provider_ref?: string | null
           purpose: string
           raw?: Json | null
           reference: string
           related_id?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           selcom_transid?: string | null
           status?: string
           updated_at?: string
@@ -1033,10 +1041,14 @@ export type Database = {
           phone?: string | null
           plan?: string | null
           provider?: string
+          provider_ref?: string | null
           purpose?: string
           raw?: Json | null
           reference?: string
           related_id?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           selcom_transid?: string | null
           status?: string
           updated_at?: string
@@ -1055,6 +1067,8 @@ export type Database = {
           kyc_required: boolean
           maintenance_mode: boolean
           marketplace_open: boolean
+          mpesa_account_name: string
+          mpesa_number: string
           new_registrations: boolean
           price_basic_cents: number
           price_enterprise_cents: number
@@ -1072,6 +1086,8 @@ export type Database = {
           kyc_required?: boolean
           maintenance_mode?: boolean
           marketplace_open?: boolean
+          mpesa_account_name?: string
+          mpesa_number?: string
           new_registrations?: boolean
           price_basic_cents?: number
           price_enterprise_cents?: number
@@ -1089,6 +1105,8 @@ export type Database = {
           kyc_required?: boolean
           maintenance_mode?: boolean
           marketplace_open?: boolean
+          mpesa_account_name?: string
+          mpesa_number?: string
           new_registrations?: boolean
           price_basic_cents?: number
           price_enterprise_cents?: number
