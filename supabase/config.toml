@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.send-team-invitation]
 verify_jwt = false
+
+[functions.manual-payment]
+verify_jwt = false
