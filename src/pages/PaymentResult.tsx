@@ -16,7 +16,7 @@ export default function PaymentResult({ outcome }: { outcome: "success" | "cance
     let tries = 0;
     const check = async () => {
       tries += 1;
-      const { data } = await supabase.functions.invoke("selcom-status", { body: { reference } });
+      const { data } = await supabase.functions.invoke("manual-payment", { body: { action: "status", reference } });
       if (data?.status === "paid") setStatus("paid");
       else if (data?.status === "failed") setStatus("failed");
       else if (tries >= 6) setStatus("pending");
