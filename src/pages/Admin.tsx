@@ -5,7 +5,7 @@ import {
   Flag, Trophy, Shield, HeartPulse, LifeBuoy, Settings as SettingsIcon,
   AlertTriangle, CheckCircle, XCircle, Search, Mail, Ban, RotateCw, Trash2,
   ArrowUp, ArrowDown, Send, Download, FileText, RefreshCw, Pause, Play,
-  Database, Server, Zap, HardDrive,
+  Database, Server, Zap, HardDrive, Wallet,
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
