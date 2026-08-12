@@ -101,6 +101,7 @@ function RoleHome() {
 
 function AppRoutes() {
   return (
+    <Suspense fallback={<PageSpinner />}>
     <Routes>
       <Route path="/auth" element={<AuthRoute><Auth /></AuthRoute>} />
       <Route path="/dev-login" element={<Navigate to="/auth" replace />} />
