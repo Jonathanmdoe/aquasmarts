@@ -265,7 +265,10 @@ export default function Admin() {
           {/* ============ 10. SUPPORT ============ */}
           <TabsContent value="support" className="mt-2"><SupportTab tickets={tickets} profileById={profileById} onAction={refresh} /></TabsContent>
 
-          {/* ============ 11. SETTINGS ============ */}
+          {/* ============ 11. PAYMENTS ============ */}
+          <TabsContent value="payments" className="mt-2"><PaymentsTab /></TabsContent>
+
+          {/* ============ 12. SETTINGS ============ */}
           <TabsContent value="settings" className="mt-2"><SettingsTab settings={settings} onAction={refresh} /></TabsContent>
         </Tabs>
       </div>
