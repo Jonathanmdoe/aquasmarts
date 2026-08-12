@@ -945,6 +945,94 @@ function SupportTab({ tickets, profileById, onAction }: any) {
 }
 
 // ============================================================
+// Payments (manual M-Pesa confirmations)
+// ============================================================
+function PaymentsTab() {
+  const [payments, setPayments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.functions.invoke("manual-payment", { body: { action: "list" } });
+    if (error || data?.error) toast.error(data?.error ?? error?.message ?? "Failed to load payments");
+    else setPayments(data.payments ?? []);
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, []);
+
+  const review = async (id: string, decision: "approve" | "reject") => {
+    setBusy(id);
+    const { data, error } = await supabase.functions.invoke("manual-payment", {
+      body: { action: "review", id, decision },
+    });
+    setBusy(null);
+    if (error || data?.error) { toast.error(data?.error ?? error?.message); return; }
+    toast.success(decision === "approve" ? "Payment confirmed" : "Payment rejected");
+    load();
+  };
+
+  if (loading) return <p className="text-xs text-muted-foreground text-center py-6">Loading payments…</p>;
+  if (!payments.length) return <p className="text-xs text-muted-foreground text-center py-6">No M-Pesa payments yet.</p>;
+
+  const pending = payments.filter((p) => p.status === "pending_review");
+
+  return (
+    <div className="space-y-3">
+      <div className="bg-card rounded-2xl shadow-card p-3 flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold">Awaiting confirmation</p>
+          <p className="text-[11px] text-muted-foreground">{pending.length} payment(s) to verify</p>
+        </div>
+        <Button size="sm" variant="outline" className="h-8 text-[11px] gap-1" onClick={load}>
+          <RefreshCw className="w-3 h-3" /> Refresh
+        </Button>
+      </div>
+
+      {payments.map((p) => (
+        <div key={p.id} className="bg-card rounded-2xl shadow-card p-3 space-y-2">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold truncate">
+                {p.profile?.full_name || p.profile?.email || "Unknown user"}
+              </p>
+              <p className="text-[11px] text-muted-foreground truncate">
+                {p.purpose === "subscription" ? `${p.plan} plan` : "Marketplace order"} · {p.phone}
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                Code: <span className="font-mono font-semibold text-foreground">{p.provider_ref}</span>
+              </p>
+              <p className="text-[11px] text-muted-foreground">Ref: {p.reference}</p>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="text-sm font-bold">{formatTZS(Number(p.amount_tzs))}</p>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                p.status === "paid" ? "bg-secondary/15 text-secondary"
+                : p.status === "failed" ? "bg-destructive/15 text-destructive"
+                : "bg-primary/15 text-primary"}`}>
+                {p.status === "pending_review" ? "pending" : p.status}
+              </span>
+            </div>
+          </div>
+          {p.status === "pending_review" && (
+            <div className="flex gap-2">
+              <Button size="sm" className="flex-1 h-8 text-[11px] gap-1" disabled={busy === p.id}
+                onClick={() => review(p.id, "approve")}>
+                <CheckCircle className="w-3 h-3" /> Confirm
+              </Button>
+              <Button size="sm" variant="outline" className="flex-1 h-8 text-[11px] gap-1" disabled={busy === p.id}
+                onClick={() => review(p.id, "reject")}>
+                <XCircle className="w-3 h-3" /> Reject
+              </Button>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ============================================================
 // Settings
 // ============================================================
 function SettingsTab({ settings, onAction }: any) {
