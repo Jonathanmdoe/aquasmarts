@@ -175,6 +175,7 @@ export default function Admin() {
                 ["activity", Activity, "Activity"], ["moderation", Flag, "Moderation"],
                 ["leaderboard", Trophy, "Leaderboard"], ["roles", Shield, "Roles"],
                 ["health", HeartPulse, "Health"], ["support", LifeBuoy, "Support"],
+                ["payments", Wallet, "Payments"],
                 ["settings", SettingsIcon, "Settings"],
               ].map(([k, Icon, label]: any) => (
                 <TabsTrigger key={k} value={k} className="rounded-lg text-[11px] px-2.5 py-1.5 flex items-center gap-1 whitespace-nowrap">
