@@ -1067,6 +1067,23 @@ function SettingsTab({ settings, onAction }: any) {
       </div>
 
       <div className="bg-card rounded-2xl shadow-card p-3 space-y-2">
+        <h3 className="text-sm font-semibold">M-Pesa (Vodacom) Lipa Namba</h3>
+        <p className="text-[11px] text-muted-foreground">Shown to buyers when they pay for plans or orders.</p>
+        <div className="flex items-center gap-2">
+          <span className="text-xs w-20">Namba</span>
+          <Input value={s.mpesa_number ?? ""} className="h-8 text-xs flex-1" placeholder="e.g. 123456"
+            onChange={(e) => setS({ ...s, mpesa_number: e.target.value })} />
+          <Button size="sm" className="h-8 text-[11px]" onClick={() => saveField({ mpesa_number: s.mpesa_number })}>Save</Button>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs w-20">Name</span>
+          <Input value={s.mpesa_account_name ?? ""} className="h-8 text-xs flex-1" placeholder="AquaSmart"
+            onChange={(e) => setS({ ...s, mpesa_account_name: e.target.value })} />
+          <Button size="sm" className="h-8 text-[11px]" onClick={() => saveField({ mpesa_account_name: s.mpesa_account_name })}>Save</Button>
+        </div>
+      </div>
+
+      <div className="bg-card rounded-2xl shadow-card p-3 space-y-2">
         <h3 className="text-sm font-semibold">Commission Rate (%)</h3>
         <div className="flex items-center gap-2">
           <Input type="number" step="0.5" value={s.commission_rate} className="h-8 text-xs flex-1"
@@ -1074,6 +1091,7 @@ function SettingsTab({ settings, onAction }: any) {
           <Button size="sm" className="h-8 text-[11px]" onClick={() => saveField({ commission_rate: s.commission_rate })}>Update</Button>
         </div>
       </div>
+
 
       <div className="bg-card rounded-2xl shadow-card p-3 space-y-1.5">
         <h3 className="text-sm font-semibold mb-1">Feature Toggles</h3>
