@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Suspense, lazy } from "react";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { LanguageProvider } from "@/i18n";
@@ -10,39 +11,45 @@ import { useUserRole, RoleProvider } from "@/hooks/useUserRole";
 
 import { useSubscription } from "@/hooks/useSubscription";
 import MobileLayout from "@/components/MobileLayout";
-import Enterprise from "./pages/Enterprise";
-import Sales from "./pages/Sales";
-import Index from "./pages/Index";
-import Batches from "./pages/Batches";
-import Growth from "./pages/Growth";
-import Feeding from "./pages/Feeding";
-import WaterQuality from "./pages/WaterQuality";
-import Marketplace from "./pages/Marketplace";
-import Health from "./pages/Health";
-import Financial from "./pages/Financial";
-import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
-import FarmSetup from "./pages/FarmSetup";
-import AIPredictions from "./pages/AIPredictions";
-import Subscription from "./pages/Subscription";
-import MyListings from "./pages/MyListings";
-import Admin from "./pages/Admin";
-import More from "./pages/More";
-import Notifications from "./pages/Notifications";
-import Security from "./pages/Security";
-import HelpSupport from "./pages/HelpSupport";
-import WorkerDashboard from "./pages/WorkerDashboard";
-import MarketplaceKYC from "./pages/MarketplaceKYC";
-import MarketplaceDisputes from "./pages/MarketplaceDisputes";
-import MarketplaceNotifications from "./pages/MarketplaceNotifications";
-import MarketplaceAnalytics from "./pages/MarketplaceAnalytics";
+import Index from "./pages/Index";
 
-import RoleCheck from "./pages/RoleCheck";
-import NotFound from "./pages/NotFound";
-import PaymentResult from "./pages/PaymentResult";
+const Enterprise = lazy(() => import("./pages/Enterprise"));
+const Sales = lazy(() => import("./pages/Sales"));
+const Batches = lazy(() => import("./pages/Batches"));
+const Growth = lazy(() => import("./pages/Growth"));
+const Feeding = lazy(() => import("./pages/Feeding"));
+const WaterQuality = lazy(() => import("./pages/WaterQuality"));
+const Marketplace = lazy(() => import("./pages/Marketplace"));
+const Health = lazy(() => import("./pages/Health"));
+const Financial = lazy(() => import("./pages/Financial"));
+const Settings = lazy(() => import("./pages/Settings"));
+const FarmSetup = lazy(() => import("./pages/FarmSetup"));
+const AIPredictions = lazy(() => import("./pages/AIPredictions"));
+const Subscription = lazy(() => import("./pages/Subscription"));
+const MyListings = lazy(() => import("./pages/MyListings"));
+const Admin = lazy(() => import("./pages/Admin"));
+const More = lazy(() => import("./pages/More"));
+const Notifications = lazy(() => import("./pages/Notifications"));
+const Security = lazy(() => import("./pages/Security"));
+const HelpSupport = lazy(() => import("./pages/HelpSupport"));
+const WorkerDashboard = lazy(() => import("./pages/WorkerDashboard"));
+const MarketplaceKYC = lazy(() => import("./pages/MarketplaceKYC"));
+const MarketplaceDisputes = lazy(() => import("./pages/MarketplaceDisputes"));
+const MarketplaceNotifications = lazy(() => import("./pages/MarketplaceNotifications"));
+const MarketplaceAnalytics = lazy(() => import("./pages/MarketplaceAnalytics"));
+const RoleCheck = lazy(() => import("./pages/RoleCheck"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const PaymentResult = lazy(() => import("./pages/PaymentResult"));
 
+const PageSpinner = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 const queryClient = new QueryClient();
+
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
