@@ -20,7 +20,7 @@ const tierAccents = {
 };
 
 export default function Subscription() {
-  const { currentTier, subscribed, subscriptionEnd, loading, checkout, manageSubscription, refresh } = useSubscription();
+  const { currentTier, subscribed, subscriptionEnd, loading, checkout, manageSubscription, refresh, pricesTzs } = useSubscription();
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [payTier, setPayTier] = useState<"pro" | "enterprise" | null>(null);
@@ -122,7 +122,7 @@ export default function Subscription() {
                   <h3 className="font-bold text-foreground">{tier.name}</h3>
                   <div className="flex items-baseline gap-1 mt-1">
                     <span className="text-2xl font-bold text-foreground">
-                      {tier.price_tzs === 0 ? "TZS 0" : `TZS ${tier.price_tzs.toLocaleString("en-TZ")}`}
+                      {`TZS ${(pricesTzs[key as keyof typeof pricesTzs] ?? tier.price_tzs).toLocaleString("en-TZ")}`}
                     </span>
                     <span className="text-sm text-muted-foreground">/mo</span>
                   </div>
@@ -185,7 +185,7 @@ export default function Subscription() {
           onOpenChange={(o) => !o && setPayTier(null)}
           purpose="subscription"
           plan={payTier}
-          amountTzs={TIERS[payTier].price_tzs}
+          amountTzs={pricesTzs[payTier] ?? TIERS[payTier].price_tzs}
           title={`Upgrade to ${TIERS[payTier].name}`}
           onPaid={refresh}
         />
