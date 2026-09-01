@@ -41,6 +41,7 @@ export default function MobileMoneyDialog({
   const [reference, setReference] = useState<string | null>(null);
   const [mpesaNumber, setMpesaNumber] = useState("");
   const [accountName, setAccountName] = useState("AquaSmart");
+  const [autoApproved, setAutoApproved] = useState(false);
 
   useEffect(() => {
     if (!open) {
@@ -48,6 +49,7 @@ export default function MobileMoneyDialog({
       setSubmitting(false);
       setCode("");
       setReference(null);
+      setAutoApproved(false);
       return;
     }
     supabase.functions
@@ -82,6 +84,7 @@ export default function MobileMoneyDialog({
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       setReference(data.reference);
+      setAutoApproved(data.status === "paid");
       setSubmitted(true);
       onPaid?.();
     } catch (e) {
@@ -107,11 +110,18 @@ export default function MobileMoneyDialog({
 
         {submitted ? (
           <div className="flex flex-col items-center gap-3 py-8 text-center">
-            <Clock className="w-12 h-12 text-primary" />
-            <p className="font-semibold text-foreground">Payment submitted for confirmation</p>
+            {autoApproved ? (
+              <CheckCircle2 className="w-12 h-12 text-secondary" />
+            ) : (
+              <Clock className="w-12 h-12 text-primary" />
+            )}
+            <p className="font-semibold text-foreground">
+              {autoApproved ? "Payment received" : "Payment submitted for confirmation"}
+            </p>
             <p className="text-sm text-muted-foreground">
-              We are verifying your M-Pesa payment of {formatTzs(amountTzs)}. You will be notified once it is
-              confirmed — usually within a few minutes.
+              {autoApproved
+                ? `Your payment of ${formatTzs(amountTzs)} is recorded and your ${purpose === "subscription" ? "plan is now active" : "order is confirmed"}.`
+                : `We are verifying your M-Pesa payment of ${formatTzs(amountTzs)}. You will be notified once it is confirmed — usually within a few minutes.`}
             </p>
             <p className="text-xs text-muted-foreground">Ref: {reference}</p>
             <Button className="w-full mt-2" onClick={() => onOpenChange(false)}>Done</Button>
@@ -179,7 +189,7 @@ export default function MobileMoneyDialog({
                 Submit payment for confirmation
               </Button>
               <p className="text-[11px] text-muted-foreground text-center">
-                Your plan or order is activated once an admin confirms the payment.
+                Send the money to the Lipa Namba above first — the confirmation code is your proof of payment.
               </p>
             </TabsContent>
 
