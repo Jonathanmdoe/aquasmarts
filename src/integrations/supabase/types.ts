@@ -1068,6 +1068,7 @@ export type Database = {
           maintenance_mode: boolean
           marketplace_open: boolean
           mpesa_account_name: string
+          mpesa_auto_approve: boolean
           mpesa_number: string
           new_registrations: boolean
           price_basic_cents: number
@@ -1087,6 +1088,7 @@ export type Database = {
           maintenance_mode?: boolean
           marketplace_open?: boolean
           mpesa_account_name?: string
+          mpesa_auto_approve?: boolean
           mpesa_number?: string
           new_registrations?: boolean
           price_basic_cents?: number
@@ -1106,6 +1108,7 @@ export type Database = {
           maintenance_mode?: boolean
           marketplace_open?: boolean
           mpesa_account_name?: string
+          mpesa_auto_approve?: boolean
           mpesa_number?: string
           new_registrations?: boolean
           price_basic_cents?: number
