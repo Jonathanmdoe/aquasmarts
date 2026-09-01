@@ -1053,7 +1053,8 @@ function SettingsTab({ settings, onAction }: any) {
   return (
     <div className="space-y-3">
       <div className="bg-card rounded-2xl shadow-card p-3 space-y-2">
-        <h3 className="text-sm font-semibold">Subscription Pricing</h3>
+        <h3 className="text-sm font-semibold">Subscription Pricing (TZS / month)</h3>
+        <p className="text-[11px] text-muted-foreground">Saved prices apply instantly to what subscribers see and pay.</p>
         {[
           ["Basic", "price_basic_cents"], ["Pro", "price_pro_cents"], ["Enterprise", "price_enterprise_cents"],
         ].map(([label, key]) => (
@@ -1080,6 +1081,15 @@ function SettingsTab({ settings, onAction }: any) {
           <Input value={s.mpesa_account_name ?? ""} className="h-8 text-xs flex-1" placeholder="AquaSmart"
             onChange={(e) => setS({ ...s, mpesa_account_name: e.target.value })} />
           <Button size="sm" className="h-8 text-[11px]" onClick={() => saveField({ mpesa_account_name: s.mpesa_account_name })}>Save</Button>
+        </div>
+        <div className="flex items-center justify-between pt-1">
+          <div className="pr-3">
+            <p className="text-xs font-medium">Auto-approve payments</p>
+            <p className="text-[11px] text-muted-foreground">
+              Activate the plan or order as soon as the buyer submits their M-Pesa code. Turn off to review each one first.
+            </p>
+          </div>
+          <Switch checked={s.mpesa_auto_approve !== false} onCheckedChange={(v) => toggleField("mpesa_auto_approve", v)} />
         </div>
       </div>
 

@@ -9,7 +9,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const PLAN_PRICES_TZS: Record<string, number> = { pro: 79000, enterprise: 259000 };
+const PLAN_PRICE_COLUMN: Record<string, string> = {
+  basic: "price_basic_cents",
+  pro: "price_pro_cents",
+  enterprise: "price_enterprise_cents",
+};
 const PLATFORM_FEE_RATE = 0.035;
 
 const json = (body: unknown, status = 200) =>
@@ -54,15 +58,33 @@ serve(async (req) => {
       return !!data;
     };
 
-    if (action === "config") {
+    const loadSettings = async () => {
       const { data } = await supabase
         .from("platform_settings")
-        .select("mpesa_number, mpesa_account_name")
+        .select("mpesa_number, mpesa_account_name, mpesa_auto_approve, price_basic_cents, price_pro_cents, price_enterprise_cents")
         .eq("id", 1)
         .maybeSingle();
+      return data;
+    };
+
+    // Prices are stored in "cents" of TZS (amount x 100) so admins can edit them live.
+    const planPriceTzs = (settings: any, plan: string) => {
+      const col = PLAN_PRICE_COLUMN[plan];
+      if (!col || settings?.[col] == null) return 0;
+      return Math.round(Number(settings[col]) / 100);
+    };
+
+    if (action === "config") {
+      const data = await loadSettings();
       return json({
         mpesa_number: data?.mpesa_number || "",
         mpesa_account_name: data?.mpesa_account_name || "AquaSmart",
+        auto_approve: data?.mpesa_auto_approve !== false,
+        prices_tzs: {
+          basic: planPriceTzs(data, "basic"),
+          pro: planPriceTzs(data, "pro"),
+          enterprise: planPriceTzs(data, "enterprise"),
+        },
       });
     }
 
@@ -104,9 +126,12 @@ serve(async (req) => {
       let plan: string | null = null;
       let relatedId: string | null = null;
 
+      const settings = await loadSettings();
+      const autoApprove = settings?.mpesa_auto_approve !== false;
+
       if (purpose === "subscription") {
         plan = String(body.plan || "");
-        amountTzs = PLAN_PRICES_TZS[plan] ?? 0;
+        amountTzs = planPriceTzs(settings, plan);
         if (!amountTzs) return json({ error: "Unknown plan" }, 400);
       } else {
         const { data: cart, error: cartErr } = await supabase
@@ -168,11 +193,38 @@ serve(async (req) => {
         channel: "mobile_money",
         provider: "mpesa_manual",
         provider_ref: code,
-        status: "pending_review",
+        status: autoApprove ? "paid" : "pending_review",
       });
       if (txErr) throw txErr;
 
-      return json({ reference, amount_tzs: amountTzs, status: "pending_review" });
+      if (autoApprove) {
+        // Buyer paid straight into the business Lipa Namba, so the plan/order is
+        // activated as soon as the confirmation code is submitted.
+        if (purpose === "subscription" && plan) {
+          await supabase
+            .from("subscribers_cache")
+            .upsert({ user_id: user.id, plan, subscribed: true }, { onConflict: "user_id" });
+        } else if (purpose === "marketplace") {
+          await supabase
+            .from("marketplace_orders")
+            .update({ payment_status: "paid", status: "confirmed" })
+            .eq("stripe_session_id", reference);
+        }
+        await supabase.from("notifications").insert({
+          user_id: user.id,
+          type: "payment",
+          title: "Payment received",
+          body: `Your payment of TZS ${amountTzs.toLocaleString()} was received. Ref ${reference}.`,
+          link: purpose === "subscription" ? "/subscription" : "/marketplace",
+        });
+      }
+
+      return json({
+        reference,
+        amount_tzs: amountTzs,
+        status: autoApprove ? "paid" : "pending_review",
+        auto_approved: autoApprove,
+      });
     }
 
     if (action === "list") {

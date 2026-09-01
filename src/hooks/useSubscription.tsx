@@ -50,6 +50,8 @@ export const TIERS = {
 
 type TierKey = keyof typeof TIERS;
 
+export type PricesTzs = Record<"free" | "pro" | "enterprise", number>;
+
 interface SubscriptionState {
   subscribed: boolean;
   productId: string | null;
@@ -67,6 +69,31 @@ export function useSubscription() {
     currentTier: "free",
     loading: true,
   });
+
+  const [pricesTzs, setPricesTzs] = useState<PricesTzs>({
+    free: 0,
+    pro: TIERS.pro.price_tzs,
+    enterprise: TIERS.enterprise.price_tzs,
+  });
+
+  // Live plan prices (TZS) configured by the platform admin.
+  const loadPrices = useCallback(async () => {
+    try {
+      const { data } = await supabase.functions.invoke("manual-payment", {
+        body: { action: "config" },
+      });
+      const p = data?.prices_tzs;
+      if (p) {
+        setPricesTzs({
+          free: 0,
+          pro: Number(p.pro) || TIERS.pro.price_tzs,
+          enterprise: Number(p.enterprise) || TIERS.enterprise.price_tzs,
+        });
+      }
+    } catch {
+      /* keep defaults */
+    }
+  }, []);
 
   const checkSubscription = useCallback(async () => {
     if (!user) {
@@ -126,6 +153,10 @@ export function useSubscription() {
 
 
   useEffect(() => {
+    loadPrices();
+  }, [loadPrices]);
+
+  useEffect(() => {
     checkSubscription();
     // Re-check occasionally, but only while the tab is actually visible so we
     // don't keep the app in a permanent loading/refetch loop.
@@ -150,5 +181,13 @@ export function useSubscription() {
     if (data?.url) window.open(data.url, "_blank");
   };
 
-  return { ...state, checkout, manageSubscription, refresh: checkSubscription };
+  return {
+    ...state,
+    pricesTzs,
+    checkout,
+    manageSubscription,
+    refresh: async () => {
+      await Promise.all([checkSubscription(), loadPrices()]);
+    },
+  };
 }
