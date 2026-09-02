@@ -322,25 +322,47 @@ export default function TeamManagement() {
           </h3>
           <div className="space-y-2">
             {invitations.map((inv) => (
-              <div key={inv.id} className="flex items-center gap-3 p-3 rounded-xl border border-border/50 bg-background">
-                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Mail className="w-4 h-4 text-primary" />
+              <div key={inv.id} className="p-3 rounded-xl border border-border/50 bg-background space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Mail className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{inv.email}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {roleConfig[inv.role].label} · Expires {new Date(inv.expires_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => cancelInvitation(inv.id)}
+                    className="p-1.5 rounded-lg hover:bg-danger-light"
+                    title="Cancel invitation"
+                  >
+                    <Trash2 className="w-4 h-4 text-danger" />
+                  </button>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{inv.email}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {roleConfig[inv.role].label} · Expires {new Date(inv.expires_at).toLocaleDateString()}
-                  </p>
-                </div>
-                <button
-                  onClick={() => cancelInvitation(inv.id)}
-                  className="p-1.5 rounded-lg hover:bg-danger-light"
-                  title="Cancel invitation"
-                >
-                  <Trash2 className="w-4 h-4 text-danger" />
-                </button>
+                {inv.code && (
+                  <div className="flex items-center gap-2">
+                    <span className="flex-1 text-sm font-semibold tracking-[0.2em] text-foreground bg-muted/50 rounded-lg px-3 py-1.5 text-center">
+                      {inv.code}
+                    </span>
+                    <button
+                      onClick={() => copyLink(inv.code!)}
+                      className="flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2.5 py-1.5 rounded-lg"
+                    >
+                      <Copy className="w-3.5 h-3.5" /> Link
+                    </button>
+                    <button
+                      onClick={() => shareWhatsApp(inv)}
+                      className="flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg"
+                    >
+                      <Share2 className="w-3.5 h-3.5" /> Share
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
+
           </div>
         </div>
       )}
