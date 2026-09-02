@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Users, UserPlus, UserX, Crown, Shield, Wrench, Mail, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Users, UserPlus, UserX, Crown, Shield, Wrench, Mail, Trash2, ToggleLeft, ToggleRight, Copy, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useFarm } from "@/hooks/useFarm";
