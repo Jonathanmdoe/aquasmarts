@@ -114,16 +114,39 @@ export default function TeamManagement() {
         variant: "destructive",
       });
     } else {
-      toast({
-        title: "Invitation sent",
-        description: `${inviteEmail} will receive an email invite as ${inviteRole}.`,
-      });
+      const res = data as any;
+      if (res?.added_existing) {
+        toast({ title: "Member added", description: `${inviteEmail} already had an account and was added as ${inviteRole}.` });
+      } else {
+        toast({
+          title: "Invitation code created",
+          description: `Share code ${res?.code} with ${inviteEmail}. They join at /join.`,
+        });
+      }
       setInviteEmail("");
       setInviteOpen(false);
       fetchTeam();
     }
     setSending(false);
   };
+
+  const joinLink = (code: string) => `${window.location.origin}/join?code=${code}`;
+
+  const copyLink = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(joinLink(code));
+      toast({ title: "Invite link copied" });
+    } catch {
+      toast({ title: "Copy failed", description: joinLink(code), variant: "destructive" });
+    }
+  };
+
+  const shareWhatsApp = (inv: Invitation) => {
+    if (!inv.code) return;
+    const text = `You've been invited to join ${farm?.name ?? "our farm"} on AquaSmart as ${inv.role}. Open ${joinLink(inv.code)} or use code ${inv.code} after signing up.`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+  };
+
 
   const toggleActive = async (memberId: string, currentActive: boolean) => {
     const { error } = await supabase
