@@ -22,6 +22,7 @@ interface Invitation {
   email: string;
   role: "owner" | "manager" | "worker";
   status: string;
+  code: string | null;
   created_at: string;
   expires_at: string;
 }
