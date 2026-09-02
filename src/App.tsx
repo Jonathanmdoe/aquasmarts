@@ -107,6 +107,7 @@ function AppRoutes() {
       <Route path="/auth" element={<AuthRoute><Auth /></AuthRoute>} />
       <Route path="/dev-login" element={<Navigate to="/auth" replace />} />
       <Route path="/farm-setup" element={<ProtectedRoute><FarmSetup /></ProtectedRoute>} />
+      <Route path="/join" element={<JoinFarm />} />
       <Route path="/" element={<ProtectedRoute><RoleHome /></ProtectedRoute>} />
 
       <Route path="/batches" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Batches /></MobileLayout></RoleRoute></ProtectedRoute>} />
