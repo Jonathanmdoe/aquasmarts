@@ -1436,6 +1436,9 @@ export type Database = {
       }
       team_invitations: {
         Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          code: string | null
           created_at: string
           email: string
           expires_at: string
@@ -1446,6 +1449,9 @@ export type Database = {
           status: string
         }
         Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          code?: string | null
           created_at?: string
           email: string
           expires_at?: string
@@ -1456,6 +1462,9 @@ export type Database = {
           status?: string
         }
         Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          code?: string | null
           created_at?: string
           email?: string
           expires_at?: string

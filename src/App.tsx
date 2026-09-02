@@ -39,6 +39,7 @@ const MarketplaceDisputes = lazy(() => import("./pages/MarketplaceDisputes"));
 const MarketplaceNotifications = lazy(() => import("./pages/MarketplaceNotifications"));
 const MarketplaceAnalytics = lazy(() => import("./pages/MarketplaceAnalytics"));
 const RoleCheck = lazy(() => import("./pages/RoleCheck"));
+const JoinFarm = lazy(() => import("./pages/JoinFarm"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const PaymentResult = lazy(() => import("./pages/PaymentResult"));
 
@@ -106,6 +107,7 @@ function AppRoutes() {
       <Route path="/auth" element={<AuthRoute><Auth /></AuthRoute>} />
       <Route path="/dev-login" element={<Navigate to="/auth" replace />} />
       <Route path="/farm-setup" element={<ProtectedRoute><FarmSetup /></ProtectedRoute>} />
+      <Route path="/join" element={<JoinFarm />} />
       <Route path="/" element={<ProtectedRoute><RoleHome /></ProtectedRoute>} />
 
       <Route path="/batches" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Batches /></MobileLayout></RoleRoute></ProtectedRoute>} />

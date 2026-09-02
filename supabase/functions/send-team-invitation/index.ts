@@ -53,10 +53,16 @@ Deno.serve(async (req) => {
 
     // Create invitation row (service role bypasses RLS)
     const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const code = Array.from(crypto.getRandomValues(new Uint8Array(8)))
+      .map((n) => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[n % 32]).join("");
+
     const { data: inv, error: invErr } = await admin.from("team_invitations").insert({
-      farm_id, email, role, invited_by: user.id, status: "pending", expires_at: expires,
+      farm_id, email, role, invited_by: user.id, status: "pending", expires_at: expires, code,
     }).select().single();
     if (invErr) return json({ error: invErr.message }, 400);
+
+    const origin = redirect_to || "";
+    const join_link = origin ? `${origin.replace(/\/$/, "")}/join?code=${code}` : "";
 
     // Check if a user with this email already exists
     const { data: existing } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
@@ -71,7 +77,7 @@ Deno.serve(async (req) => {
       });
       await admin.from("user_roles").insert({ user_id: existingUser.id, role }).select();
       await admin.from("team_invitations")
-        .update({ status: "accepted", accepted_at: new Date().toISOString() })
+        .update({ status: "accepted", accepted_at: new Date().toISOString(), accepted_by: existingUser.id })
         .eq("id", inv.id);
       await admin.from("notifications").insert({
         user_id: existingUser.id,
@@ -81,26 +87,32 @@ Deno.serve(async (req) => {
         body: `You were added as ${role} on ${farm.name}.`,
         link: "/",
       });
-      return json({ ok: true, invitation_id: inv.id, added_existing: true });
+      return json({ ok: true, invitation_id: inv.id, added_existing: true, code, join_link });
     }
 
-    // New user — send Supabase auth invitation email
+    // New user — try the auth invitation email (best effort; may be unavailable
+    // until a verified sender domain is configured). The code/link always works.
+    let email_sent = true;
+    let email_error: string | null = null;
     const { error: mailErr } = await admin.auth.admin.inviteUserByEmail(email, {
       data: {
         full_name: email.split("@")[0],
         requested_role: role,
         invitation_id: inv.id,
+        invitation_code: code,
         farm_name: farm.name,
       },
-      redirectTo: redirect_to || undefined,
+      redirectTo: join_link || redirect_to || undefined,
     });
 
     if (mailErr) {
-      await admin.from("team_invitations").delete().eq("id", inv.id);
-      return json({ error: mailErr.message }, 400);
+      email_sent = false;
+      email_error = mailErr.message;
+      console.error("invite email failed:", mailErr.message);
     }
 
-    return json({ ok: true, invitation_id: inv.id });
+    return json({ ok: true, invitation_id: inv.id, code, join_link, email_sent, email_error });
+
   } catch (e) {
     console.error(e);
     return json({ error: (e as Error).message }, 500);

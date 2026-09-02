@@ -38,6 +38,13 @@ export default function Auth() {
         setLoading(false);
         return;
       }
+      // Pending team invitation code takes priority
+      const pending = sessionStorage.getItem("aquasmart.pendingInvite");
+      if (pending) {
+        navigate(`/join?code=${pending}`, { replace: true });
+        setLoading(false);
+        return;
+      }
       // Route to the correct home based on the user's role
       const { data: sess } = await supabase.auth.getUser();
       const uid = sess.user?.id;
@@ -47,6 +54,7 @@ export default function Auth() {
         if (roles.includes("super_admin")) navigate("/admin", { replace: true });
         else if (roles.includes("worker") && !roles.includes("owner") && !roles.includes("manager")) navigate("/worker", { replace: true });
         else navigate("/", { replace: true });
+
       } else {
         navigate("/");
       }

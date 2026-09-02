@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Users, UserPlus, UserX, Crown, Shield, Wrench, Mail, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Users, UserPlus, UserX, Crown, Shield, Wrench, Mail, Trash2, ToggleLeft, ToggleRight, Copy, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useFarm } from "@/hooks/useFarm";
@@ -22,6 +22,7 @@ interface Invitation {
   email: string;
   role: "owner" | "manager" | "worker";
   status: string;
+  code: string | null;
   created_at: string;
   expires_at: string;
 }
@@ -113,16 +114,39 @@ export default function TeamManagement() {
         variant: "destructive",
       });
     } else {
-      toast({
-        title: "Invitation sent",
-        description: `${inviteEmail} will receive an email invite as ${inviteRole}.`,
-      });
+      const res = data as any;
+      if (res?.added_existing) {
+        toast({ title: "Member added", description: `${inviteEmail} already had an account and was added as ${inviteRole}.` });
+      } else {
+        toast({
+          title: "Invitation code created",
+          description: `Share code ${res?.code} with ${inviteEmail}. They join at /join.`,
+        });
+      }
       setInviteEmail("");
       setInviteOpen(false);
       fetchTeam();
     }
     setSending(false);
   };
+
+  const joinLink = (code: string) => `${window.location.origin}/join?code=${code}`;
+
+  const copyLink = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(joinLink(code));
+      toast({ title: "Invite link copied" });
+    } catch {
+      toast({ title: "Copy failed", description: joinLink(code), variant: "destructive" });
+    }
+  };
+
+  const shareWhatsApp = (inv: Invitation) => {
+    if (!inv.code) return;
+    const text = `You've been invited to join ${farm?.name ?? "our farm"} on AquaSmart as ${inv.role}. Open ${joinLink(inv.code)} or use code ${inv.code} after signing up.`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+  };
+
 
   const toggleActive = async (memberId: string, currentActive: boolean) => {
     const { error } = await supabase
@@ -298,25 +322,47 @@ export default function TeamManagement() {
           </h3>
           <div className="space-y-2">
             {invitations.map((inv) => (
-              <div key={inv.id} className="flex items-center gap-3 p-3 rounded-xl border border-border/50 bg-background">
-                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Mail className="w-4 h-4 text-primary" />
+              <div key={inv.id} className="p-3 rounded-xl border border-border/50 bg-background space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Mail className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{inv.email}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {roleConfig[inv.role].label} · Expires {new Date(inv.expires_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => cancelInvitation(inv.id)}
+                    className="p-1.5 rounded-lg hover:bg-danger-light"
+                    title="Cancel invitation"
+                  >
+                    <Trash2 className="w-4 h-4 text-danger" />
+                  </button>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{inv.email}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {roleConfig[inv.role].label} · Expires {new Date(inv.expires_at).toLocaleDateString()}
-                  </p>
-                </div>
-                <button
-                  onClick={() => cancelInvitation(inv.id)}
-                  className="p-1.5 rounded-lg hover:bg-danger-light"
-                  title="Cancel invitation"
-                >
-                  <Trash2 className="w-4 h-4 text-danger" />
-                </button>
+                {inv.code && (
+                  <div className="flex items-center gap-2">
+                    <span className="flex-1 text-sm font-semibold tracking-[0.2em] text-foreground bg-muted/50 rounded-lg px-3 py-1.5 text-center">
+                      {inv.code}
+                    </span>
+                    <button
+                      onClick={() => copyLink(inv.code!)}
+                      className="flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2.5 py-1.5 rounded-lg"
+                    >
+                      <Copy className="w-3.5 h-3.5" /> Link
+                    </button>
+                    <button
+                      onClick={() => shareWhatsApp(inv)}
+                      className="flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg"
+                    >
+                      <Share2 className="w-3.5 h-3.5" /> Share
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
+
           </div>
         </div>
       )}
