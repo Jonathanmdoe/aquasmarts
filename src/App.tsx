@@ -39,6 +39,7 @@ const MarketplaceDisputes = lazy(() => import("./pages/MarketplaceDisputes"));
 const MarketplaceNotifications = lazy(() => import("./pages/MarketplaceNotifications"));
 const MarketplaceAnalytics = lazy(() => import("./pages/MarketplaceAnalytics"));
 const RoleCheck = lazy(() => import("./pages/RoleCheck"));
+const JoinFarm = lazy(() => import("./pages/JoinFarm"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const PaymentResult = lazy(() => import("./pages/PaymentResult"));
 
