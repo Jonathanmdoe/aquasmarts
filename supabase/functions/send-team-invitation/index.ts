@@ -90,28 +90,20 @@ Deno.serve(async (req) => {
       return json({ ok: true, invitation_id: inv.id, added_existing: true, code, join_link });
     }
 
-    // New user — try the auth invitation email (best effort; may be unavailable
-    // until a verified sender domain is configured). The code/link always works.
-    let email_sent = true;
-    let email_error: string | null = null;
-    const { error: mailErr } = await admin.auth.admin.inviteUserByEmail(email, {
-      data: {
-        full_name: email.split("@")[0],
-        requested_role: role,
-        invitation_id: inv.id,
-        invitation_code: code,
-        farm_name: farm.name,
-      },
-      redirectTo: join_link || redirect_to || undefined,
+    // New user — do NOT pre-create an auth user here. Supabase's invite flow
+    // creates a password-less shell account, which then silently blocks the
+    // invitee from signing up with that same email (login returns
+    // "Invalid login credentials"). Instead we hand back the join code/link,
+    // which the owner shares via WhatsApp/SMS. The invitee signs up normally
+    // and redeems the code on /join.
+    return json({
+      ok: true,
+      invitation_id: inv.id,
+      code,
+      join_link,
+      email_sent: false,
+      email_error: "Share the join code or link directly (WhatsApp/SMS).",
     });
-
-    if (mailErr) {
-      email_sent = false;
-      email_error = mailErr.message;
-      console.error("invite email failed:", mailErr.message);
-    }
-
-    return json({ ok: true, invitation_id: inv.id, code, join_link, email_sent, email_error });
 
   } catch (e) {
     console.error(e);
