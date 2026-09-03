@@ -1643,7 +1643,9 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_batch_farm_member: { Args: { _batch_id: string }; Returns: boolean }
       is_batch_farm_owner: { Args: { _batch_id: string }; Returns: boolean }
+      is_farm_member: { Args: { _farm_id: string }; Returns: boolean }
       is_farm_owner: { Args: { _farm_id: string }; Returns: boolean }
     }
     Enums: {
