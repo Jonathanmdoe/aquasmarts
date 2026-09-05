@@ -112,6 +112,68 @@ export type Database = {
         }
         Relationships: []
       }
+      brooders: {
+        Row: {
+          avg_weight_g: number
+          brooder_code: string
+          created_at: string
+          farm_id: string
+          female_count: number | null
+          health_status: string
+          id: string
+          male_count: number | null
+          notes: string | null
+          pond_name: string
+          quantity: number
+          species: string
+          staff: string | null
+          stocking_date: string
+          updated_at: string
+        }
+        Insert: {
+          avg_weight_g?: number
+          brooder_code: string
+          created_at?: string
+          farm_id: string
+          female_count?: number | null
+          health_status?: string
+          id?: string
+          male_count?: number | null
+          notes?: string | null
+          pond_name: string
+          quantity?: number
+          species?: string
+          staff?: string | null
+          stocking_date?: string
+          updated_at?: string
+        }
+        Update: {
+          avg_weight_g?: number
+          brooder_code?: string
+          created_at?: string
+          farm_id?: string
+          female_count?: number | null
+          health_status?: string
+          id?: string
+          male_count?: number | null
+          notes?: string | null
+          pond_name?: string
+          quantity?: number
+          species?: string
+          staff?: string | null
+          stocking_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brooders_farm_id_fkey"
+            columns: ["farm_id"]
+            isOneToOne: false
+            referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       farms: {
         Row: {
           created_at: string
@@ -395,6 +457,125 @@ export type Database = {
             columns: ["batch_id"]
             isOneToOne: false
             referencedRelation: "fish_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hatchery_ponds: {
+        Row: {
+          capacity: number | null
+          created_at: string
+          farm_id: string
+          id: string
+          name: string
+          notes: string | null
+          purpose: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          capacity?: number | null
+          created_at?: string
+          farm_id: string
+          id?: string
+          name: string
+          notes?: string | null
+          purpose?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          capacity?: number | null
+          created_at?: string
+          farm_id?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          purpose?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hatchery_ponds_farm_id_fkey"
+            columns: ["farm_id"]
+            isOneToOne: false
+            referencedRelation: "farms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hatchery_production: {
+        Row: {
+          batch_code: string
+          brooder_id: string | null
+          collected_date: string
+          created_at: string
+          farm_id: string
+          grading_date: string | null
+          id: string
+          notes: string | null
+          pond_stocked: string
+          restocked_amount: number
+          sold_amount: number
+          staff: string | null
+          status: string
+          survival_rate: number
+          total_collection: number
+          total_graded: number
+          updated_at: string
+        }
+        Insert: {
+          batch_code: string
+          brooder_id?: string | null
+          collected_date?: string
+          created_at?: string
+          farm_id: string
+          grading_date?: string | null
+          id?: string
+          notes?: string | null
+          pond_stocked: string
+          restocked_amount?: number
+          sold_amount?: number
+          staff?: string | null
+          status?: string
+          survival_rate?: number
+          total_collection?: number
+          total_graded?: number
+          updated_at?: string
+        }
+        Update: {
+          batch_code?: string
+          brooder_id?: string | null
+          collected_date?: string
+          created_at?: string
+          farm_id?: string
+          grading_date?: string | null
+          id?: string
+          notes?: string | null
+          pond_stocked?: string
+          restocked_amount?: number
+          sold_amount?: number
+          staff?: string | null
+          status?: string
+          survival_rate?: number
+          total_collection?: number
+          total_graded?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hatchery_production_brooder_id_fkey"
+            columns: ["brooder_id"]
+            isOneToOne: false
+            referencedRelation: "brooders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hatchery_production_farm_id_fkey"
+            columns: ["farm_id"]
+            isOneToOne: false
+            referencedRelation: "farms"
             referencedColumns: ["id"]
           },
         ]
