@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Shield, CreditCard, Crown, Bell, Lock, HelpCircle,
   ClipboardList, Settings as SettingsIcon, Sparkles, ShoppingBag,
-  Heart, Droplets, Utensils, ChevronRight, DollarSign, ShoppingCart, Fish, LineChart,
+  Heart, Droplets, Utensils, ChevronRight, DollarSign, ShoppingCart, Fish, LineChart, Egg,
 } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useI18n } from "@/i18n";
