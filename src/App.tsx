@@ -113,6 +113,8 @@ function AppRoutes() {
 
       <Route path="/batches" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Batches /></MobileLayout></RoleRoute></ProtectedRoute>} />
       <Route path="/growth" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Growth /></MobileLayout></RoleRoute></ProtectedRoute>} />
+      <Route path="/hatchery" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Hatchery /></MobileLayout></RoleRoute></ProtectedRoute>} />
+
       <Route path="/feeding" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Feeding /></MobileLayout></RoleRoute></ProtectedRoute>} />
       <Route path="/water" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><WaterQuality /></MobileLayout></RoleRoute></ProtectedRoute>} />
       <Route path="/health" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Health /></MobileLayout></RoleRoute></ProtectedRoute>} />
