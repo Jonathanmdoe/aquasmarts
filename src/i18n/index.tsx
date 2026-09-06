@@ -81,6 +81,10 @@ const en: Dict = {
   "more.security.desc": "Password & 2FA",
   "more.help": "Help & Support",
   "more.help.desc": "FAQs & contact",
+  "more.hatchery": "Hatchery",
+  "more.hatchery.desc": "Brooders, fry & ponds",
+  "hatchery.title": "Hatchery",
+  "hatchery.subtitle": "Brooder stock, fry collection, grading & pond occupancy",
 
   "worker.view": "Worker view",
   "worker.activeBatches": "Active batches",
