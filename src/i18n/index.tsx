@@ -81,6 +81,10 @@ const en: Dict = {
   "more.security.desc": "Password & 2FA",
   "more.help": "Help & Support",
   "more.help.desc": "FAQs & contact",
+  "more.hatchery": "Hatchery",
+  "more.hatchery.desc": "Brooders, fry & ponds",
+  "hatchery.title": "Hatchery",
+  "hatchery.subtitle": "Brooder stock, fry collection, grading & pond occupancy",
 
   "worker.view": "Worker view",
   "worker.activeBatches": "Active batches",
@@ -153,6 +157,10 @@ const sw: Dict = {
   "more.security.desc": "Nenosiri na 2FA",
   "more.help": "Msaada",
   "more.help.desc": "Maswali na mawasiliano",
+  "more.hatchery": "Kitotoleo",
+  "more.hatchery.desc": "Wazazi, vifaranga na mabwawa",
+  "hatchery.title": "Kitotoleo",
+  "hatchery.subtitle": "Samaki wazazi, ukusanyaji wa vifaranga, upangaji na mabwawa",
 
   "worker.view": "Mtazamo wa mfanyakazi",
   "worker.activeBatches": "Makundi hai",

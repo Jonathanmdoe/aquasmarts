@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Shield, CreditCard, Crown, Bell, Lock, HelpCircle,
   ClipboardList, Settings as SettingsIcon, Sparkles, ShoppingBag,
-  Heart, Droplets, Utensils, ChevronRight, DollarSign, ShoppingCart, Fish, LineChart,
+  Heart, Droplets, Utensils, ChevronRight, DollarSign, ShoppingCart, Fish, LineChart, Egg,
 } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useI18n } from "@/i18n";
@@ -46,6 +46,7 @@ const ALL_ITEMS: { titleKey: string; items: Item[] }[] = [
   {
     titleKey: "more.section.farm",
     items: [
+      { icon: Egg, labelKey: "more.hatchery", descKey: "more.hatchery.desc", to: "/hatchery", tint: "bg-amber-500/10 text-amber-600", allow: ["owner","manager","worker"] },
       { icon: LineChart, labelKey: "more.growth", descKey: "more.growth.desc", to: "/growth", tint: "bg-indigo-500/10 text-indigo-600", allow: ["owner","manager","worker"] },
       { icon: Droplets, labelKey: "more.water", descKey: "more.water.desc", to: "/water", tint: "bg-cyan-500/10 text-cyan-600", allow: ["owner","manager","worker"] },
       { icon: Utensils, labelKey: "more.feeding", descKey: "more.feeding.desc", to: "/feeding", tint: "bg-orange-500/10 text-orange-600", allow: ["owner","manager","worker"] },
