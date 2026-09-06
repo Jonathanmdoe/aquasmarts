@@ -157,6 +157,10 @@ const sw: Dict = {
   "more.security.desc": "Nenosiri na 2FA",
   "more.help": "Msaada",
   "more.help.desc": "Maswali na mawasiliano",
+  "more.hatchery": "Kitotoleo",
+  "more.hatchery.desc": "Wazazi, vifaranga na mabwawa",
+  "hatchery.title": "Kitotoleo",
+  "hatchery.subtitle": "Samaki wazazi, ukusanyaji wa vifaranga, upangaji na mabwawa",
 
   "worker.view": "Mtazamo wa mfanyakazi",
   "worker.activeBatches": "Makundi hai",
