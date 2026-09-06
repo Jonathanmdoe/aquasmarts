@@ -18,6 +18,7 @@ const Enterprise = lazy(() => import("./pages/Enterprise"));
 const Sales = lazy(() => import("./pages/Sales"));
 const Batches = lazy(() => import("./pages/Batches"));
 const Growth = lazy(() => import("./pages/Growth"));
+const Hatchery = lazy(() => import("./pages/Hatchery"));
 const Feeding = lazy(() => import("./pages/Feeding"));
 const WaterQuality = lazy(() => import("./pages/WaterQuality"));
 const Marketplace = lazy(() => import("./pages/Marketplace"));
