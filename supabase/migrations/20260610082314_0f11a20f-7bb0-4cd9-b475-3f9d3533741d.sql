@@ -160,7 +160,15 @@ DROP TRIGGER IF EXISTS trg_platform_settings_updated_at ON public.platform_setti
 CREATE TRIGGER trg_platform_settings_updated_at BEFORE UPDATE ON public.platform_settings
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
 
--- Auto-promote first farm owner to super_admin (one-time seed)
-INSERT INTO public.user_roles (user_id, role)
-SELECT DISTINCT user_id, 'super_admin'::public.app_role FROM public.farms
-ON CONFLICT DO NOTHING;
+-- NOTE: this used to auto-promote "the first farm owner" to super_admin as
+-- a one-time seed, but the query had no LIMIT/ORDER BY, so it actually
+-- granted super_admin to every distinct user_id in public.farms (i.e. every
+-- farm owner on the platform). That grant was reverted for the live
+-- database in migration 20260827184255_fix_super_admin_overgrant.sql.
+--
+-- Removed here so a fresh deploy of this schema (new environment, `supabase
+-- db reset`, etc.) never reintroduces the bug. Bootstrapping the first
+-- platform admin is intentionally a manual, deliberate step now — e.g. run
+-- `insert into public.user_roles (user_id, role) select id, 'super_admin'
+-- from auth.users where email = '<the admin's email>'` once, by hand,
+-- against the specific account that should hold it.
