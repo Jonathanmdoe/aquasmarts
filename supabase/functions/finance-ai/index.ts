@@ -1,14 +1,65 @@
 // Streaming Finance AI Advisor using Lovable AI Gateway
+//
+// SECURITY: this function used to accept any caller holding the public anon key
+// (it only forwards client-supplied numbers to a paid AI gateway). It now requires
+//   1. a valid signed-in USER session (the anon key carries no user, so it is rejected),
+//   2. a `farm_id`, and
+//   3. that the user OWNS that farm or is an ACTIVE owner/manager of it.
+// The service-role key stays server-side and is only used to verify identity and
+// read the farm/membership rows that decide access.
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { bearerToken, decideFarmFinanceAccess, FINANCE_AI_MODES, MAX_BODY_BYTES } from "../_shared/authz.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const jsonError = (error: string, status: number) =>
+  new Response(JSON.stringify({ error }), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { mode, question, context, language } = await req.json();
+    // ---- 1. authenticate: a real user, not just the anon key -----------------
+    const token = bearerToken(req.headers.get("Authorization"));
+    if (!token) return jsonError("Authentication required", 401);
+
+    const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
+      auth: { persistSession: false },
+    });
+    const { data: userData, error: userErr } = await admin.auth.getUser(token);
+    const user = userData?.user;
+    if (userErr || !user) return jsonError("Authentication required", 401);
+
+    // ---- 2. bounded, well-formed body ---------------------------------------
+    const raw = await req.text();
+    if (raw.length > MAX_BODY_BYTES) return jsonError("Request too large", 413);
+    let body: Record<string, unknown>;
+    try {
+      body = JSON.parse(raw);
+    } catch {
+      return jsonError("Invalid JSON body", 400);
+    }
+    const { mode, question, context, language } = body as {
+      mode: string; question?: string; context: unknown; language?: string;
+    };
+    if (typeof mode !== "string" || !(FINANCE_AI_MODES as readonly string[]).includes(mode)) {
+      return jsonError("Unknown mode", 400);
+    }
+
+    // ---- 3. authorize: this user may use financial tooling for THIS farm ----
+    const farmId = body.farm_id;
+    const { data: farm } = typeof farmId === "string" && farmId
+      ? await admin.from("farms").select("id, user_id").eq("id", farmId).maybeSingle()
+      : { data: null };
+    const { data: membership } = farm
+      ? await admin.from("team_members").select("role, is_active").eq("farm_id", farm.id).eq("user_id", user.id).maybeSingle()
+      : { data: null };
+    const decision = decideFarmFinanceAccess({ userId: user.id, farmId, farm, membership });
+    if (!decision.allowed) return jsonError(decision.reason, decision.status);
+
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) {
       return new Response(JSON.stringify({ error: "Missing LOVABLE_API_KEY" }), {

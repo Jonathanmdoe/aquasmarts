@@ -4,6 +4,7 @@ import { Brain, Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/i18n";
+import { useFarm } from "@/hooks/useFarm";
 
 interface Props {
   mode: string;
@@ -19,15 +20,27 @@ export function AIAdvisorButton({ mode, context, label, question, compact }: Pro
   const [text, setText] = useState("");
   const { toast } = useToast();
   const { langName } = useI18n();
+  const { data: farm } = useFarm();
 
   const run = async () => {
     setOpen(true); setText(""); setStreaming(true);
     try {
+      // The function requires the signed-in user's session token (the public anon key
+      // is rejected) and the farm the advice is for, which it authorizes server-side.
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token || !farm?.id) {
+        toast({ title: "AI unavailable", description: "Sign in and set up your farm to use the AI advisor.", variant: "destructive" });
+        setStreaming(false); return;
+      }
       const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/finance-ai`;
       const resp = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
-        body: JSON.stringify({ mode, context, question, language: langName }),
+        headers: {
+          "Content-Type": "application/json",
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ mode, context, question, language: langName, farm_id: farm.id }),
       });
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({ error: "AI request failed" }));

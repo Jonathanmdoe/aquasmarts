@@ -1,4 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { bearerToken } from "../_shared/authz.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,6 +11,19 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    // SECURITY: previously callable with only the public anon key. Require a real
+    // signed-in user (the anon key carries no user and is rejected by getUser).
+    const token = bearerToken(req.headers.get("Authorization"));
+    const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
+      auth: { persistSession: false },
+    });
+    const { data: userData, error: userErr } = token ? await admin.auth.getUser(token) : { data: null, error: true };
+    if (userErr || !userData?.user) {
+      return new Response(JSON.stringify({ error: "Authentication required" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { batches, waterReadings, feedingLogs, financials, language } = await req.json();
     const lang = typeof language === "string" && language.trim() ? language.trim() : "English";
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");

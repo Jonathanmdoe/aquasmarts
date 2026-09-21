@@ -3,18 +3,38 @@
 // and a platform admin approves or rejects it.
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import { computePeriod, PLAN_PRICE_COLUMN } from "../_shared/subscription.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const PLAN_PRICE_COLUMN: Record<string, string> = {
-  basic: "price_basic_cents",
-  pro: "price_pro_cents",
-  enterprise: "price_enterprise_cents",
-};
 const PLATFORM_FEE_RATE = 0.035;
+
+// A confirmed one-month payment activates the plan for a real, stored period
+// (`current_period_start` / `current_period_end` on `subscribers_cache`), instead of
+// activating it forever. Renewing the same active plan continues from its current end.
+// deno-lint-ignore no-explicit-any
+const activateSubscription = async (supabase: any, userId: string, plan: string) => {
+  const { data: existing } = await supabase
+    .from("subscribers_cache")
+    .select("plan, current_period_end")
+    .eq("user_id", userId)
+    .maybeSingle();
+  const { start, end } = computePeriod(existing, plan, new Date());
+  await supabase.from("subscribers_cache").upsert(
+    {
+      user_id: userId,
+      plan,
+      subscribed: true,
+      current_period_start: start.toISOString(),
+      current_period_end: end.toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" },
+  );
+};
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -69,7 +89,7 @@ serve(async (req) => {
 
     // Prices are stored in "cents" of TZS (amount x 100) so admins can edit them live.
     const planPriceTzs = (settings: any, plan: string) => {
-      const col = PLAN_PRICE_COLUMN[plan];
+      const col = (PLAN_PRICE_COLUMN as Record<string, string>)[plan];
       if (!col || settings?.[col] == null) return 0;
       return Math.round(Number(settings[col]) / 100);
     };
@@ -201,9 +221,7 @@ serve(async (req) => {
         // Buyer paid straight into the business Lipa Namba, so the plan/order is
         // activated as soon as the confirmation code is submitted.
         if (purpose === "subscription" && plan) {
-          await supabase
-            .from("subscribers_cache")
-            .upsert({ user_id: user.id, plan, subscribed: true }, { onConflict: "user_id" });
+          await activateSubscription(supabase, user.id, plan);
         } else if (purpose === "marketplace") {
           await supabase
             .from("marketplace_orders")
@@ -270,9 +288,7 @@ serve(async (req) => {
 
       if (decision === "approve") {
         if (tx.purpose === "subscription" && tx.plan) {
-          await supabase
-            .from("subscribers_cache")
-            .upsert({ user_id: tx.user_id, plan: tx.plan, subscribed: true }, { onConflict: "user_id" });
+          await activateSubscription(supabase, tx.user_id, tx.plan);
         } else if (tx.purpose === "marketplace") {
           await supabase
             .from("marketplace_orders")

@@ -81,8 +81,11 @@ Deno.serve(async (req) => {
       }
       case "change_plan": {
         const { user_id, plan } = payload as { user_id: string; plan: string };
+        // An admin grant / downgrade is an explicit decision with no payment period:
+        // clear any stored period so a stale end date cannot expire (or extend) it.
         await admin.from("subscribers_cache").upsert({
           user_id, plan, subscribed: plan !== "free", updated_at: new Date().toISOString(),
+          current_period_start: null, current_period_end: null,
         });
         await log({ new_plan: plan });
         return json({ ok: true });
