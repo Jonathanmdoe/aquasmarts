@@ -1,7 +1,9 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
@@ -50,7 +52,14 @@ const PageSpinner = () => (
   </div>
 );
 
-const queryClient = new QueryClient();
+// Offline-first: cached data is kept for a week and shown when there is no internet.
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { gcTime: 1000 * 60 * 60 * 24 * 7, networkMode: "offlineFirst", retry: 1 },
+    mutations: { networkMode: "offlineFirst" },
+  },
+});
+const persister = createSyncStoragePersister({ storage: window.localStorage, key: "aquasmart-cache" });
 
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -149,7 +158,7 @@ function AppRoutes() {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
+  <PersistQueryClientProvider client={queryClient} persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24 * 7 }}>
     <ThemeProvider>
       <LanguageProvider>
         <TooltipProvider>
@@ -165,7 +174,7 @@ const App = () => (
         </TooltipProvider>
       </LanguageProvider>
     </ThemeProvider>
-  </QueryClientProvider>
+  </PersistQueryClientProvider>
 );
 
 export default App;

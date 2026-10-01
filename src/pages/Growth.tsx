@@ -73,8 +73,8 @@ function AddSampleSheet({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Avg weight (g) *</label>
-              <input type="number" step="0.1" min={0} required value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="e.g. 120.5" className={field} />
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Avg weight (grams, from 0.001 g) *</label>
+              <input type="number" step="0.001" min={0.001} required value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="e.g. 0.001" className={field} />
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Avg length (cm)</label>
