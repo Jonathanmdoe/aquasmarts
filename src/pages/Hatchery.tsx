@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Egg, Fish, Plus, Waves, Percent, CalendarClock, Trash2, Pencil, AlertTriangle,
@@ -434,13 +435,16 @@ export default function Hatchery() {
   const { data: brooders = [] } = useBrooders();
   const { data: ponds = [] } = useHatcheryPonds();
 
-  const [tab, setTab] = useState<Tab>("production");
-  const [batchSheet, setBatchSheet] = useState(false);
+  const [params, setParams] = useSearchParams();
+  const addParam = params.get("add");
+  const [tab, setTab] = useState<Tab>(addParam === "brooder" ? "brooders" : "production");
+  const [batchSheet, setBatchSheet] = useState(addParam === "fry");
   const [editBatch, setEditBatch] = useState<HatcheryBatch | null>(null);
-  const [brooderSheet, setBrooderSheet] = useState(false);
+  const [brooderSheet, setBrooderSheet] = useState(addParam === "brooder");
   const [editBrooder, setEditBrooder] = useState<Brooder | null>(null);
   const [pondSheet, setPondSheet] = useState(false);
   const [editPond, setEditPond] = useState<HatcheryPond | null>(null);
+  useEffect(() => { if (addParam) setParams({}, { replace: true }); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const delBatch = useDeleteHatcheryRow("hatchery_production", "hatchery_production");
   const delBrooder = useDeleteHatcheryRow("brooders", "brooders");
@@ -489,6 +493,17 @@ export default function Hatchery() {
           <Stat icon={<Egg className="w-4 h-4" />} value={stats.brooderFish.toLocaleString()} caption="Brooder stock" />
           <Stat icon={<Percent className="w-4 h-4" />} value={`${stats.avgSurvival}%`} caption="Avg survival to grading" />
           <Stat icon={<Waves className="w-4 h-4" />} value={String(stats.liveCount)} caption="Live fry batches" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <button onClick={() => { setTab("brooders"); setEditBrooder(null); setBrooderSheet(true); }}
+            className="flex items-center justify-center gap-2 rounded-2xl gradient-ocean text-primary-foreground py-3 text-xs font-semibold shadow-card active:scale-95 transition">
+            <Egg className="w-4 h-4" /> Add brood stock
+          </button>
+          <button onClick={() => { setTab("production"); setEditBatch(null); setBatchSheet(true); }}
+            className="flex items-center justify-center gap-2 rounded-2xl gradient-ocean text-primary-foreground py-3 text-xs font-semibold shadow-card active:scale-95 transition">
+            <Fish className="w-4 h-4" /> Add fry batch
+          </button>
         </div>
 
         {stats.dueGrading.length > 0 && (
