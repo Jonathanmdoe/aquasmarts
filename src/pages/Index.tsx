@@ -118,6 +118,10 @@ export default function Dashboard() {
             <QuickAction icon={Utensils} label="Log Feed" onClick={() => navigate("/feeding")} />
             <QuickAction icon={Droplets} label="Water Test" onClick={() => navigate("/water")} />
             <QuickAction icon={Heart} label="Health" onClick={() => navigate("/health")} />
+            <QuickAction icon={Egg} label="Brood Stock" onClick={() => navigate("/hatchery?add=brooder")} />
+            <QuickAction icon={Fish} label="Fry Batch" onClick={() => navigate("/hatchery?add=fry")} />
+            <QuickAction icon={Sprout} label="Growth" onClick={() => navigate("/growth")} />
+            <QuickAction icon={MoreHorizontal} label="View More" onClick={() => navigate("/more")} />
           </div>
         </div>
 
@@ -125,7 +129,7 @@ export default function Dashboard() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-foreground">Smart Alerts</h2>
-            <span className="text-xs text-primary font-medium">View All</span>
+            <button onClick={() => navigate("/notifications")} className="text-xs text-primary font-medium">View All</button>
           </div>
           {alerts.length === 0 ? (
             <div className="bg-card rounded-xl p-4 shadow-card text-center">
