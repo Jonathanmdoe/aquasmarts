@@ -67,8 +67,8 @@ export default function EditBatchSheet({ batch, open, onOpenChange }: Props) {
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Avg Weight (g) *</label>
-              <input type="number" step="0.1" min={0} value={avgWeight} onChange={(e) => setAvgWeight(e.target.value)} placeholder="e.g. 25" className={field} />
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Avg Weight (grams, from 0.001 g) *</label>
+              <input type="number" step="0.001" min={0.001} value={avgWeight} onChange={(e) => setAvgWeight(e.target.value)} placeholder="e.g. 0.001" className={field} />
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Current Count *</label>

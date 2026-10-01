@@ -310,7 +310,7 @@ function BrooderSheet({
             </div>
             <div>
               <label className={label}>Avg weight (g)</label>
-              <input type="number" step="0.1" min={0} value={form.avg_weight_g}
+              <input type="number" step="0.001" min={0.001} value={form.avg_weight_g}
                 onChange={(e) => set("avg_weight_g", e.target.value)} placeholder="250" className={field} />
             </div>
             <div>

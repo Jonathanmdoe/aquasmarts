@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useEffect } from "react";
 import {
   Fish, Droplets, DollarSign, TrendingUp, Plus, Utensils,
-  Heart, BarChart3, Bell, Settings,
+  Heart, BarChart3, Bell, Settings, Egg, Sprout, MoreHorizontal,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroFarm from "@/assets/hero-farm.jpg";
