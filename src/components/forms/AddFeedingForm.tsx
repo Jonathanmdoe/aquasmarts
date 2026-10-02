@@ -8,8 +8,9 @@ export default function AddFeedingForm({ preselectedBatchId }: { preselectedBatc
   const [open, setOpen] = useState(false);
   const { data: batches } = useBatches();
   const [batchId, setBatchId] = useState(preselectedBatchId ?? "");
-  const [feedType, setFeedType] = useState("Floating Pellets");
+  const [feedType, setFeedType] = useState("Powder (fry)");
   const [amount, setAmount] = useState(1);
+  const [unit, setUnit] = useState<"g" | "kg">("g");
   const [notes, setNotes] = useState("");
   const mutation = useAddFeedingLog();
 
@@ -17,7 +18,7 @@ export default function AddFeedingForm({ preselectedBatchId }: { preselectedBatc
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await mutation.mutateAsync({ batch_id: batchId, feed_type: feedType, amount_kg: amount, notes });
+    await mutation.mutateAsync({ batch_id: batchId, feed_type: feedType, amount_kg: unit === "g" ? amount / 1000 : amount, notes });
     setOpen(false);
     setNotes(""); setAmount(1);
   };
@@ -46,17 +47,20 @@ export default function AddFeedingForm({ preselectedBatchId }: { preselectedBatc
             <label className="text-xs font-medium text-muted-foreground mb-1 block">Feed Type</label>
             <select value={feedType} onChange={e => setFeedType(e.target.value)}
               className="w-full bg-muted/50 border border-border rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/30">
-              <option>Floating Pellets</option>
-              <option>Sinking Pellets</option>
-              <option>Crumble</option>
-              <option>Live Feed</option>
-              <option>Other</option>
+              <option>Powder (fry)</option>
+              <option>Pellet (brooder)</option>
             </select>
           </div>
           <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1 block">Amount (kg) *</label>
-            <input type="number" step="0.1" min={0.1} value={amount} onChange={e => setAmount(Number(e.target.value))} required
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Amount *</label>
+            <div className="flex gap-2">
+            <input type="number" step="0.001" min={0.001} value={amount} onChange={e => setAmount(Number(e.target.value))} required
               className="w-full bg-muted/50 border border-border rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
+            <select value={unit} onChange={e => setUnit(e.target.value as "g" | "kg")}
+              className="bg-muted/50 border border-border rounded-xl px-3 text-sm">
+              <option value="g">grams</option><option value="kg">kg</option>
+            </select>
+            </div>
           </div>
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1 block">Notes</label>

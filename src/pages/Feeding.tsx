@@ -4,6 +4,7 @@ import StatCard from "@/components/StatCard";
 import { useFeedingLogs, useBatches } from "@/hooks/useFarm";
 import { useFeedStock, useUpsertFeedStock } from "@/hooks/useFinance";
 import AddFeedingForm from "@/components/forms/AddFeedingForm";
+import FryFeedingTable from "@/components/FryFeedingTable";
 import { format, differenceInDays, isToday } from "date-fns";
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -71,11 +72,11 @@ export default function Feeding() {
   const { data: stocks } = useFeedStock();
   const upsertStock = useUpsertFeedStock();
   const [stockOpen, setStockOpen] = useState(false);
-  const [stockType, setStockType] = useState("Floating Pellets");
+  const [stockType, setStockType] = useState("Powder (fry)");
   const [stockQty, setStockQty] = useState(50);
   const [stockCost, setStockCost] = useState(0);
   const [feedMode, setFeedMode] = useState<FeedMode>(
-    () => (localStorage.getItem("fryFeedMode") as FeedMode) || "standard"
+    () => (localStorage.getItem("fryFeedMode") as FeedMode) || "table"
   );
   const [feedingsPerDay, setFeedingsPerDay] = useState<number>(
     () => Number(localStorage.getItem("fryFeedingsPerDay")) || 5
@@ -165,6 +166,8 @@ export default function Feeding() {
 
 
 
+        <FryFeedingTable />
+
         {/* Feed Stock */}
         <div className="bg-card rounded-2xl p-3 shadow-card">
           <div className="flex items-center justify-between mb-2">
@@ -200,11 +203,8 @@ export default function Feeding() {
             >
               <select value={stockType} onChange={e => setStockType(e.target.value)}
                 className="col-span-3 bg-muted/50 border border-border rounded-lg px-2 py-1.5 text-xs">
-                <option>Floating Pellets</option>
-                <option>Sinking Pellets</option>
-                <option>Crumble</option>
-                <option>Live Feed</option>
-                <option>Other</option>
+                <option>Powder (fry)</option>
+                <option>Pellet (brooder)</option>
               </select>
               <input type="number" step="0.1" placeholder="kg" value={stockQty} onChange={e => setStockQty(Number(e.target.value))}
                 className="bg-muted/50 border border-border rounded-lg px-2 py-1.5 text-xs" />
