@@ -76,6 +76,15 @@ Deno.serve(async (req) => {
       { onConflict: "user_id,role", ignoreDuplicates: true },
     );
 
+    // Invited staff don't run their own farm: drop the default signup "owner"
+    // role unless they really own one, so they never land on farm setup.
+    const { count: ownedFarms } = await admin.from("farms")
+      .select("id", { count: "exact", head: true }).eq("user_id", user.id);
+    if (!ownedFarms) {
+      await admin.from("user_roles").delete().eq("user_id", user.id).eq("role", "owner");
+      await admin.from("team_members").delete().eq("user_id", user.id).eq("role", "owner");
+    }
+
     await admin.from("team_invitations")
       .update({ status: "accepted", accepted_at: new Date().toISOString(), accepted_by: user.id })
       .eq("id", inv.id);
