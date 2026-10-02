@@ -50,7 +50,7 @@ export default function JoinFarm() {
           <h1 className="text-lg font-semibold text-foreground">Welcome to {joined.farm_name}</h1>
           <p className="text-sm text-muted-foreground mt-1">You joined as {joined.role}.</p>
           <button
-            onClick={() => window.location.assign("/")}
+            onClick={() => window.location.assign(joined.role === "worker" ? "/worker" : "/")}
             className="w-full gradient-ocean text-primary-foreground font-semibold py-2.5 rounded-xl text-sm mt-5"
           >
             Go to my dashboard

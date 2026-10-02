@@ -30,7 +30,10 @@ export default function Dashboard() {
   // Role routing is handled by RoleHome in App.tsx (no flashing of the wrong
   // dashboard). Here we only send owners/managers without a farm to setup.
   useEffect(() => {
-    if (authLoading || !user || rolesLoading) return;
+    if (authLoading || !user) return;
+    const pendingInvite = sessionStorage.getItem("aquasmart.pendingInvite");
+    if (pendingInvite) { navigate(`/join?code=${pendingInvite}`, { replace: true }); return; }
+    if (rolesLoading) return;
     if (isSuperAdmin) return;
     if (isWorker && !isOwner && !isManager) return;
     if (farmLoading || farmFetching) return;
