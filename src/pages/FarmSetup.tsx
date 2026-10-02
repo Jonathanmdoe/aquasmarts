@@ -108,6 +108,10 @@ export default function FarmSetup() {
       <div className="gradient-ocean px-4 pt-10 pb-8">
         <h1 className="text-xl font-bold font-display text-primary-foreground">{steps[step].title}</h1>
         <p className="text-xs text-primary-foreground/70 mt-1">{steps[step].subtitle}</p>
+        <button onClick={() => navigate("/join")}
+          className="mt-3 text-xs font-semibold bg-primary-foreground/15 text-primary-foreground rounded-lg px-3 py-1.5">
+          Worker or manager? Join with an invitation code →
+        </button>
         <div className="flex gap-2 mt-4">
           {steps.map((_, i) => (
             <div key={i} className={`h-1 flex-1 rounded-full ${i <= step ? "bg-primary-foreground" : "bg-primary-foreground/20"}`} />
