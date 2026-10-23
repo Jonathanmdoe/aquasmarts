@@ -42,7 +42,8 @@ export function useFeatureAccess() {
   }, []);
 
   const hasAccess = (feature: string): boolean => {
-    if (devMode) return true;
+    // Dev mode only unlocks features in local development builds, never in production.
+    if (devMode && import.meta.env.DEV) return true;
     const requiredTier = FEATURE_TIERS[feature];
     if (!requiredTier) return true;
     return TIER_LEVEL[currentTier] >= TIER_LEVEL[requiredTier];

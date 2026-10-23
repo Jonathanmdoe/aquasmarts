@@ -237,7 +237,7 @@ export default function TeamManagement() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="manager">Manager</SelectItem>
+                      {farm?.user_id === user?.id && <SelectItem value="manager">Manager</SelectItem>}
                       <SelectItem value="worker">Worker</SelectItem>
                     </SelectContent>
                   </Select>

@@ -2,12 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Egg, Fish, Plus, Waves, Percent, CalendarClock, Trash2, Pencil, AlertTriangle,
+  Egg, Fish, Plus, Waves, Percent, CalendarClock, Trash2, Pencil, AlertTriangle, ArrowRight, X,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import {
   useBrooders, useHatcheryBatches, useHatcheryPonds,
   useSaveBrooder, useSaveHatcheryBatch, useSaveHatcheryPond, useDeleteHatcheryRow,
+  useTransferHatcheryFry,
   type Brooder, type HatcheryBatch, type HatcheryPond,
 } from "@/hooks/useHatchery";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -47,6 +48,22 @@ function Stat({ icon, value, caption }: { icon: React.ReactNode; value: string; 
       <p className="text-[11px] text-muted-foreground mt-1">{caption}</p>
     </div>
   );
+}
+
+function TransferFrySheet({ batch, onClose, ponds }: { batch: HatcheryBatch; onClose: () => void; ponds: HatcheryPond[] }) {
+  const transfer = useTransferHatcheryFry();
+  const available = Math.max(0, Number(batch.restocked_amount || 0) - Number(batch.transferred_amount || 0));
+  const [name, setName] = useState(`${batch.batch_code}-GROWOUT`);
+  const growOutPonds = ponds.filter(p => p.purpose === "grow_out" && p.status === "active");
+  const [pond, setPond] = useState(growOutPonds[0]?.name ?? "");
+  const [quantity, setQuantity] = useState(String(available));
+  const [stockDate, setStockDate] = useState(today());
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try { await transfer.mutateAsync({ production_id: batch.id, batch_name: name.trim(), pond: pond.trim(), quantity: Number(quantity), stock_date: stockDate }); onClose(); }
+    catch { /* mutation displays the error */ }
+  };
+  return <div className="fixed inset-0 z-[80] bg-background/80 backdrop-blur-sm flex items-end justify-center"><form onSubmit={submit} className="bg-card w-full max-w-md rounded-t-3xl p-4 pb-8 space-y-3 max-h-[90vh] overflow-y-auto"><div className="flex justify-between items-center"><div><h2 className="font-bold">Transfer fry to grow-out</h2><p className="text-xs text-muted-foreground">{batch.batch_code} · {available.toLocaleString()} available</p></div><button type="button" onClick={onClose} className="p-2 rounded-lg bg-muted"><X className="w-4 h-4"/></button></div><label className="block text-xs">Grow-out batch name<input required maxLength={100} value={name} onChange={e => setName(e.target.value)} className={field}/></label><label className="block text-xs">Pond<select required value={pond} onChange={e => setPond(e.target.value)} className={field}><option value="">Select a grow-out pond</option>{growOutPonds.map(p => <option key={p.id} value={p.name}>{p.name}{p.capacity ? ` · capacity ${p.capacity.toLocaleString()}` : ""}</option>)}</select><span className="text-[10px] text-muted-foreground">Only active ponds configured for grow-out can receive fry. Pond capacity is checked before transfer.</span></label><label className="block text-xs">Number of fry<input required type="number" min={1} max={available} value={quantity} onChange={e => setQuantity(e.target.value)} className={field}/></label><label className="block text-xs">Stocking date<input required type="date" value={stockDate} onChange={e => setStockDate(e.target.value)} className={field}/></label>{growOutPonds.length === 0 && <p className="rounded-xl bg-amber-500/10 p-3 text-[11px] text-amber-700">Add an active pond with purpose “Grow-out” in the Ponds tab before transferring fry.</p>}<p className="rounded-xl bg-primary/5 p-3 text-[11px] text-muted-foreground">This creates a linked fingerling batch. Transferred fry are deducted from this hatchery batch’s available count.</p><button disabled={transfer.isPending || !available || !growOutPonds.length} className="w-full rounded-xl gradient-ocean py-3 text-sm font-semibold text-primary-foreground">{transfer.isPending ? "Transferring…" : "Create grow-out batch"}</button></form></div>;
 }
 
 /* ───────────────── Production (fry collection & grading) ───────────────── */
@@ -170,7 +187,7 @@ function ProductionSheet({
                 onChange={(e) => set("total_graded", e.target.value)} placeholder="0" className={field} />
             </div>
             <div>
-              <label className={label}>Sold from grading</label>
+              <label className={label}>Other fry sold</label>
               <input type="number" min={0} value={form.sold_amount}
                 onChange={(e) => set("sold_amount", e.target.value)} placeholder="0" className={field} />
             </div>
@@ -444,6 +461,7 @@ export default function Hatchery() {
   const [editBrooder, setEditBrooder] = useState<Brooder | null>(null);
   const [pondSheet, setPondSheet] = useState(false);
   const [editPond, setEditPond] = useState<HatcheryPond | null>(null);
+  const [transferBatch, setTransferBatch] = useState<HatcheryBatch | null>(null);
   useEffect(() => { if (addParam) setParams({}, { replace: true }); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const delBatch = useDeleteHatcheryRow("hatchery_production", "hatchery_production");
@@ -452,7 +470,7 @@ export default function Hatchery() {
 
   const stats = useMemo(() => {
     const live = batches.filter((b) => b.status !== "sold");
-    const fryInPonds = live.reduce((s, b) => s + (b.total_graded > 0 ? b.restocked_amount : b.total_collection), 0);
+    const fryInPonds = live.reduce((s, b) => s + (b.total_graded > 0 ? Math.max(0, b.restocked_amount - (b.transferred_amount || 0)) : b.total_collection), 0);
     const brooderFish = brooders
       .filter((b) => b.health_status !== "retired")
       .reduce((s, b) => s + b.quantity, 0);
@@ -558,17 +576,20 @@ export default function Hatchery() {
                     <Cell label="Collected" value={b.total_collection.toLocaleString()} />
                     <Cell label="Graded" value={b.total_graded.toLocaleString()} />
                     <Cell label="Survival" value={`${Number(b.survival_rate)}%`} />
-                    <Cell label="In pond" value={b.restocked_amount.toLocaleString()} />
+                    <Cell label="Available" value={Math.max(0, b.restocked_amount - (b.transferred_amount || 0)).toLocaleString()} />
                   </div>
                   <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
                     <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                       <CalendarClock className="w-3 h-3" /> Grading {fmtDate(b.grading_date)}
-                      {b.sold_amount > 0 && ` · ${b.sold_amount.toLocaleString()} sold`}
+                      {(b.sold_amount + (b.sales_sold_amount || 0)) > 0 && ` · ${(b.sold_amount + (b.sales_sold_amount || 0)).toLocaleString()} sold`}
                     </p>
+                    <div className="flex items-center gap-1">
+                    {b.restocked_amount > (b.transferred_amount || 0) && <button onClick={() => setTransferBatch(b)} className="h-8 rounded-lg bg-primary/10 px-2 text-[10px] font-semibold text-primary flex items-center gap-1"><ArrowRight className="w-3 h-3"/> Transfer</button>}
                     <RowActions
                       onEdit={() => { setEditBatch(b); setBatchSheet(true); }}
                       onDelete={canDelete ? () => delBatch.mutate(b.id) : undefined}
                     />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -646,6 +667,7 @@ export default function Hatchery() {
       <ProductionSheet open={batchSheet} onOpenChange={setBatchSheet} editing={editBatch} ponds={ponds} brooders={brooders} />
       <BrooderSheet open={brooderSheet} onOpenChange={setBrooderSheet} editing={editBrooder} ponds={ponds} />
       <PondSheet open={pondSheet} onOpenChange={setPondSheet} editing={editPond} />
+      {transferBatch && <TransferFrySheet batch={transferBatch} ponds={ponds} onClose={() => setTransferBatch(null)} />}
     </div>
   );
 }

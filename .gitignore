@@ -8,9 +8,13 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+.toolchain/
 dist
 dist-ssr
 *.local
+android/.gradle/
+android/**/build/
+android/local.properties
 
 # Editor directories and files
 .vscode/*

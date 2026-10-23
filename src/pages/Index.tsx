@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useEffect } from "react";
 import {
   Fish, Droplets, DollarSign, TrendingUp, Plus, Utensils,
-  Heart, BarChart3, Bell, Settings, Egg, Sprout, MoreHorizontal,
+  Heart, BarChart3, Bell, Settings, Egg, Sprout, MoreHorizontal, Package, ClipboardList,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroFarm from "@/assets/hero-farm.jpg";
@@ -17,6 +17,7 @@ import { formatTZSCompact } from "@/lib/currency";
 import { useAuth } from "@/hooks/useAuth";
 
 import { useUserRole } from "@/hooks/useUserRole";
+import { useBrooders, useHatcheryBatches } from "@/hooks/useHatchery";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -24,6 +25,8 @@ export default function Dashboard() {
   const { data: farm, isLoading: farmLoading, isFetching: farmFetching, isSuccess: farmLoaded } = useFarm();
   const { data: batches } = useBatches();
   const { data: financials } = useFinancialRecords();
+  const { data: hatcheryBatches = [] } = useHatcheryBatches();
+  const { data: brooders = [] } = useBrooders();
   const { alerts } = useSmartAlerts();
   const { isSuperAdmin, isWorker, isOwner, isManager, loading: rolesLoading } = useUserRole();
 
@@ -59,6 +62,10 @@ export default function Dashboard() {
     ?.filter((f) => f.record_type === "expense")
     .reduce((s, f) => s + f.amount, 0) ?? 0;
   const monthlyPnL = monthlyRevenue - monthlyExpense;
+  const hasHatchery = farm?.operation_type === "hatchery" || farm?.operation_type === "integrated";
+  const fryAvailable = hatcheryBatches.reduce((sum, batch) => sum + (batch.total_graded > 0
+    ? Math.max(0, batch.restocked_amount - (batch.transferred_amount || 0))
+    : batch.total_collection), 0);
 
   return (
     <div className="min-h-screen">
@@ -107,6 +114,11 @@ export default function Dashboard() {
       <div className="px-4 -mt-4 relative z-10 space-y-4 pb-4">
         <FarmHealthScore score={82} />
 
+        {hasHatchery && <button onClick={() => navigate("/hatchery")} className="w-full bg-card rounded-2xl p-4 shadow-card text-left">
+          <div className="flex items-center justify-between"><div><p className="text-sm font-semibold">Hatchery overview</p><p className="text-[10px] text-muted-foreground mt-0.5">Brooder stock and fry in nursery ponds</p></div><Egg className="w-5 h-5 text-amber-500"/></div>
+          <div className="grid grid-cols-2 gap-3 mt-3"><div><p className="text-base font-bold">{fryAvailable.toLocaleString()}</p><p className="text-[10px] text-muted-foreground">Fry in hatchery</p></div><div><p className="text-base font-bold">{brooders.filter(b => b.health_status !== "retired").reduce((sum, b) => sum + b.quantity, 0).toLocaleString()}</p><p className="text-[10px] text-muted-foreground">Brooder stock</p></div></div>
+        </button>}
+
         <div className="grid grid-cols-2 gap-3">
           <StatCard icon={<Fish className="w-4 h-4" />} label="Total Stock" value={totalStock.toLocaleString()} color="primary" />
           <StatCard icon={<TrendingUp className="w-4 h-4" />} label="Avg FCR" value={avgFCR} color="teal" />
@@ -121,9 +133,11 @@ export default function Dashboard() {
             <QuickAction icon={Utensils} label="Log Feed" onClick={() => navigate("/feeding")} />
             <QuickAction icon={Droplets} label="Water Test" onClick={() => navigate("/water")} />
             <QuickAction icon={Heart} label="Health" onClick={() => navigate("/health")} />
-            <QuickAction icon={Egg} label="Brood Stock" onClick={() => navigate("/hatchery?add=brooder")} />
-            <QuickAction icon={Fish} label="Fry Batch" onClick={() => navigate("/hatchery?add=fry")} />
+            {hasHatchery && <QuickAction icon={Egg} label="Brood Stock" onClick={() => navigate("/hatchery?add=brooder")} />}
+            {hasHatchery && <QuickAction icon={Fish} label="Fry Batch" onClick={() => navigate("/hatchery?add=fry")} />}
             <QuickAction icon={Sprout} label="Growth" onClick={() => navigate("/growth")} />
+            <QuickAction icon={Package} label="Inventory" onClick={() => navigate("/inventory")} />
+            <QuickAction icon={ClipboardList} label="Activities" onClick={() => navigate("/activities")} />
             <QuickAction icon={MoreHorizontal} label="View More" onClick={() => navigate("/more")} />
           </div>
         </div>

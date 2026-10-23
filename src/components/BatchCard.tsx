@@ -15,6 +15,7 @@ export interface BatchData {
   daysActive: number;
   status: "active" | "harvested" | "stocked";
   pond: string;
+  source?: "hatchery" | null;
 }
 
 const statusStyle = {
@@ -42,6 +43,7 @@ export default function BatchCard({ batch, index = 0, onEdit }: { batch: BatchDa
           <div>
             <h3 className="font-semibold text-sm text-foreground">{batch.name}</h3>
             <p className="text-xs text-muted-foreground">{batch.species} · {batch.pond}</p>
+            {batch.source === "hatchery" && <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-wide text-primary">Transferred from hatchery</p>}
           </div>
         </div>
         <div className="flex items-center gap-2">

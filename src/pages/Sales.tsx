@@ -14,6 +14,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { formatTZS } from "@/lib/currency";
+import { useFarm } from "@/hooks/useFarm";
+import { useFarmCustomers } from "@/hooks/useOperations";
+import { useHatcheryBatches } from "@/hooks/useHatchery";
 
 const STATUSES = ["pending", "in_transit", "delivered"] as const;
 type Status = (typeof STATUSES)[number];
@@ -37,6 +40,9 @@ const NEXT_LABEL: Record<Status, string> = {
 };
 
 const saleSchema = z.object({
+  customer_id: z.string().optional(),
+  hatchery_production_id: z.string().optional(),
+  fry_quantity: z.string().optional(),
   buyer_name: z.string().trim().min(2, "Required").max(100),
   buyer_type: z.string().min(1, "Select type"),
   buyer_email: z.string().trim().email("Invalid email").max(255).optional().or(z.literal("")),
@@ -45,6 +51,10 @@ const saleSchema = z.object({
   total_amount: z.coerce.number().min(0, "Must be ≥0"),
   delivery_status: z.string().min(1),
   notes: z.string().trim().max(500).optional(),
+}).superRefine((values, ctx) => {
+  if (values.hatchery_production_id && (!Number(values.fry_quantity) || Number(values.fry_quantity) <= 0)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["fry_quantity"], message: "Enter the number of fry sold" });
+  }
 });
 
 type SaleValues = z.infer<typeof saleSchema>;
@@ -53,10 +63,16 @@ function AddSaleForm({ onClose }: { onClose: () => void }) {
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
   const qc = useQueryClient();
+  const { data: farm } = useFarm();
+  const { data: customers = [] } = useFarmCustomers();
+  const { data: hatcheryBatches = [] } = useHatcheryBatches();
 
   const form = useForm<SaleValues>({
     resolver: zodResolver(saleSchema),
     defaultValues: {
+      customer_id: "",
+      hatchery_production_id: "",
+      fry_quantity: "",
       buyer_name: "",
       buyer_type: "individual",
       buyer_email: "",
@@ -67,14 +83,21 @@ function AddSaleForm({ onClose }: { onClose: () => void }) {
       notes: "",
     },
   });
+  const selectedHatcheryId = form.watch("hatchery_production_id");
+  const selectedHatcheryBatch = hatcheryBatches.find((batch: any) => batch.id === selectedHatcheryId);
+  const availableFry = selectedHatcheryBatch ? Math.max(0, Number(selectedHatcheryBatch.restocked_amount) - Number(selectedHatcheryBatch.transferred_amount || 0)) : 0;
 
   const onSubmit = async (values: SaleValues) => {
     setSubmitting(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Login required");
+      if (!user || !farm?.id) throw new Error("Please sign in and select a farm");
       const { error } = await supabase.from("sales_records" as any).insert({
         seller_id: user.id,
+        farm_id: farm.id,
+        customer_id: values.customer_id || null,
+        hatchery_production_id: values.hatchery_production_id || null,
+        fry_quantity: values.hatchery_production_id ? Number(values.fry_quantity) : null,
         buyer_name: values.buyer_name,
         buyer_type: values.buyer_type,
         buyer_email: values.buyer_email || null,
@@ -86,7 +109,9 @@ function AddSaleForm({ onClose }: { onClose: () => void }) {
       } as any);
       if (error) throw error;
       qc.invalidateQueries({ queryKey: ["sales_records"] });
-      toast({ title: "Sale recorded!" });
+      qc.invalidateQueries({ queryKey: ["financial_records"] });
+      qc.invalidateQueries({ queryKey: ["hatchery_production"] });
+      toast({ title: "Sale recorded", description: "Sale revenue was added to farm finance." });
       onClose();
     } catch (e: any) {
       toast({ title: "Error", description: e.message, variant: "destructive" });
@@ -106,6 +131,46 @@ function AddSaleForm({ onClose }: { onClose: () => void }) {
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="p-4 space-y-3">
+            <FormField control={form.control} name="customer_id" render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs">Saved customer (optional)</FormLabel>
+                <FormControl><select value={field.value || ""} onChange={(e) => {
+                  const customer = customers.find((c: any) => c.id === e.target.value);
+                  field.onChange(e.target.value);
+                  if (customer) {
+                    form.setValue("buyer_name", customer.name);
+                    form.setValue("buyer_type", customer.customer_type);
+                    form.setValue("buyer_phone", customer.phone);
+                    form.setValue("buyer_email", customer.email || "");
+                  }
+                }} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                  <option value="">Enter a new buyer below</option>{customers.map((c: any) => <option key={c.id} value={c.id}>{c.name} · {c.phone}</option>)}
+                </select></FormControl>
+              </FormItem>
+            )} />
+            {hatcheryBatches.length > 0 && <FormField control={form.control} name="hatchery_production_id" render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs">Hatchery fry batch (optional)</FormLabel>
+                <FormControl><select value={field.value || ""} onChange={(e) => {
+                  field.onChange(e.target.value);
+                  form.setValue("fry_quantity", "");
+                  if (!e.target.value) form.setValue("quantity", "");
+                }} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                  <option value="">General sale / other product</option>
+                  {hatcheryBatches.filter((b: any) => Number(b.restocked_amount) > Number(b.transferred_amount || 0)).map((b: any) => <option key={b.id} value={b.id}>{b.batch_code} · {Math.max(0, Number(b.restocked_amount) - Number(b.transferred_amount || 0)).toLocaleString()} available</option>)}
+                </select></FormControl>
+                {selectedHatcheryBatch && <p className="text-[10px] text-muted-foreground">Selling fry here reduces nursery stock and links the sale to this production batch.</p>}
+              </FormItem>
+            )} />}
+            {selectedHatcheryBatch && <FormField control={form.control} name="fry_quantity" render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs">Number of fry sold (up to {availableFry.toLocaleString()})</FormLabel>
+                <FormControl><Input type="number" min={1} max={availableFry} step={1} {...field} onChange={(e) => {
+                  field.onChange(e);
+                  form.setValue("quantity", e.target.value ? `${e.target.value} fingerlings` : "");
+                }} /></FormControl><FormMessage />
+              </FormItem>
+            )} />}
             <FormField control={form.control} name="buyer_name" render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-xs">Buyer Name</FormLabel>
@@ -198,20 +263,21 @@ function AddSaleForm({ onClose }: { onClose: () => void }) {
 
 function csvEscape(v: any): string {
   if (v === null || v === undefined) return "";
-  const s = String(v);
+  let s = String(v);
+  if (/^[=+@\-\t\r]/.test(s)) s = `\t${s}`;
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
 function exportCSV(rows: any[]) {
   const headers = [
-    "sale_date", "buyer_name", "buyer_type", "buyer_phone", "buyer_email",
-    "quantity", "total_amount_TZS", "delivery_status", "notes", "created_at",
+    "sale_date", "buyer_name", "buyer_type", "buyer_phone", "buyer_email", "customer_id",
+    "quantity", "hatchery_production_id", "fry_quantity", "total_amount_TZS", "delivery_status", "notes", "created_at",
   ];
   const lines = [headers.join(",")];
   for (const r of rows) {
     lines.push([
-      r.sale_date, r.buyer_name, r.buyer_type, r.buyer_phone, r.buyer_email,
-      r.quantity, r.total_amount, r.delivery_status, r.notes, r.created_at,
+      r.sale_date, r.buyer_name, r.buyer_type, r.buyer_phone, r.buyer_email, r.customer_id,
+      r.quantity, r.hatchery_production_id, r.fry_quantity, r.total_amount, r.delivery_status, r.notes, r.created_at,
     ].map(csvEscape).join(","));
   }
   const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
@@ -239,6 +305,7 @@ export default function Sales() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const qc = useQueryClient();
   const { toast } = useToast();
+  const { data: hatcheryBatches = [] } = useHatcheryBatches();
 
   const { data: sales = [], isLoading } = useQuery({
     queryKey: ["sales_records"],
@@ -396,6 +463,7 @@ export default function Sales() {
           filtered.map((s: any) => {
             const status = s.delivery_status as Status;
             const next = NEXT_STATUS[status];
+            const hatcheryBatch = hatcheryBatches.find((b: any) => b.id === s.hatchery_production_id);
             return (
               <div key={s.id} className="bg-card rounded-2xl p-4 shadow-card space-y-3">
                 <div className="flex items-start justify-between">
@@ -421,6 +489,7 @@ export default function Sales() {
                     {status.replace("_", " ")}
                   </span>
                 </div>
+                {hatcheryBatch && <p className="text-[10px] font-medium text-primary">Hatchery batch {hatcheryBatch.batch_code} · {Number(s.fry_quantity).toLocaleString()} fry deducted from stock</p>}
 
                 {s.notes && <p className="text-[11px] text-muted-foreground italic border-t border-border/50 pt-2">{s.notes}</p>}
 

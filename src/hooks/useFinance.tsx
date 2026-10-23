@@ -88,20 +88,39 @@ export function useFeedStock() {
   });
 }
 
+export function useFeedStockPurchases() {
+  const { data: farm } = useFarm();
+  return useQuery({
+    queryKey: ["feed_stock_movements", farm?.id],
+    queryFn: async () => {
+      const { data, error } = await (supabase.from("feed_stock_movements" as any)
+        .select("*").eq("farm_id", farm!.id).order("occurred_at", { ascending: false }).limit(10) as any);
+      if (error) throw error;
+      return (data ?? []) as any[];
+    },
+    enabled: !!farm?.id,
+  });
+}
+
 export function useUpsertFeedStock() {
   const qc = useQueryClient();
   const { data: farm } = useFarm();
   const { toast } = useToast();
   return useMutation({
-    mutationFn: async (v: { feed_type: string; quantity_kg: number; unit_cost?: number; low_threshold_kg?: number }) => {
+    mutationFn: async (v: { feed_type: string; quantity_kg: number; unit_cost?: number; supplier?: string }) => {
       if (!farm) throw new Error("No farm");
-      const { error } = await supabase.from("feed_stock" as any).upsert({
-        farm_id: farm.id, feed_type: v.feed_type, quantity_kg: v.quantity_kg,
-        unit_cost: v.unit_cost ?? 0, low_threshold_kg: v.low_threshold_kg ?? 10,
-      }, { onConflict: "farm_id,feed_type" });
+      const { error } = await (supabase.rpc("record_feed_stock_purchase" as any, {
+        _farm_id: farm.id, _feed_type: v.feed_type, _quantity_kg: v.quantity_kg,
+        _unit_cost: v.unit_cost ?? 0, _supplier: v.supplier ?? null,
+      }) as any);
       if (error) throw error;
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["feed_stock"] }); toast({ title: "Stock updated" }); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["feed_stock"] });
+      qc.invalidateQueries({ queryKey: ["feed_stock_movements"] });
+      qc.invalidateQueries({ queryKey: ["financial_records"] });
+      toast({ title: "Feed purchase recorded" });
+    },
     onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 }

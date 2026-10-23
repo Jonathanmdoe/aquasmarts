@@ -108,10 +108,14 @@ export function useSubscription() {
     try {
       const { data: cached } = await supabase
         .from("subscribers_cache")
-        .select("plan, subscribed")
+        .select("plan, subscribed, current_period_end")
         .eq("user_id", user.id)
         .maybeSingle();
-      const plan = (cached?.plan ?? "free") as string;
+      // A paid period that has ended is treated as free (same rule as effective_plan()).
+      // A NULL end date is an admin grant with no expiry.
+      const periodEnd = cached?.current_period_end ? new Date(cached.current_period_end).getTime() : null;
+      const lapsed = periodEnd !== null && periodEnd <= Date.now();
+      const plan = (lapsed ? "free" : cached?.plan ?? "free") as string;
       if (plan === "enterprise") adminTier = "enterprise";
       else if (plan === "pro" || plan === "basic") adminTier = "pro";
     } catch (err) {
