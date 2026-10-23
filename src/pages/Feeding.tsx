@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Utensils, Clock, TrendingDown, ChevronRight, Sun, Moon, CheckCircle2, CircleDashed, Package, Plus, X } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { useFeedingLogs, useBatches } from "@/hooks/useFarm";
-import { useFeedStock, useUpsertFeedStock } from "@/hooks/useFinance";
+import { useFeedStock, useFeedStockPurchases, useUpsertFeedStock } from "@/hooks/useFinance";
 import AddFeedingForm from "@/components/forms/AddFeedingForm";
 import FryFeedingTable from "@/components/FryFeedingTable";
 import { format, differenceInDays, isToday } from "date-fns";
@@ -70,11 +70,13 @@ export default function Feeding() {
   const { data: allLogs, isLoading } = useFeedingLogs();
   const { data: batches } = useBatches();
   const { data: stocks } = useFeedStock();
+  const { data: feedPurchases = [] } = useFeedStockPurchases();
   const upsertStock = useUpsertFeedStock();
   const [stockOpen, setStockOpen] = useState(false);
   const [stockType, setStockType] = useState("Powder (fry)");
   const [stockQty, setStockQty] = useState(50);
   const [stockCost, setStockCost] = useState(0);
+  const [stockSupplier, setStockSupplier] = useState("");
   const [feedMode, setFeedMode] = useState<FeedMode>(
     () => (localStorage.getItem("fryFeedMode") as FeedMode) || "table"
   );
@@ -198,22 +200,37 @@ export default function Feeding() {
           )}
           {stockOpen && (
             <form
-              onSubmit={async (e) => { e.preventDefault(); await upsertStock.mutateAsync({ feed_type: stockType, quantity_kg: stockQty, unit_cost: stockCost }); setStockOpen(false); }}
-              className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-border/50"
+              onSubmit={async (e) => { e.preventDefault(); await upsertStock.mutateAsync({ feed_type: stockType, quantity_kg: stockQty, unit_cost: stockCost, supplier: stockSupplier }); setStockOpen(false); setStockSupplier(""); }}
+              className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-border/50"
             >
               <select value={stockType} onChange={e => setStockType(e.target.value)}
-                className="col-span-3 bg-muted/50 border border-border rounded-lg px-2 py-1.5 text-xs">
+                className="col-span-2 bg-muted/50 border border-border rounded-lg px-2 py-1.5 text-xs">
                 <option>Powder (fry)</option>
                 <option>Pellet (brooder)</option>
               </select>
-              <input type="number" step="0.1" placeholder="kg" value={stockQty} onChange={e => setStockQty(Number(e.target.value))}
+              <input required type="number" min="0.1" step="0.1" placeholder="Purchased kg" value={stockQty} onChange={e => setStockQty(Number(e.target.value))}
                 className="bg-muted/50 border border-border rounded-lg px-2 py-1.5 text-xs" />
-              <input type="number" step="1" placeholder="TZS/kg" value={stockCost} onChange={e => setStockCost(Number(e.target.value))}
+              <input required type="number" min="0" step="1" placeholder="TZS/kg" value={stockCost} onChange={e => setStockCost(Number(e.target.value))}
                 className="bg-muted/50 border border-border rounded-lg px-2 py-1.5 text-xs" />
-              <button type="submit" className="bg-primary text-primary-foreground rounded-lg text-xs font-semibold">
-                Save
+              <input placeholder="Supplier (optional)" value={stockSupplier} onChange={e => setStockSupplier(e.target.value)} className="col-span-2 bg-muted/50 border border-border rounded-lg px-2 py-1.5 text-xs" />
+              <p className="col-span-2 text-[10px] text-muted-foreground">Purchased feed is added to stock; its cost is recorded in Finance.</p>
+              <button type="submit" disabled={upsertStock.isPending} className="col-span-2 bg-primary text-primary-foreground rounded-lg py-2 text-xs font-semibold">
+                {upsertStock.isPending ? "Recording…" : "Record feed purchase"}
               </button>
             </form>
+          )}
+          {feedPurchases.length > 0 && (
+            <div className="mt-3 border-t border-border/50 pt-3">
+              <p className="text-[10px] font-semibold text-muted-foreground mb-2">Recent purchases</p>
+              <div className="space-y-1.5">
+                {feedPurchases.slice(0, 5).map((purchase: any) => (
+                  <div key={purchase.id} className="flex items-center justify-between gap-2 text-[10px]">
+                    <span className="truncate">{purchase.feed_type}{purchase.supplier ? ` · ${purchase.supplier}` : ""}</span>
+                    <span className="shrink-0 text-muted-foreground">+{Number(purchase.quantity_kg).toFixed(1)} kg · {new Date(purchase.occurred_at).toLocaleDateString()}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
 

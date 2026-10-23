@@ -99,7 +99,7 @@ serve(async (req) => {
       return json({
         mpesa_number: data?.mpesa_number || "",
         mpesa_account_name: data?.mpesa_account_name || "AquaSmart",
-        auto_approve: data?.mpesa_auto_approve !== false,
+        auto_approve: data?.mpesa_auto_approve === true,
         prices_tzs: {
           basic: planPriceTzs(data, "basic"),
           pro: planPriceTzs(data, "pro"),
@@ -147,7 +147,7 @@ serve(async (req) => {
       let relatedId: string | null = null;
 
       const settings = await loadSettings();
-      const autoApprove = settings?.mpesa_auto_approve !== false;
+      const autoApprove = settings?.mpesa_auto_approve === true;
 
       if (purpose === "subscription") {
         plan = String(body.plan || "");
@@ -199,7 +199,8 @@ serve(async (req) => {
           .select("id");
         if (insErr) throw insErr;
         relatedId = inserted?.[0]?.id ?? null;
-        await supabase.from("marketplace_cart_items").delete().eq("user_id", user.id);
+        // Only this seller's items were ordered; other sellers' items stay in the cart.
+        await supabase.from("marketplace_cart_items").delete().in("id", items.map((i: any) => i.id));
       }
 
       const { error: txErr } = await supabase.from("payment_transactions").insert({

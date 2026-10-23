@@ -42,14 +42,18 @@ Deno.serve(async (req) => {
     const { data: farm } = await admin.from("farms").select("id, user_id, name").eq("id", farm_id).maybeSingle();
     if (!farm) return json({ error: "Farm not found" }, 404);
 
-    let allowed = farm.user_id === user.id;
-    if (!allowed) {
+    let callerRole: "owner" | "manager" | null = farm.user_id === user.id ? "owner" : null;
+    if (!callerRole) {
       const { data: tm } = await admin.from("team_members")
-        .select("role").eq("farm_id", farm_id).eq("user_id", user.id)
+        .select("role").eq("farm_id", farm_id).eq("user_id", user.id).eq("is_active", true)
         .in("role", ["owner", "manager"]).maybeSingle();
-      allowed = !!tm;
+      callerRole = (tm?.role as "owner" | "manager" | undefined) ?? null;
     }
-    if (!allowed) return json({ error: "Not allowed to invite for this farm" }, 403);
+    if (!callerRole) return json({ error: "Not allowed to invite for this farm" }, 403);
+    // Only owners can bring in managers; managers may invite workers.
+    if (role === "manager" && callerRole !== "owner") {
+      return json({ error: "Only the farm owner can invite managers" }, 403);
+    }
 
     // Create invitation row (service role bypasses RLS)
     const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -65,10 +69,11 @@ Deno.serve(async (req) => {
     const join_link = origin ? `${origin.replace(/\/$/, "")}/join?code=${code}` : "";
 
     // Check if a user with this email already exists
-    const { data: existing } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-    const existingUser = existing?.users?.find(
-      (u) => (u.email ?? "").toLowerCase() === email
-    );
+    // profiles mirrors every auth user's email (handle_new_user), so this scales
+    // past the first page of auth users.
+    const { data: existingProfile } = await admin.from("profiles")
+      .select("user_id").ilike("email", email.replace(/[\\%_]/g, "\\$&")).limit(1).maybeSingle();
+    const existingUser = existingProfile ? { id: existingProfile.user_id as string } : null;
 
     if (existingUser) {
       // Add them directly to the team and accept the invitation

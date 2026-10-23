@@ -1,5 +1,15 @@
 # Welcome to your Lovable project
 
+## Build Android APK
+
+On the configured Mac, build the installable debug APK from the project root with:
+
+```sh
+bash scripts/android-apk.sh
+```
+
+The Android project is managed with Capacitor. The local Node.js, JDK, Android SDK, and Gradle cache live in the ignored `.toolchain/` folder. The APK is written to `android/app/build/outputs/apk/debug/app-debug.apk` and is signed with the Android debug key.
+
 ## Project info
 
 **URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID

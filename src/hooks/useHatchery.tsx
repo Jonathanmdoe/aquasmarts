@@ -42,9 +42,32 @@ export interface HatcheryBatch {
   survival_rate: number;
   sold_amount: number;
   restocked_amount: number;
+  transferred_amount: number;
+  sales_sold_amount: number;
   status: string;
   staff: string | null;
   notes: string | null;
+}
+
+export function useTransferHatcheryFry() {
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  return useMutation({
+    mutationFn: async (values: { production_id: string; batch_name: string; pond: string; quantity: number; stock_date: string }) => {
+      const { data, error } = await (supabase.rpc("transfer_hatchery_fry_to_batch" as any, {
+        _production_id: values.production_id, _batch_name: values.batch_name,
+        _pond: values.pond, _quantity: values.quantity, _stock_date: values.stock_date,
+      }) as any);
+      if (error) throw error;
+      return data as string;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["hatchery_production"] });
+      qc.invalidateQueries({ queryKey: ["batches"] });
+      toast({ title: "Fry transferred to grow-out" });
+    },
+    onError: (e: Error) => toast({ title: "Could not transfer fry", description: e.message, variant: "destructive" }),
+  });
 }
 
 export function useHatcheryPonds() {

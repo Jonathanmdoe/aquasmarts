@@ -18,6 +18,10 @@ import Index from "./pages/Index";
 
 const Enterprise = lazy(() => import("./pages/Enterprise"));
 const Sales = lazy(() => import("./pages/Sales"));
+const Inventory = lazy(() => import("./pages/Inventory"));
+const Customers = lazy(() => import("./pages/Customers"));
+const Activities = lazy(() => import("./pages/Activities"));
+const Reports = lazy(() => import("./pages/Reports"));
 const Batches = lazy(() => import("./pages/Batches"));
 const Growth = lazy(() => import("./pages/Growth"));
 const Hatchery = lazy(() => import("./pages/Hatchery"));
@@ -137,6 +141,10 @@ function AppRoutes() {
       <Route path="/admin" element={<ProtectedRoute><OwnerRoute><MobileLayout><Admin /></MobileLayout></OwnerRoute></ProtectedRoute>} />
       <Route path="/enterprise" element={<ProtectedRoute><EnterpriseRoute><MobileLayout><Enterprise /></MobileLayout></EnterpriseRoute></ProtectedRoute>} />
       <Route path="/sales" element={<ProtectedRoute><RoleRoute allow={["owner","manager"]}><MobileLayout><Sales /></MobileLayout></RoleRoute></ProtectedRoute>} />
+      <Route path="/inventory" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Inventory /></MobileLayout></RoleRoute></ProtectedRoute>} />
+      <Route path="/customers" element={<ProtectedRoute><RoleRoute allow={["owner","manager"]}><MobileLayout><Customers /></MobileLayout></RoleRoute></ProtectedRoute>} />
+      <Route path="/activities" element={<ProtectedRoute><RoleRoute allow={["owner","manager","worker"]}><MobileLayout><Activities /></MobileLayout></RoleRoute></ProtectedRoute>} />
+      <Route path="/reports" element={<ProtectedRoute><RoleRoute allow={["owner","manager"]}><MobileLayout><Reports /></MobileLayout></RoleRoute></ProtectedRoute>} />
       <Route path="/notifications" element={<ProtectedRoute><MobileLayout><Notifications /></MobileLayout></ProtectedRoute>} />
       <Route path="/security" element={<ProtectedRoute><MobileLayout><Security /></MobileLayout></ProtectedRoute>} />
       <Route path="/help" element={<ProtectedRoute><MobileLayout><HelpSupport /></MobileLayout></ProtectedRoute>} />

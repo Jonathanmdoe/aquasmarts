@@ -28,6 +28,7 @@ export default function Batches() {
     daysActive: Math.floor((Date.now() - new Date(b.stock_date).getTime()) / 86400000),
     status: b.status as BatchData["status"],
     pond: b.pond ?? "—",
+    source: (b as any).source_hatchery_production_id ? "hatchery" : null,
   }));
 
   const editingBatch = rawBatches?.find((b) => b.id === editId) ?? null;

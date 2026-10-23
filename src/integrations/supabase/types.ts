@@ -523,6 +523,8 @@ export type Database = {
           survival_rate: number
           total_collection: number
           total_graded: number
+          transferred_amount: number
+          sales_sold_amount: number
           updated_at: string
         }
         Insert: {
@@ -542,6 +544,8 @@ export type Database = {
           survival_rate?: number
           total_collection?: number
           total_graded?: number
+          transferred_amount?: number
+          sales_sold_amount?: number
           updated_at?: string
         }
         Update: {
@@ -561,6 +565,8 @@ export type Database = {
           survival_rate?: number
           total_collection?: number
           total_graded?: number
+          transferred_amount?: number
+          sales_sold_amount?: number
           updated_at?: string
         }
         Relationships: [
@@ -1548,6 +1554,8 @@ export type Database = {
       }
       subscribers_cache: {
         Row: {
+          current_period_end: string | null
+          current_period_start: string | null
           mtd_spend_cents: number
           plan: string
           subscribed: boolean
@@ -1557,6 +1565,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          current_period_end?: string | null
+          current_period_start?: string | null
           mtd_spend_cents?: number
           plan?: string
           subscribed?: boolean
@@ -1566,6 +1576,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          current_period_end?: string | null
+          current_period_start?: string | null
           mtd_spend_cents?: number
           plan?: string
           subscribed?: boolean

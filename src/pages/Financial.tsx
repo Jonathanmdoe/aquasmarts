@@ -26,7 +26,7 @@ const COUNTRIES = [
   { code: "NO", name: "Norway", vat: 25, income: 22 },
   { code: "US", name: "United States", vat: 0, income: 21 },
 ];
-const COST_CATEGORIES = ["feed", "labor", "equipment", "medication", "transport", "other"];
+const COST_CATEGORIES = ["feed", "inventory", "labor", "equipment", "medication", "transport", "other"];
 const BENCHMARK_MARGIN = 35;
 
 export default function Financial() {

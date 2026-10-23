@@ -1086,10 +1086,10 @@ function SettingsTab({ settings, onAction }: any) {
           <div className="pr-3">
             <p className="text-xs font-medium">Auto-approve payments</p>
             <p className="text-[11px] text-muted-foreground">
-              Activate the plan or order as soon as the buyer submits their M-Pesa code. Turn off to review each one first.
+              Activate the plan or order as soon as the buyer submits their M-Pesa code. Codes are NOT checked against M-Pesa, so leave this off and review each payment unless you accept that risk.
             </p>
           </div>
-          <Switch checked={s.mpesa_auto_approve !== false} onCheckedChange={(v) => toggleField("mpesa_auto_approve", v)} />
+          <Switch checked={s.mpesa_auto_approve === true} onCheckedChange={(v) => toggleField("mpesa_auto_approve", v)} />
         </div>
       </div>
 

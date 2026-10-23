@@ -2,11 +2,12 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   Shield, CreditCard, Crown, Bell, Lock, HelpCircle,
-  ClipboardList, Settings as SettingsIcon, Sparkles, ShoppingBag,
+  ClipboardList, Settings as SettingsIcon, Sparkles, ShoppingBag, Boxes, Contact, FileBarChart,
   Heart, Droplets, Utensils, ChevronRight, DollarSign, ShoppingCart, Fish, LineChart, Egg,
 } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useI18n } from "@/i18n";
+import { useFarm } from "@/hooks/useFarm";
 
 type Item = {
   icon: any;
@@ -39,6 +40,8 @@ const ALL_ITEMS: { titleKey: string; items: Item[] }[] = [
       { icon: DollarSign, labelKey: "more.finance", descKey: "more.finance.desc", to: "/financial", tint: "bg-emerald-600/10 text-emerald-700", allow: ["owner","manager"] },
       { icon: ShoppingCart, labelKey: "more.marketplace", descKey: "more.marketplace.desc", to: "/marketplace", tint: "bg-sky-500/10 text-sky-600", allow: ["owner","manager"] },
       { icon: ClipboardList, labelKey: "more.sales", descKey: "more.sales.desc", to: "/sales", tint: "bg-emerald-500/10 text-emerald-600", allow: ["owner","manager"] },
+      { icon: Contact, labelKey: "more.customers", descKey: "more.customers.desc", to: "/customers", tint: "bg-cyan-500/10 text-cyan-600", allow: ["owner","manager"] },
+      { icon: FileBarChart, labelKey: "more.reports", descKey: "more.reports.desc", to: "/reports", tint: "bg-violet-500/10 text-violet-600", allow: ["owner","manager"] },
       { icon: ShoppingBag, labelKey: "more.listings", descKey: "more.listings.desc", to: "/my-listings", tint: "bg-sky-500/10 text-sky-600", allow: ["owner","manager"] },
       { icon: Sparkles, labelKey: "more.ai", descKey: "more.ai.desc", to: "/ai-predictions", tint: "bg-violet-500/10 text-violet-600", allow: ["owner","manager"] },
     ],
@@ -47,6 +50,8 @@ const ALL_ITEMS: { titleKey: string; items: Item[] }[] = [
     titleKey: "more.section.farm",
     items: [
       { icon: Egg, labelKey: "more.hatchery", descKey: "more.hatchery.desc", to: "/hatchery", tint: "bg-amber-500/10 text-amber-600", allow: ["owner","manager","worker"] },
+      { icon: Boxes, labelKey: "more.inventory", descKey: "more.inventory.desc", to: "/inventory", tint: "bg-orange-500/10 text-orange-600", allow: ["owner","manager","worker"] },
+      { icon: ClipboardList, labelKey: "more.activities", descKey: "more.activities.desc", to: "/activities", tint: "bg-teal-500/10 text-teal-600", allow: ["owner","manager","worker"] },
       { icon: LineChart, labelKey: "more.growth", descKey: "more.growth.desc", to: "/growth", tint: "bg-indigo-500/10 text-indigo-600", allow: ["owner","manager","worker"] },
       { icon: Droplets, labelKey: "more.water", descKey: "more.water.desc", to: "/water", tint: "bg-cyan-500/10 text-cyan-600", allow: ["owner","manager","worker"] },
       { icon: Utensils, labelKey: "more.feeding", descKey: "more.feeding.desc", to: "/feeding", tint: "bg-orange-500/10 text-orange-600", allow: ["owner","manager","worker"] },
@@ -66,6 +71,7 @@ const ALL_ITEMS: { titleKey: string; items: Item[] }[] = [
 export default function More() {
   const navigate = useNavigate();
   const { primaryRole, isSuperAdmin, loading } = useUserRole();
+  const { data: farm } = useFarm();
   const { t } = useI18n();
 
   if (loading) {
@@ -80,7 +86,7 @@ export default function More() {
     "super_admin" | "owner" | "manager" | "worker";
 
   const sections = ALL_ITEMS
-    .map((s) => ({ ...s, items: s.items.filter((i) => i.allow.includes(role)) }))
+    .map((s) => ({ ...s, items: s.items.filter((i) => i.allow.includes(role) && (i.to !== "/hatchery" || farm?.operation_type === "hatchery" || farm?.operation_type === "integrated")) }))
     .filter((s) => s.items.length > 0);
 
   return (

@@ -35,7 +35,7 @@ serve(async (req) => {
     if (cartErr) throw cartErr;
     if (!cart || cart.length === 0) throw new Error("Cart is empty");
 
-    // For simplicity, single-seller checkout: group by seller; if multiple sellers, take first.
+    // Single-seller checkout: group by seller and check out the first seller's items.
     type CartRow = typeof cart[number];
     const sellerGroups: Record<string, CartRow[]> = {};
     for (const item of cart as any[]) {
@@ -57,7 +57,8 @@ serve(async (req) => {
     // Build line items
     const lineItems = items.map((i: any) => ({
       price_data: {
-        currency: "usd", // TZS not supported by Stripe Checkout; UI shows TZS, charge in USD-equivalent integer cents
+        // Listing prices are TZS; Stripe treats TZS as two-decimal, so price x 100 is the minor-unit amount.
+        currency: "tzs",
         product_data: { name: i.listing.title, description: `${i.listing.unit || ""} x ${i.quantity}` },
         unit_amount: Math.round(Number(i.listing.price) * 100),
       },
@@ -65,7 +66,7 @@ serve(async (req) => {
     }));
 
     const subtotal = items.reduce((s: number, i: any) => s + Number(i.listing.price) * Number(i.quantity), 0);
-    const platformFee = Math.round(subtotal * PLATFORM_FEE_RATE * 100); // cents
+    const platformFee = Math.round(subtotal * PLATFORM_FEE_RATE * 100); // TZS minor units
 
     const origin = req.headers.get("origin") || "http://localhost:3000";
 
@@ -112,8 +113,8 @@ serve(async (req) => {
     const { error: insErr } = await supabase.from("marketplace_orders").insert(orderRows);
     if (insErr) throw insErr;
 
-    // Clear cart
-    await supabase.from("marketplace_cart_items").delete().eq("user_id", user.id);
+    // Clear only the items ordered here; other sellers' items stay in the cart.
+    await supabase.from("marketplace_cart_items").delete().in("id", items.map((i: any) => i.id));
 
     // Notify seller
     await supabase.from("marketplace_notifications").insert({
