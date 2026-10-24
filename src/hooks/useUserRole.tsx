@@ -74,6 +74,9 @@ export function RoleProvider({ children }: { children: ReactNode }) {
 
     return () => {
       active = false;
+      // Let the next run refetch; otherwise a re-render mid-request (e.g. auth
+      // emitting a new user object) discards the result and loading never ends.
+      fetchedFor.current = null;
     };
   }, [user, authLoading]);
 
