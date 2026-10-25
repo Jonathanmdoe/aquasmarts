@@ -34,7 +34,7 @@ export default function JoinFarm() {
       toast({ title: "Could not join farm", description: err, variant: "destructive" });
     } else {
       sessionStorage.removeItem("aquasmart.pendingInvite");
-      sessionStorage.removeItem(`aquasmart.roles.${user?.id}`);
+      localStorage.removeItem(`aquasmart.roles.${user?.id}`);
       setJoined({ farm_name: (data as any).farm_name, role: (data as any).role });
     }
     setSubmitting(false);

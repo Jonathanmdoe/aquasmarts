@@ -26,3 +26,9 @@ android/local.properties
 *.njsproj
 *.sln
 *.sw?
+
+# Release signing key: never commit, back it up safely
+android/keystore/
+android/keystore.properties
+*.jks
+*.keystore

@@ -12,4 +12,9 @@ export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-t
 cd "$AQUASMART_ROOT"
 "$AQUASMART_TOOLCHAIN/node/bin/npm" run android:sync
 cd "$AQUASMART_ROOT/android"
-./gradlew :app:assembleDebug --console=plain
+# `release` builds the signed APK for sharing; anything else builds the debug APK.
+if [ "${1:-debug}" = "release" ]; then
+  ./gradlew :app:assembleRelease --console=plain
+else
+  ./gradlew :app:assembleDebug --console=plain
+fi
