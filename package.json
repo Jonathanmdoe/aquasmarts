@@ -9,6 +9,7 @@
     "build:dev": "vite build --mode development",
     "android:sync": "npm run build && cap sync android",
     "android:apk": "bash scripts/android-apk.sh",
+    "android:release": "bash scripts/android-apk.sh release",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
