@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -22,9 +22,11 @@ const PRECEDENCE: AppRole[] = [
 
 const cacheKey = (userId: string) => `aquasmart.roles.${userId}`;
 
+// localStorage (not sessionStorage) so the cache survives the Android app being
+// closed: relaunch shows the right home instantly, even offline.
 function readCache(userId: string): AppRole[] | null {
   try {
-    const raw = sessionStorage.getItem(cacheKey(userId));
+    const raw = localStorage.getItem(cacheKey(userId));
     return raw ? (JSON.parse(raw) as AppRole[]) : null;
   } catch {
     return null;
@@ -38,44 +40,50 @@ const RoleContext = createContext<RoleState | undefined>(undefined);
 export function RoleProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const [state, setState] = useState<RoleState>({ roles: [], loading: true });
-  const fetchedFor = useRef<string | null>(null);
+  // Keyed on the id, not the user object: on startup Supabase reports the restored
+  // session twice (onAuthStateChange + getSession) as different objects, and
+  // re-running on that used to discard the in-flight fetch and spin forever.
+  const userId = user?.id ?? null;
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user) {
-      fetchedFor.current = null;
+    if (!userId) {
       setState({ roles: [], loading: false });
       return;
     }
 
     // Instant hydration from cache so navigation never flashes the wrong UI.
-    const cached = readCache(user.id);
-    if (cached) setState({ roles: cached, loading: false });
-    else setState((s) => ({ ...s, loading: true }));
-
-    if (fetchedFor.current === user.id) return;
-    fetchedFor.current = user.id;
+    const cached = readCache(userId);
+    setState(cached ? { roles: cached, loading: false } : { roles: [], loading: true });
 
     let active = true;
+    const done = (roles: AppRole[] | null) => {
+      if (!active) return;
+      // On failure keep whatever we had rather than spinning forever.
+      setState({ roles: roles ?? cached ?? [], loading: false });
+    };
     supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", user.id)
-      .then(({ data }) => {
-        if (!active) return;
-        const roles = (data ?? []).map((r: any) => r.role as AppRole);
-        try {
-          sessionStorage.setItem(cacheKey(user.id), JSON.stringify(roles));
-        } catch {
-          /* ignore */
-        }
-        setState({ roles, loading: false });
-      });
+      .eq("user_id", userId)
+      .then(
+        ({ data, error }) => {
+          if (error) return done(null);
+          const roles = (data ?? []).map((r: any) => r.role as AppRole);
+          try {
+            localStorage.setItem(cacheKey(userId), JSON.stringify(roles));
+          } catch {
+            /* ignore */
+          }
+          done(roles);
+        },
+        () => done(null),
+      );
 
     return () => {
       active = false;
     };
-  }, [user, authLoading]);
+  }, [userId, authLoading]);
 
   return <RoleContext.Provider value={state}>{children}</RoleContext.Provider>;
 }
